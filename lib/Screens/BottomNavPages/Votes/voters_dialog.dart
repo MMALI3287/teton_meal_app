@@ -18,7 +18,6 @@ class _VotersDialogState extends State<VotersDialog> {
           .collection('polls')
           .doc(widget.pollData.id);
 
-      // Remove the vote for the user from the option
       await pollRef.update({
         'votes.$option': FieldValue.arrayRemove([voterId])
       });
@@ -76,13 +75,10 @@ class _VotersDialogState extends State<VotersDialog> {
                         title: Text(option),
                         subtitle: Text('${optionVotes.length} votes'),
                         children: optionVotes.map<Widget>((voterId) {
-                          // Fetch voter details from Firestore using the authentication UID
                           return FutureBuilder<DocumentSnapshot>(
                             future: FirebaseFirestore.instance
-                                .collection(
-                                    'users') // Access the `users` collection
-                                .doc(
-                                    voterId) // Use the voter's UID as the document ID
+                                .collection('users')
+                                .doc(voterId)
                                 .get(),
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) {
@@ -91,11 +87,9 @@ class _VotersDialogState extends State<VotersDialog> {
                                 );
                               }
 
-                              // Retrieve user details from Firestore
                               var userData = snapshot.data!.data()
                                   as Map<String, dynamic>?;
 
-                              // Handle cases where user data might not exist
                               String displayName = userData?['displayName'] ??
                                   userData?['email'] ??
                                   'Unknown User';

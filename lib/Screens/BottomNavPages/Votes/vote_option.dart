@@ -26,7 +26,6 @@ class VoteOption extends StatelessWidget {
     try {
       final userId = user.uid;
 
-      // Find the current option the user has voted for, if any
       String? previousOption;
       for (var entry in allVotes.entries) {
         if ((entry.value as List?)?.contains(userId) ?? false) {
@@ -37,25 +36,21 @@ class VoteOption extends StatelessWidget {
 
       final hasVotedThisOption = previousOption == option;
 
-      // Update the votes in Firestore
       final pollRef =
           FirebaseFirestore.instance.collection('polls').doc(pollId);
       final batch = FirebaseFirestore.instance.batch();
 
       if (hasVotedThisOption) {
-        // Withdraw vote if the user clicks the same option again
         batch.update(pollRef, {
           'votes.$option': FieldValue.arrayRemove([userId])
         });
       } else {
-        // Remove the previous vote, if any
         if (previousOption != null) {
           batch.update(pollRef, {
             'votes.$previousOption': FieldValue.arrayRemove([userId])
           });
         }
 
-        // Register the new vote
         batch.update(pollRef, {
           'votes.$option': FieldValue.arrayUnion([userId])
         });

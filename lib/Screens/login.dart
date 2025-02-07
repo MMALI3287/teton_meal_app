@@ -1,10 +1,8 @@
-// filepath: /D:/Set/Personal/Office/Flutter/teton_meal_app/lib/Screens/login.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/Screens/Navbar.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
-import 'package:teton_meal_app/Screens/Diner.dart';
 import 'package:teton_meal_app/Screens/Register.dart';
 
 class LoginPage extends StatefulWidget {
@@ -245,11 +243,18 @@ class _LoginPageState extends State<LoginPage> {
               builder: (context) => Navbar(),
             ),
           );
+        } else if (documentSnapshot.get('role') == "Admin") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Navbar(),
+            ),
+          );
         } else {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => Diner(),
+              builder: (context) => Navbar(),
             ),
           );
         }

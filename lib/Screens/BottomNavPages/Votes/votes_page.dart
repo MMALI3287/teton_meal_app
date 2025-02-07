@@ -1,4 +1,3 @@
-// votes_page.dart
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -13,12 +12,10 @@ class VotesPage extends StatelessWidget {
 
   Future<QueryDocumentSnapshot?> _getLatestDeactivatedPoll() async {
     try {
-      // Fetch the most recent deactivated poll (isActive: false)
       final snapshot = await FirebaseFirestore.instance
           .collection('polls')
           .where('isActive', isEqualTo: false)
-          .orderBy('createdAt',
-              descending: true) // Assuming 'date' is a field with the timestamp
+          .orderBy('createdAt', descending: true)
           .limit(1)
           .get();
       if (snapshot.docs.isNotEmpty) {
@@ -27,17 +24,15 @@ class VotesPage extends StatelessWidget {
     } catch (e) {
       print("Error fetching deactivated poll: $e");
     }
-    return null; // Return null if no poll is found
+    return null;
   }
 
   Future<Uint8List> _generateTokenImage(
       Map<String, dynamic> pollData, String userId) async {
-    // Get the user's vote from the poll
     final options = List<String>.from(pollData['options'] ?? []);
     final votes = pollData['votes'] as Map<String, dynamic>? ?? {};
 
-    // Find the option the user voted for
-    String selectedOption = "No vote"; // Default message if no vote found
+    String selectedOption = "No vote";
     for (var option in options) {
       if ((votes[option] as List?)?.contains(userId) == true) {
         selectedOption = option;
@@ -45,7 +40,6 @@ class VotesPage extends StatelessWidget {
       }
     }
 
-    // Create an image (as a placeholder, we'll use a simple text-based image)
     final recorder = PictureRecorder();
     final canvas =
         Canvas(recorder, Rect.fromPoints(Offset(0, 0), Offset(400, 400)));
@@ -75,7 +69,7 @@ class VotesPage extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: const Text('Your Vote Token'),
-          content: Image.memory(imageData), // Show the generated token image
+          content: Image.memory(imageData),
           actions: [
             TextButton(
               onPressed: () {
@@ -99,10 +93,10 @@ class VotesPage extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('polls')
             .where('isActive', isEqualTo: true)
-            .snapshots(), // Removed orderBy temporarily for testing
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            print('Error in StreamBuilder: ${snapshot.error}'); // Debug print
+            print('Error in StreamBuilder: ${snapshot.error}');
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
@@ -121,11 +115,11 @@ class VotesPage extends StatelessWidget {
             itemBuilder: (context, index) {
               try {
                 final poll = polls[index];
-                // Safely access data with null checks
+
                 return PollCard(pollData: poll);
               } catch (e) {
-                print('Error building poll card: $e'); // Debug print
-                return const SizedBox(); // Skip invalid polls
+                print('Error building poll card: $e');
+                return const SizedBox();
               }
             },
           );
@@ -133,11 +127,9 @@ class VotesPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          // Fetch the latest deactivated poll
           final pollData = await _getLatestDeactivatedPoll();
 
           if (pollData != null) {
-            // Get the current user
             final userId = FirebaseAuth.instance.currentUser?.uid;
             if (userId == null) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -147,11 +139,9 @@ class VotesPage extends StatelessWidget {
               return;
             }
 
-            // Generate the token image for the current user
             final imageData = await _generateTokenImage(
                 pollData.data() as Map<String, dynamic>, userId);
 
-            // Show the token image in a dialog
             _showTokenDialog(context, imageData);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -173,7 +163,6 @@ class PollCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     try {
-      // Safely access data with null checks
       final data = pollData.data() as Map<String, dynamic>;
       final createdBy = data['createdBy'] as Map<String, dynamic>? ?? {};
       final options = List<String>.from(data['options'] ?? []);
@@ -186,7 +175,6 @@ class PollCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Poll creator and date
               Row(
                 children: [
                   CircleAvatar(
@@ -215,13 +203,11 @@ class PollCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 16),
-              // Options list
-              // Inside PollCard build method, replace the options mapping with:
               ...options
                   .map((option) => VoteOption(
                         option: option,
                         pollId: pollData.id,
-                        allVotes: votes, // Pass the entire votes map
+                        allVotes: votes,
                       ))
                   .toList(),
             ],
@@ -229,7 +215,7 @@ class PollCard extends StatelessWidget {
         ),
       );
     } catch (e) {
-      print('Error in PollCard: $e'); // Debug print
+      print('Error in PollCard: $e');
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(16),

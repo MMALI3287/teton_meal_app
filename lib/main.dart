@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:teton_meal_app/Screens/Navbar.dart';
-import 'package:teton_meal_app/Screens/Diner.dart';
 import 'package:teton_meal_app/Screens/login.dart';
 import 'package:teton_meal_app/firebase_options.dart';
 
@@ -54,14 +53,15 @@ class AuthCheck extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               } else if (userSnapshot.hasData) {
                 final userRole = userSnapshot.data!.get('role');
-                if (userRole == 'Planner') {
+                if (userRole == 'Planner' ||
+                    userRole == 'Admin' ||
+                    userRole == 'Diner') {
                   return Navbar();
-                } else {
-                  return Diner();
                 }
               } else {
                 return const LoginPage();
               }
+              return const LoginPage();
             },
           );
         } else {

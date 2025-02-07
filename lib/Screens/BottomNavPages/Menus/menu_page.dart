@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:teton_meal_app/Screens/BottomNavPages/Votes/voters_dialog.dart';
 import 'package:intl/intl.dart';
 
 class MenusPage extends StatefulWidget {
@@ -15,6 +14,8 @@ class MenusPage extends StatefulWidget {
 class _MenusPageState extends State<MenusPage> {
   bool _isGridView = true;
   final Map<String, bool> _expandedCategories = {};
+  Map<DateTime, List<QueryDocumentSnapshot>> _events = {};
+  DateTime _selectedDay = DateTime.now();
 
   void _toggleView() {
     setState(() {
@@ -86,7 +87,6 @@ class _MenusPageState extends State<MenusPage> {
           categorizedPolls[year]![month]!.add(poll);
         }
 
-        // Get current year and month
         final now = DateTime.now();
         final currentYear = now.year.toString();
         final currentMonth = DateFormat('MMMM').format(now);
@@ -96,12 +96,13 @@ class _MenusPageState extends State<MenusPage> {
           children: categorizedPolls.entries.map((yearEntry) {
             return ExpansionTile(
               title: Text(yearEntry.key),
+              initiallyExpanded: yearEntry.key == currentYear,
               children: yearEntry.value.entries.map((monthEntry) {
                 final category = '${yearEntry.key}-${monthEntry.key}';
                 return ExpansionTile(
                   title: Text(monthEntry.key),
-                  initiallyExpanded: category ==
-                      currentCategory, // Expand current month by default
+                  initiallyExpanded: _expandedCategories[category] ??
+                      category == currentCategory,
                   onExpansionChanged: (expanded) => _toggleCategory(category),
                   children: monthEntry.value.map((poll) {
                     return MenuPollCard(pollData: poll);
@@ -131,45 +132,69 @@ class _MenusPageState extends State<MenusPage> {
         }
 
         final polls = snapshot.data!.docs;
-        final Map<DateTime, List<QueryDocumentSnapshot>> events = {};
+        _events = {};
 
         for (var poll in polls) {
           final date = DateTime.parse(poll['date']);
           final day = DateTime(date.year, date.month, date.day);
-          if (!events.containsKey(day)) {
-            events[day] = [];
+          if (!_events.containsKey(day)) {
+            _events[day] = [];
           }
-          events[day]!.add(poll);
+          _events[day]!.add(poll);
         }
 
-        return TableCalendar(
-          firstDay: DateTime.utc(2020, 1, 1),
-          lastDay: DateTime.utc(2030, 12, 31),
-          focusedDay: DateTime.now(),
-          eventLoader: (day) => events[day] ?? [],
-          calendarStyle: const CalendarStyle(
-            markerDecoration: BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
-            ),
-          ),
-          onDaySelected: (selectedDay, focusedDay) {
-            if (events[selectedDay] != null &&
-                events[selectedDay]!.isNotEmpty) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      PollsByDatePage(polls: events[selectedDay]!),
+        return Column(
+          children: [
+            TableCalendar(
+              firstDay: DateTime.utc(2020, 1, 1),
+              lastDay: DateTime.utc(2030, 12, 31),
+              focusedDay: _selectedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              eventLoader: (day) => _events[day] ?? [],
+              calendarStyle: const CalendarStyle(
+                markerDecoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
                 ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('No polls for this date')),
-              );
-            }
-          },
+              ),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                });
+              },
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                leftChevronIcon: Icon(Icons.chevron_left, color: Colors.white),
+                rightChevronIcon:
+                    Icon(Icons.chevron_right, color: Colors.white),
+              ),
+              availableCalendarFormats: const {
+                CalendarFormat.month: 'Month',
+                CalendarFormat.twoWeeks: '2 weeks',
+                CalendarFormat.week: 'Week',
+              },
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: _buildPollsListForSelectedDay(),
+            ),
+          ],
         );
+      },
+    );
+  }
+
+  Widget _buildPollsListForSelectedDay() {
+    final polls = _events[_selectedDay] ?? [];
+    if (polls.isEmpty) {
+      return const Center(child: Text('No polls for this date'));
+    }
+
+    return ListView.builder(
+      itemCount: polls.length,
+      itemBuilder: (context, index) {
+        return MenuPollCard(pollData: polls[index]);
       },
     );
   }
@@ -280,13 +305,70 @@ class MenuPollCard extends StatelessWidget {
   }
 }
 
-class PollVotesPage extends StatelessWidget {
+class PollVotesPage extends StatefulWidget {
   final QueryDocumentSnapshot pollData;
 
   const PollVotesPage({super.key, required this.pollData});
 
   @override
+  _PollVotesPageState createState() => _PollVotesPageState();
+}
+
+class _PollVotesPageState extends State<PollVotesPage> {
+  DocumentSnapshot? pollSnapshot;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPollData();
+  }
+
+  Future<void> _fetchPollData() async {
+    pollSnapshot = await FirebaseFirestore.instance
+        .collection('polls')
+        .doc(widget.pollData.id)
+        .get();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _removeVote(
+      BuildContext context, String voterId, String option) async {
+    try {
+      final pollRef = FirebaseFirestore.instance
+          .collection('polls')
+          .doc(widget.pollData.id);
+
+      await pollRef.update({
+        'votes.$option': FieldValue.arrayRemove([voterId])
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vote removed successfully')),
+      );
+
+      await _fetchPollData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error removing vote: $e')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (pollSnapshot == null) {
+      return const Center(child: Text('Error loading poll data'));
+    }
+
+    final votes = pollSnapshot!['votes'] as Map<String, dynamic>;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Votes'),
@@ -295,14 +377,47 @@ class PollVotesPage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            pollData['question'],
+            pollSnapshot!['question'],
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
-          ...pollData['votes'].entries.map((entry) {
-            return ListTile(
-              title: Text(entry.key),
-              subtitle: Text(entry.value),
+          ...votes.entries.map((entry) {
+            String option = entry.key;
+            List<dynamic> optionVotes = entry.value;
+
+            return ExpansionTile(
+              title: Text(option),
+              subtitle: Text('${optionVotes.length} votes'),
+              children: optionVotes.map<Widget>((voterId) {
+                return FutureBuilder<DocumentSnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(voterId)
+                      .get(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const ListTile(
+                        title: Text('Loading...'),
+                      );
+                    }
+
+                    var userData =
+                        snapshot.data!.data() as Map<String, dynamic>?;
+                    String displayName = userData?['displayName'] ??
+                        userData?['email'] ??
+                        'Unknown User';
+
+                    return ListTile(
+                      leading: const Icon(Icons.person),
+                      title: Text(displayName),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.remove_circle_outline),
+                        onPressed: () => _removeVote(context, voterId, option),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
             );
           }).toList(),
         ],
@@ -354,7 +469,6 @@ class CreatePollDialogState extends State<CreatePollDialog> {
           _selectedTime.minute);
       final endTimeMillis = endTime.millisecondsSinceEpoch;
 
-      // Get the final options list, replacing 'Custom' with actual custom text
       final List<String> finalOptions = _selectedMeals.map((meal) {
         if (meal == 'Custom') {
           int index = _getCustomControllerIndex(_selectedMeals.indexOf(meal));
@@ -584,7 +698,7 @@ class EditPollDialogState extends State<EditPollDialog> {
   @override
   void initState() {
     super.initState();
-    // Initialize the controllers with current poll data
+
     _questionController =
         TextEditingController(text: widget.pollData['question']);
     _optionControllers = List.generate(
@@ -594,7 +708,6 @@ class EditPollDialogState extends State<EditPollDialog> {
       ),
     );
 
-    // Initialize the selected time with the current poll end time
     final endTimeMillis = widget.pollData['endTimeMillis'] as int;
     final endTime = DateTime.fromMillisecondsSinceEpoch(endTimeMillis);
     _selectedTime = TimeOfDay(hour: endTime.hour, minute: endTime.minute);
@@ -604,13 +717,11 @@ class EditPollDialogState extends State<EditPollDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      // Calculate the end time in milliseconds since epoch
       final now = DateTime.now();
       final endTime = DateTime(now.year, now.month, now.day, _selectedTime.hour,
           _selectedTime.minute);
       final endTimeMillis = endTime.millisecondsSinceEpoch;
 
-      // Update the poll document in Firestore
       await FirebaseFirestore.instance
           .collection('polls')
           .doc(widget.pollData.id)
@@ -618,7 +729,7 @@ class EditPollDialogState extends State<EditPollDialog> {
         'question': _questionController.text,
         'options':
             _optionControllers.map((controller) => controller.text).toList(),
-        'endTimeMillis': endTimeMillis, // Update end time in milliseconds
+        'endTimeMillis': endTimeMillis,
       });
 
       if (context.mounted) {

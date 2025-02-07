@@ -32,6 +32,7 @@ class _RegisterState extends State<Register> {
   var options = [
     'Planner',
     'Diner',
+    'Admin',
   ];
   var _currentItemSelected = "Diner";
   var role = "Diner";

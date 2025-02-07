@@ -14,11 +14,14 @@ class _AccountsPageState extends State<AccountsPage> {
   final _formKey = GlobalKey<FormState>();
   User? user;
 
-  // Text controllers
   TextEditingController? _nameController;
   TextEditingController? _emailController;
+  TextEditingController? _passwordController;
+  TextEditingController? _confirmPasswordController;
   bool _isEditing = false;
-  bool _isLoading = true; // Track loading state
+  bool _isLoading = true;
+  bool _isObscure = true;
+  bool _isObscure2 = true;
 
   @override
   void initState() {
@@ -28,18 +31,17 @@ class _AccountsPageState extends State<AccountsPage> {
 
   Future<void> _loadUserData() async {
     try {
-      // Fetch the latest user data
       user = FirebaseAuth.instance.currentUser;
-      await user
-          ?.reload(); // Refresh the user's data from Firebase Authentication
+      await user?.reload();
       user = FirebaseAuth.instance.currentUser;
 
-      // Initialize controllers with the latest user data
       _nameController = TextEditingController(text: user?.displayName ?? '');
       _emailController = TextEditingController(text: user?.email ?? '');
+      _passwordController = TextEditingController();
+      _confirmPasswordController = TextEditingController();
     } finally {
       setState(() {
-        _isLoading = false; // Stop loading
+        _isLoading = false;
       });
     }
   }
@@ -48,13 +50,14 @@ class _AccountsPageState extends State<AccountsPage> {
   void dispose() {
     _nameController?.dispose();
     _emailController?.dispose();
+    _passwordController?.dispose();
+    _confirmPasswordController?.dispose();
     super.dispose();
   }
 
   Future<void> _saveChanges() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Show loading indicator
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -62,43 +65,38 @@ class _AccountsPageState extends State<AccountsPage> {
               const Center(child: CircularProgressIndicator()),
         );
 
-        // Update user profile in Firebase Authentication
         await user?.updateDisplayName(_nameController?.text ?? '');
         if (user?.email != _emailController?.text) {
           await user?.updateEmail(_emailController?.text ?? '');
         }
 
-        // Save the updated name and email to Firestore
-        await FirebaseFirestore.instance
-            .collection('users') // Users collection
-            .doc(user?.uid) // Use the user's UID as the document ID
-            .set(
+        if (_passwordController?.text.isNotEmpty ?? false) {
+          await user?.updatePassword(_passwordController?.text ?? '');
+        }
+
+        await FirebaseFirestore.instance.collection('users').doc(user?.uid).set(
           {
-            'displayName': _nameController?.text ?? '', // Update the name
-            'email': _emailController?.text ?? '', // Update the email
+            'displayName': _nameController?.text ?? '',
+            'email': _emailController?.text ?? '',
           },
-          SetOptions(merge: true), // Merge with existing fields
+          SetOptions(merge: true),
         );
 
-        await user?.reload(); // Refresh user data after update
+        await user?.reload();
         user = FirebaseAuth.instance.currentUser;
 
-        // Hide loading indicator
         Navigator.pop(context);
 
         setState(() {
           _isEditing = false;
         });
 
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully')),
         );
       } catch (e) {
-        // Hide loading indicator
         Navigator.pop(context);
 
-        // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error updating profile: ${e.toString()}')),
         );
@@ -108,7 +106,6 @@ class _AccountsPageState extends State<AccountsPage> {
 
   Future<void> _logout(BuildContext context) async {
     try {
-      // Show loading indicator
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -117,16 +114,14 @@ class _AccountsPageState extends State<AccountsPage> {
 
       await FirebaseAuth.instance.signOut();
 
-      // Navigate to login page
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
         (route) => false,
       );
     } catch (e) {
-      // Hide loading indicator
       Navigator.pop(context);
-      // Show error message
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error signing out: ${e.toString()}')),
       );
@@ -153,81 +148,137 @@ class _AccountsPageState extends State<AccountsPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Profile Picture (optional)
-                    Center(
-                      child: CircleAvatar(
-                        radius: 50,
-                        child: Text(
-                          _nameController!.text.isNotEmpty
-                              ? _nameController!.text[0].toUpperCase()
-                              : '?',
-                          style: const TextStyle(fontSize: 32),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Name Field
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        border: OutlineInputBorder(),
-                      ),
-                      enabled: _isEditing,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your name';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Email Field
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
-                      ),
-                      enabled: _isEditing,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Sign Out Button
-                    Center(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _logout(context),
-                        icon: const Icon(Icons.logout),
-                        label: const Text('Sign Out'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+          : SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: CircleAvatar(
+                            radius: 50,
+                            child: Text(
+                              _nameController!.text.isNotEmpty
+                                  ? _nameController!.text[0].toUpperCase()
+                                  : '?',
+                              style: const TextStyle(fontSize: 32),
+                            ),
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Name',
+                            border: OutlineInputBorder(),
+                          ),
+                          enabled: _isEditing,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your name';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            border: OutlineInputBorder(),
+                          ),
+                          enabled: _isEditing,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        if (_isEditing)
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _isObscure,
+                            decoration: InputDecoration(
+                              labelText: 'New Password',
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isObscure
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure = !_isObscure;
+                                  });
+                                },
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return null;
+                              }
+                              if (value.length < 6) {
+                                return 'Password must be at least 6 characters';
+                              }
+                              return null;
+                            },
+                          ),
+                        const SizedBox(height: 16),
+                        if (_isEditing)
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: _isObscure2,
+                            decoration: InputDecoration(
+                              labelText: 'Confirm Password',
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _isObscure2
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObscure2 = !_isObscure2;
+                                  });
+                                },
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value != _passwordController?.text) {
+                                return 'Passwords do not match';
+                              }
+                              return null;
+                            },
+                          ),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _logout(context),
+                            icon: const Icon(Icons.logout),
+                            label: const Text('Sign Out'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
