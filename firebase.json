@@ -1,0 +1,38 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "teton-meal-app",
+          "appId": "1:532094527655:android:95baa5dfa7f5ccbb6a9382",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "teton-meal-app",
+          "configurations": {
+            "android": "1:532094527655:android:95baa5dfa7f5ccbb6a9382",
+            "ios": "1:532094527655:ios:a18c42f264c1a5d46a9382",
+            "macos": "1:532094527655:ios:a18c42f264c1a5d46a9382",
+            "web": "1:532094527655:web:34ca28bbeca3ec546a9382",
+            "windows": "1:532094527655:web:d79fe7571d2e1dea6a9382"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}

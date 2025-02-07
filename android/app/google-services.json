@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "532094527655",
+    "project_id": "teton-meal-app",
+    "storage_bucket": "teton-meal-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:532094527655:android:95baa5dfa7f5ccbb6a9382",
+        "android_client_info": {
+          "package_name": "com.example.teton_meal_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgpcyb24FFXVwHmvR0-Z9sDoAx2E8q_ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

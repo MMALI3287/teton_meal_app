@@ -1,0 +1,739 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Votes/voters_dialog.dart';
+import 'package:intl/intl.dart';
+
+class MenusPage extends StatefulWidget {
+  const MenusPage({super.key});
+
+  @override
+  _MenusPageState createState() => _MenusPageState();
+}
+
+class _MenusPageState extends State<MenusPage> {
+  bool _isGridView = true;
+  final Map<String, bool> _expandedCategories = {};
+
+  void _toggleView() {
+    setState(() {
+      _isGridView = !_isGridView;
+    });
+  }
+
+  void _toggleCategory(String category) {
+    setState(() {
+      _expandedCategories[category] = !(_expandedCategories[category] ?? false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Menu'),
+        actions: [
+          IconButton(
+            icon: Icon(_isGridView ? Icons.calendar_today : Icons.grid_view),
+            onPressed: _toggleView,
+          ),
+        ],
+      ),
+      body: _isGridView ? _buildGridView() : _buildCalendarView(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => const CreatePollDialog(),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildGridView() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('polls')
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(child: Text('Something went wrong'));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final polls = snapshot.data!.docs;
+        final Map<String, Map<String, List<QueryDocumentSnapshot>>>
+            categorizedPolls = {};
+
+        for (var poll in polls) {
+          final date = DateTime.parse(poll['date']);
+          final year = date.year.toString();
+          final month = DateFormat('MMMM').format(date);
+
+          if (!categorizedPolls.containsKey(year)) {
+            categorizedPolls[year] = {};
+          }
+          if (!categorizedPolls[year]!.containsKey(month)) {
+            categorizedPolls[year]![month] = [];
+          }
+          categorizedPolls[year]![month]!.add(poll);
+        }
+
+        // Get current year and month
+        final now = DateTime.now();
+        final currentYear = now.year.toString();
+        final currentMonth = DateFormat('MMMM').format(now);
+        final currentCategory = '$currentYear-$currentMonth';
+
+        return ListView(
+          children: categorizedPolls.entries.map((yearEntry) {
+            return ExpansionTile(
+              title: Text(yearEntry.key),
+              children: yearEntry.value.entries.map((monthEntry) {
+                final category = '${yearEntry.key}-${monthEntry.key}';
+                return ExpansionTile(
+                  title: Text(monthEntry.key),
+                  initiallyExpanded: category ==
+                      currentCategory, // Expand current month by default
+                  onExpansionChanged: (expanded) => _toggleCategory(category),
+                  children: monthEntry.value.map((poll) {
+                    return MenuPollCard(pollData: poll);
+                  }).toList(),
+                );
+              }).toList(),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildCalendarView() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('polls')
+          .orderBy('createdAt', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(child: Text('Something went wrong'));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final polls = snapshot.data!.docs;
+        final Map<DateTime, List<QueryDocumentSnapshot>> events = {};
+
+        for (var poll in polls) {
+          final date = DateTime.parse(poll['date']);
+          final day = DateTime(date.year, date.month, date.day);
+          if (!events.containsKey(day)) {
+            events[day] = [];
+          }
+          events[day]!.add(poll);
+        }
+
+        return TableCalendar(
+          firstDay: DateTime.utc(2020, 1, 1),
+          lastDay: DateTime.utc(2030, 12, 31),
+          focusedDay: DateTime.now(),
+          eventLoader: (day) => events[day] ?? [],
+          calendarStyle: const CalendarStyle(
+            markerDecoration: BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+          ),
+          onDaySelected: (selectedDay, focusedDay) {
+            if (events[selectedDay] != null &&
+                events[selectedDay]!.isNotEmpty) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PollsByDatePage(polls: events[selectedDay]!),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('No polls for this date')),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+}
+
+class PollsByDatePage extends StatelessWidget {
+  final List<QueryDocumentSnapshot> polls;
+
+  const PollsByDatePage({super.key, required this.polls});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Polls by Date'),
+      ),
+      body: ListView.builder(
+        itemCount: polls.length,
+        itemBuilder: (context, index) {
+          return MenuPollCard(pollData: polls[index]);
+        },
+      ),
+    );
+  }
+}
+
+class MenuPollCard extends StatelessWidget {
+  final QueryDocumentSnapshot pollData;
+
+  const MenuPollCard({super.key, required this.pollData});
+
+  Future<void> _togglePollStatus(BuildContext context) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(pollData.id)
+          .update({'isActive': !pollData['isActive']});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating poll: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  pollData['date'],
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Switch(
+                  value: pollData['isActive'],
+                  onChanged: (value) => _togglePollStatus(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(pollData['question']),
+            const SizedBox(height: 8),
+            ...pollData['options']
+                .map<Widget>(
+                  (option) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Text('• $option'),
+                  ),
+                )
+                .toList(),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PollVotesPage(pollData: pollData),
+                      ),
+                    );
+                  },
+                  child: const Text('View votes'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => EditPollDialog(pollData: pollData),
+                    );
+                  },
+                  child: const Text('Edit'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PollVotesPage extends StatelessWidget {
+  final QueryDocumentSnapshot pollData;
+
+  const PollVotesPage({super.key, required this.pollData});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Votes'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            pollData['question'],
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          ...pollData['votes'].entries.map((entry) {
+            return ListTile(
+              title: Text(entry.key),
+              subtitle: Text(entry.value),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+}
+
+class CreatePollDialog extends StatefulWidget {
+  const CreatePollDialog({super.key});
+
+  @override
+  CreatePollDialogState createState() => CreatePollDialogState();
+}
+
+class CreatePollDialogState extends State<CreatePollDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _questionController = TextEditingController();
+  final List<TextEditingController> _customOptionControllers = [];
+  final List<String> _mealOptions = [
+    'Beef Khichuri',
+    'Fried Rice',
+    'Fried Egg with Rice',
+    'Custom',
+  ];
+  final List<String> _selectedMeals = [];
+  TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    final formattedDate = DateFormat('MM/dd/yy - EEEE').format(now);
+    _questionController.text = '$formattedDate - Food menu';
+    _selectedMeals.addAll(['Beef Khichuri', 'Fried Rice']);
+  }
+
+  Future<void> _createPoll() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      String creatorName = user.displayName ?? user.email ?? user.uid;
+
+      final now = DateTime.now();
+      final endTime = DateTime(now.year, now.month, now.day, _selectedTime.hour,
+          _selectedTime.minute);
+      final endTimeMillis = endTime.millisecondsSinceEpoch;
+
+      // Get the final options list, replacing 'Custom' with actual custom text
+      final List<String> finalOptions = _selectedMeals.map((meal) {
+        if (meal == 'Custom') {
+          int index = _getCustomControllerIndex(_selectedMeals.indexOf(meal));
+          return _customOptionControllers[index].text;
+        }
+        return meal;
+      }).toList();
+
+      await FirebaseFirestore.instance.collection('polls').add({
+        'question': _questionController.text,
+        'options': finalOptions,
+        'votes': {},
+        'isActive': true,
+        'createdAt': FieldValue.serverTimestamp(),
+        'createdBy': {
+          'uid': user.uid,
+          'name': creatorName,
+        },
+        'date': DateTime.now().toString().split(' ')[0],
+        'endTimeMillis': endTimeMillis,
+      });
+
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating poll: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+    );
+    if (picked != null && picked != _selectedTime) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+  }
+
+  void _addOption(String option) {
+    setState(() {
+      _selectedMeals.add(option);
+      if (option == 'Custom') {
+        _customOptionControllers.add(TextEditingController());
+      }
+    });
+  }
+
+  void _removeOption(int index) {
+    setState(() {
+      if (_selectedMeals[index] == 'Custom') {
+        _customOptionControllers.removeAt(_getCustomControllerIndex(index));
+      }
+      _selectedMeals.removeAt(index);
+    });
+  }
+
+  int _getCustomControllerIndex(int optionIndex) {
+    int customCount = 0;
+    for (int i = 0; i < optionIndex; i++) {
+      if (_selectedMeals[i] == 'Custom') customCount++;
+    }
+    return customCount;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Create New Poll',
+                  style: Theme.of(context).textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _questionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Question',
+                    border: UnderlineInputBorder(),
+                  ),
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Please enter a question' : null,
+                ),
+                const SizedBox(height: 16),
+                ...List.generate(_selectedMeals.length, (index) {
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedMeals[index],
+                              decoration: InputDecoration(
+                                labelText: 'Option ${index + 1}',
+                                border: const UnderlineInputBorder(),
+                              ),
+                              items: _mealOptions.map((String meal) {
+                                return DropdownMenuItem<String>(
+                                  value: meal,
+                                  child: Text(meal),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  if (_selectedMeals[index] == 'Custom') {
+                                    _customOptionControllers.removeAt(
+                                        _getCustomControllerIndex(index));
+                                  }
+                                  _selectedMeals[index] = value!;
+                                  if (value == 'Custom') {
+                                    _customOptionControllers.insert(
+                                        _getCustomControllerIndex(index),
+                                        TextEditingController());
+                                  }
+                                });
+                              },
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? 'Please select an option'
+                                  : null,
+                            ),
+                          ),
+                          if (_selectedMeals.length > 2)
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle_outline),
+                              onPressed: () => _removeOption(index),
+                            ),
+                        ],
+                      ),
+                      if (_selectedMeals[index] == 'Custom')
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: TextFormField(
+                            controller: _customOptionControllers[
+                                _getCustomControllerIndex(index)],
+                            decoration: const InputDecoration(
+                              labelText: 'Custom Option',
+                              border: UnderlineInputBorder(),
+                            ),
+                            validator: (value) => value?.isEmpty ?? true
+                                ? 'Please enter a custom option'
+                                : null,
+                          ),
+                        ),
+                    ],
+                  );
+                }),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Text('End Time:'),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () => _selectTime(context),
+                      child: Text(_selectedTime.format(context)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => _addOption('Beef Khichuri'),
+                  child: const Text('Add Option'),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _createPoll,
+                      child: const Text('Create'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _questionController.dispose();
+    for (var controller in _customOptionControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+}
+
+class EditPollDialog extends StatefulWidget {
+  final QueryDocumentSnapshot pollData;
+
+  const EditPollDialog({super.key, required this.pollData});
+
+  @override
+  EditPollDialogState createState() => EditPollDialogState();
+}
+
+class EditPollDialogState extends State<EditPollDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _questionController;
+  late List<TextEditingController> _optionControllers;
+  late TimeOfDay _selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the controllers with current poll data
+    _questionController =
+        TextEditingController(text: widget.pollData['question']);
+    _optionControllers = List.generate(
+      (widget.pollData['options'] as List).length,
+      (index) => TextEditingController(
+        text: (widget.pollData['options'] as List)[index],
+      ),
+    );
+
+    // Initialize the selected time with the current poll end time
+    final endTimeMillis = widget.pollData['endTimeMillis'] as int;
+    final endTime = DateTime.fromMillisecondsSinceEpoch(endTimeMillis);
+    _selectedTime = TimeOfDay(hour: endTime.hour, minute: endTime.minute);
+  }
+
+  Future<void> _updatePoll() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      // Calculate the end time in milliseconds since epoch
+      final now = DateTime.now();
+      final endTime = DateTime(now.year, now.month, now.day, _selectedTime.hour,
+          _selectedTime.minute);
+      final endTimeMillis = endTime.millisecondsSinceEpoch;
+
+      // Update the poll document in Firestore
+      await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(widget.pollData.id)
+          .update({
+        'question': _questionController.text,
+        'options':
+            _optionControllers.map((controller) => controller.text).toList(),
+        'endTimeMillis': endTimeMillis, // Update end time in milliseconds
+      });
+
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating poll: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _selectedTime,
+    );
+    if (picked != null && picked != _selectedTime) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _questionController.dispose();
+    for (var controller in _optionControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Edit Poll',
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _questionController,
+                decoration: const InputDecoration(
+                  labelText: 'Question',
+                  border: UnderlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Please enter a question' : null,
+              ),
+              const SizedBox(height: 16),
+              ...List.generate(_optionControllers.length, (index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: TextFormField(
+                    controller: _optionControllers[index],
+                    decoration: InputDecoration(
+                      labelText: 'Option ${index + 1}',
+                      border: const UnderlineInputBorder(),
+                    ),
+                    validator: (value) => value?.isEmpty ?? true
+                        ? 'Please enter an option'
+                        : null,
+                  ),
+                );
+              }),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Text('End Time:'),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () => _selectTime(context),
+                    child: Text(_selectedTime.format(context)),
+                  ),
+                ],
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _optionControllers.add(TextEditingController());
+                  });
+                },
+                child: const Text('Add Option'),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _updatePoll,
+                    child: const Text('Save'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
