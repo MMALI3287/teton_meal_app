@@ -25,6 +25,7 @@ dependencies:
   workmanager: ^0.5.2
   fl_chart: ^0.70.2
   table_calendar: ^3.2.0
+  firebase_messaging: ^15.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

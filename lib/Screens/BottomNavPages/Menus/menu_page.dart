@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 
@@ -16,6 +17,25 @@ class _MenusPageState extends State<MenusPage> {
   final Map<String, bool> _expandedCategories = {};
   Map<DateTime, List<QueryDocumentSnapshot>> _events = {};
   DateTime _selectedDay = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _setupFirebaseMessaging();
+  }
+
+  void _setupFirebaseMessaging() {
+    FirebaseMessaging.instance.requestPermission();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.notification != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message.notification!.title ?? 'New Notification'),
+          ),
+        );
+      }
+    });
+  }
 
   void _toggleView() {
     setState(() {
@@ -135,8 +155,11 @@ class _MenusPageState extends State<MenusPage> {
         _events = {};
 
         for (var poll in polls) {
-          final date = DateTime.parse(poll['date']);
+          final dateStr = poll['date'] as String;
+          final date = DateTime.parse(dateStr);
+
           final day = DateTime(date.year, date.month, date.day);
+
           if (!_events.containsKey(day)) {
             _events[day] = [];
           }
@@ -150,7 +173,10 @@ class _MenusPageState extends State<MenusPage> {
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: _selectedDay,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              eventLoader: (day) => _events[day] ?? [],
+              eventLoader: (day) {
+                final compareDay = DateTime(day.year, day.month, day.day);
+                return _events[compareDay] ?? [];
+              },
               calendarStyle: const CalendarStyle(
                 markerDecoration: BoxDecoration(
                   color: Colors.red,
@@ -162,18 +188,10 @@ class _MenusPageState extends State<MenusPage> {
                   _selectedDay = selectedDay;
                 });
               },
-              headerStyle: HeaderStyle(
+              headerStyle: const HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
-                leftChevronIcon: Icon(Icons.chevron_left, color: Colors.white),
-                rightChevronIcon:
-                    Icon(Icons.chevron_right, color: Colors.white),
               ),
-              availableCalendarFormats: const {
-                CalendarFormat.month: 'Month',
-                CalendarFormat.twoWeeks: '2 weeks',
-                CalendarFormat.week: 'Week',
-              },
             ),
             const SizedBox(height: 8),
             Expanded(
@@ -186,7 +204,14 @@ class _MenusPageState extends State<MenusPage> {
   }
 
   Widget _buildPollsListForSelectedDay() {
-    final polls = _events[_selectedDay] ?? [];
+    final selectedDate = DateTime(
+      _selectedDay.year,
+      _selectedDay.month,
+      _selectedDay.day,
+    );
+
+    final polls = _events[selectedDate] ?? [];
+
     if (polls.isEmpty) {
       return const Center(child: Text('No polls for this date'));
     }
