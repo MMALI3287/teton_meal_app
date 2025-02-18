@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/Screens/Navbar.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
-import 'package:teton_meal_app/Screens/Register.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -163,31 +162,31 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           height: 20,
                         ),
-                        MaterialButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(20.0),
-                            ),
-                          ),
-                          elevation: 5.0,
-                          height: 40,
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Register(),
-                              ),
-                            );
-                          },
-                          color: AppColors.secondaryColor,
-                          child: Text(
-                            "Register Now",
-                            style: TextStyle(
-                              color: AppColors.primaryColor,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
+                        // MaterialButton(
+                        //   shape: RoundedRectangleBorder(
+                        //     borderRadius: BorderRadius.all(
+                        //       Radius.circular(20.0),
+                        //     ),
+                        //   ),
+                        //   elevation: 5.0,
+                        //   height: 40,
+                        //   onPressed: () {
+                        //     Navigator.pushReplacement(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder: (context) => Register(),
+                        //       ),
+                        //     );
+                        //   },
+                        //   color: AppColors.secondaryColor,
+                        //   child: Text(
+                        //     "Register Now",
+                        //     style: TextStyle(
+                        //       color: AppColors.primaryColor,
+                        //       fontSize: 20,
+                        //     ),
+                        //   ),
+                        // ),
                         Visibility(
                           maintainSize: true,
                           maintainAnimation: true,

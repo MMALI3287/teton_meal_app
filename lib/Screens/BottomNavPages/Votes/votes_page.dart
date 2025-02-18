@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/vote_option.dart';
-import 'package:teton_meal_app/Screens/BottomNavPages/Votes/voters_dialog.dart';
 
 class VotesPage extends StatelessWidget {
   const VotesPage({super.key});
@@ -29,34 +28,64 @@ class VotesPage extends StatelessWidget {
 
   Future<Uint8List> _generateTokenImage(
       Map<String, dynamic> pollData, String userId) async {
+    // Get options and votes from poll data
     final options = List<String>.from(pollData['options'] ?? []);
     final votes = pollData['votes'] as Map<String, dynamic>? ?? {};
+    final question = pollData['question'] as String? ?? 'Unknown Menu';
 
-    String selectedOption = "No vote";
-    for (var option in options) {
-      if ((votes[option] as List?)?.contains(userId) == true) {
+    // Find user's vote
+    String selectedOption = "Did not vote";
+    for (String option in votes.keys) {
+      final votersList = votes[option] as List?;
+      if (votersList != null && votersList.contains(userId)) {
         selectedOption = option;
         break;
       }
     }
 
+    // Create canvas and set up painting
     final recorder = PictureRecorder();
-    final canvas =
-        Canvas(recorder, Rect.fromPoints(Offset(0, 0), Offset(400, 400)));
+    final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 400, 400));
 
-    final paint = Paint()
-      ..color = Colors.black
+    // Background
+    final bgPaint = Paint()
+      ..color = Colors.white
       ..style = PaintingStyle.fill;
+    canvas.drawRect(const Rect.fromLTWH(0, 0, 400, 400), bgPaint);
 
-    final textStyle = TextStyle(color: Colors.black, fontSize: 16);
-    final textSpan = TextSpan(
-        text: "Your Vote Token:\n\nMeal Option: $selectedOption",
-        style: textStyle);
-    final textPainter =
-        TextPainter(text: textSpan, textDirection: TextDirection.ltr);
-    textPainter.layout();
-    textPainter.paint(canvas, Offset(10, 10));
+    // Text styles
+    final titleStyle = TextStyle(
+      color: Colors.black,
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+    );
+    final bodyStyle = TextStyle(
+      color: Colors.black,
+      fontSize: 16,
+    );
 
+    // Draw title (menu question)
+    final titleSpan = TextSpan(text: question, style: titleStyle);
+    final titlePainter = TextPainter(
+      text: titleSpan,
+      textDirection: TextDirection.ltr,
+    );
+    titlePainter.layout(maxWidth: 380);
+    titlePainter.paint(canvas, const Offset(10, 20));
+
+    // Draw vote information
+    final voteSpan = TextSpan(
+      text: '\n\nYour Vote: $selectedOption',
+      style: bodyStyle,
+    );
+    final votePainter = TextPainter(
+      text: voteSpan,
+      textDirection: TextDirection.ltr,
+    );
+    votePainter.layout(maxWidth: 380);
+    votePainter.paint(canvas, Offset(10, titlePainter.height + 40));
+
+    // Convert to image
     final picture = recorder.endRecording();
     final img = await picture.toImage(400, 400);
     final byteData = await img.toByteData(format: ImageByteFormat.png);

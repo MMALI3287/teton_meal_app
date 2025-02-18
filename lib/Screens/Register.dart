@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:teton_meal_app/Screens/login.dart';
+import 'package:fluttertoast/fluttertoast.dart'; // Add this import
 import '../Styles/colors.dart';
 
 class Register extends StatefulWidget {
@@ -259,30 +259,30 @@ class _RegisterState extends State<Register> {
                         SizedBox(
                           height: 20,
                         ),
-                        MaterialButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20.0))),
-                          elevation: 5.0,
-                          height: 40,
-                          onPressed: () {
-                            CircularProgressIndicator();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LoginPage(),
-                              ),
-                            );
-                          },
-                          color: AppColors.primaryColor,
-                          child: Text(
-                            "Login Now",
-                            style: TextStyle(
-                              color: AppColors.secondaryColor,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
+                        // MaterialButton(
+                        //   shape: RoundedRectangleBorder(
+                        //       borderRadius:
+                        //           BorderRadius.all(Radius.circular(20.0))),
+                        //   elevation: 5.0,
+                        //   height: 40,
+                        //   onPressed: () {
+                        //     CircularProgressIndicator();
+                        //     Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder: (context) => LoginPage(),
+                        //       ),
+                        //     );
+                        //   },
+                        //   color: AppColors.primaryColor,
+                        //   child: Text(
+                        //     "Login Now",
+                        //     style: TextStyle(
+                        //       color: AppColors.secondaryColor,
+                        //       fontSize: 20,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -301,7 +301,9 @@ class _RegisterState extends State<Register> {
       await _auth
           .createUserWithEmailAndPassword(email: email, password: password)
           .then((value) => {postDetailsToFirestore(email, role)})
-          .catchError((e) {});
+          .catchError((e) {
+        return <dynamic>{};
+      });
     }
   }
 
@@ -310,7 +312,7 @@ class _RegisterState extends State<Register> {
     var user = _auth.currentUser;
     CollectionReference ref = FirebaseFirestore.instance.collection('users');
     ref.doc(user!.uid).set({'email': emailController.text, 'role': role});
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => LoginPage()));
+    Fluttertoast.showToast(
+        msg: "Registration Successful"); // Show toast message
   }
 }
