@@ -5,10 +5,36 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/vote_option.dart';
+import 'package:teton_meal_app/firebase_options.dart';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:teton_meal_app/message_stream.dart'; // Add this import
 
-class VotesPage extends StatelessWidget {
+class VotesPage extends StatefulWidget {
   const VotesPage({super.key});
 
+  @override
+  State<VotesPage> createState() => _VotesPageState();
+}
+
+class _VotesPageState extends State<VotesPage> {
+  String _lastMessage = '';
+  _VotesPageState() {
+    messageStreamController.listen((message) {
+      // Use the exported controller
+      setState(() {
+        if (message.notification != null) {
+          _lastMessage = 'Received a notification message:'
+              '\nTitle=${message.notification?.title},'
+              '\nBody=${message.notification?.body},'
+              '\nData=${message.data}';
+        } else {
+          _lastMessage = 'Received a data message: ${message.data}';
+        }
+      });
+    });
+  }
   Future<QueryDocumentSnapshot?> _getLatestDeactivatedPoll() async {
     try {
       final snapshot = await FirebaseFirestore.instance
@@ -98,7 +124,11 @@ class VotesPage extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: const Text('Your Vote Token'),
-          content: Image.memory(imageData),
+          content: Transform(
+            transform: Matrix4.rotationX(3.14159), // Flip the image vertically
+            alignment: Alignment.center,
+            child: Image.memory(imageData),
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -118,41 +148,45 @@ class VotesPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Vote'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('polls')
-            .where('isActive', isEqualTo: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            print('Error in StreamBuilder: ${snapshot.error}');
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+      body: Center(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('polls')
+              .where('isActive', isEqualTo: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              print('Error in StreamBuilder: ${snapshot.error}');
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final polls = snapshot.data?.docs ?? [];
+            final polls = snapshot.data?.docs ?? [];
+            print('Fetched ${polls.length} active polls'); // Debug print
 
-          if (polls.isEmpty) {
-            return const Center(child: Text('No active polls'));
-          }
+            if (polls.isEmpty) {
+              return const Center(child: Text('No active polls'));
+            }
 
-          return ListView.builder(
-            itemCount: polls.length,
-            itemBuilder: (context, index) {
-              try {
-                final poll = polls[index];
+            return ListView.builder(
+              itemCount: polls.length,
+              itemBuilder: (context, index) {
+                try {
+                  final poll = polls[index];
+                  print('Poll data: ${poll.data()}'); // Debug print
 
-                return PollCard(pollData: poll);
-              } catch (e) {
-                print('Error building poll card: $e');
-                return const SizedBox();
-              }
-            },
-          );
-        },
+                  return PollCard(pollData: poll);
+                } catch (e) {
+                  print('Error building poll card: $e');
+                  return const SizedBox();
+                }
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -196,6 +230,7 @@ class PollCard extends StatelessWidget {
       final createdBy = data['createdBy'] as Map<String, dynamic>? ?? {};
       final options = List<String>.from(data['options'] ?? []);
       final votes = data['votes'] as Map<String, dynamic>? ?? {};
+      final creatorName = createdBy['name']?.toString() ?? 'Unknown';
 
       return Card(
         margin: const EdgeInsets.all(8),
@@ -207,17 +242,17 @@ class PollCard extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    child: Text(createdBy['name']
-                            ?.toString()
-                            .substring(0, 1)
-                            .toUpperCase() ??
-                        '?'),
+                    child: Text(
+                      creatorName.isNotEmpty
+                          ? creatorName.substring(0, 1).toUpperCase()
+                          : '?',
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(createdBy['name']?.toString() ?? 'Unknown'),
+                      Text(creatorName),
                       Text(
                         data['date']?.toString() ?? 'No date',
                         style: Theme.of(context).textTheme.bodySmall,

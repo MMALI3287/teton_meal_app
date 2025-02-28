@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart'; // Add this import
+import 'package:firebase_core/firebase_core.dart'; // Add this import
 import '../Styles/colors.dart';
 
 class Register extends StatefulWidget {
@@ -298,11 +299,42 @@ class _RegisterState extends State<Register> {
   void signUp(String email, String password, String role) async {
     CircularProgressIndicator();
     if (_formkey.currentState!.validate()) {
-      await _auth
+      User? currentUser = _auth.currentUser; // Save current user
+      String? currentEmail = currentUser?.email;
+      String? currentPassword = await _auth.currentUser!
+          .reauthenticateWithCredential(EmailAuthProvider.credential(
+              email: currentEmail!, password: passwordController.text))
+          .then((value) => passwordController.text); // Save current password
+
+      // Create a new instance of FirebaseAuth
+      FirebaseAuth newAuth = FirebaseAuth.instanceFor(app: Firebase.app());
+
+      // Create a new user without affecting the current user's session
+      await newAuth
           .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) => {postDetailsToFirestore(email, role)})
-          .catchError((e) {
-        return <dynamic>{};
+          .then((value) {
+        postDetailsToFirestore(email, role);
+        Fluttertoast.showToast(
+            msg: "Registration Successful"); // Show toast message
+        setState(() {
+          showProgress = false; // Hide progress indicator
+        });
+
+        _auth
+            .signInWithEmailAndPassword(
+                email: currentEmail!, password: currentPassword!)
+            .then((_) {
+          // Navigate back to the register page
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Register()),
+          );
+        });
+      }).catchError((e) {
+        Fluttertoast.showToast(msg: e!.message); // Show error message
+        setState(() {
+          showProgress = false; // Hide progress indicator
+        });
       });
     }
   }
@@ -312,7 +344,5 @@ class _RegisterState extends State<Register> {
     var user = _auth.currentUser;
     CollectionReference ref = FirebaseFirestore.instance.collection('users');
     ref.doc(user!.uid).set({'email': emailController.text, 'role': role});
-    Fluttertoast.showToast(
-        msg: "Registration Successful"); // Show toast message
   }
 }

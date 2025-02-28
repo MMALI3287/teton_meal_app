@@ -1,0 +1,2 @@
+D:/WorkUni/Office/Flutter/teton_meal_app/android/app/.cxx/RelWithDebInfo/3c1w3i2x/x86/CMakeFiles/edit_cache.dir
+D:/WorkUni/Office/Flutter/teton_meal_app/android/app/.cxx/RelWithDebInfo/3c1w3i2x/x86/CMakeFiles/rebuild_cache.dir

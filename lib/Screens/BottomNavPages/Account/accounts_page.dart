@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:teton_meal_app/Screens/Login.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AccountsPage extends StatefulWidget {
   const AccountsPage({super.key});
@@ -22,11 +23,29 @@ class _AccountsPageState extends State<AccountsPage> {
   bool _isLoading = true;
   bool _isObscure = true;
   bool _isObscure2 = true;
+  bool _notificationsEnabled = true; // Default to true
+  String? _fcmToken;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadFCMToken();
+  }
+
+  Future<void> _loadFCMToken() async {
+    _fcmToken = await FirebaseMessaging.instance.getToken();
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      _fcmToken = newToken;
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('users').doc(user?.uid).set(
+          {
+            'fcm_token': newToken,
+          },
+          SetOptions(merge: true),
+        );
+      }
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -39,6 +58,13 @@ class _AccountsPageState extends State<AccountsPage> {
       _emailController = TextEditingController(text: user?.email ?? '');
       _passwordController = TextEditingController();
       _confirmPasswordController = TextEditingController();
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user?.uid)
+          .get();
+      _notificationsEnabled =
+          userDoc['notifications_enabled'] ?? true; // Default to true
     } finally {
       setState(() {
         _isLoading = false;
@@ -78,6 +104,8 @@ class _AccountsPageState extends State<AccountsPage> {
           {
             'displayName': _nameController?.text ?? '',
             'email': _emailController?.text ?? '',
+            'fcm_token': _fcmToken,
+            'notifications_enabled': _notificationsEnabled,
           },
           SetOptions(merge: true),
         );
@@ -258,6 +286,17 @@ class _AccountsPageState extends State<AccountsPage> {
                                 return 'Passwords do not match';
                               }
                               return null;
+                            },
+                          ),
+                        const SizedBox(height: 16),
+                        if (_isEditing)
+                          SwitchListTile(
+                            title: const Text('Enable Notifications'),
+                            value: _notificationsEnabled,
+                            onChanged: (value) {
+                              setState(() {
+                                _notificationsEnabled = value;
+                              });
                             },
                           ),
                         const SizedBox(height: 24),

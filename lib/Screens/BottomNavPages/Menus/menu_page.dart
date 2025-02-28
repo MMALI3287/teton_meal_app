@@ -483,6 +483,20 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   Future<void> _createPoll() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Check for duplicate custom options
+    final customOptions =
+        _customOptionControllers.map((controller) => controller.text).toList();
+    final duplicateOptions =
+        customOptions.toSet().length != customOptions.length;
+    if (duplicateOptions) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'Duplicate custom options found. Please ensure all custom options are unique.')),
+      );
+      return;
+    }
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
