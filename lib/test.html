@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake Battle</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(45deg, #ff4081, #7c4dff);
+        overflow: hidden;
+      }
+      #start-screen {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        pointer-events: auto;
+        z-index: 10;
+      }
+      h1 {
+        margin: 0;
+        font-size: 48px;
+        background: linear-gradient(45deg, #ff4081, #7c4dff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+      }
+      p {
+        color: white;
+        font-size: 18px;
+        line-height: 1.5;
+      }
+      #start-button {
+        background: linear-gradient(45deg, #ff4081, #7c4dff);
+        border: none;
+        color: white;
+        padding: 15px 40px;
+        font-size: 18px;
+        border-radius: 30px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+      #start-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 20px rgba(255, 64, 129, 0.7);
+      }
+      #score-container {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        color: white;
+        font-size: 18px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      #game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        pointer-events: auto;
+        display: none;
+        z-index: 10;
+      }
+      #game-over h2 {
+        color: #ff4081;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="start-screen">
+      <h1>SNAKE BATTLE</h1>
+      <p>Navigate your snake to collect food and grow longer.</p>
+      <p>Compete against AI snakes for dominance!</p>
+      <p>Use arrow keys or WASD to control your snake.</p>
+      <button id="start-button">START GAME</button>
+    </div>
+
+    <div id="score-container" style="display: none">
+      <p>Score: <span id="score">0</span></p>
+    </div>
+
+    <div id="game-over">
+      <h2>GAME OVER</h2>
+      <p>Final Score: <span id="final-score">0</span></p>
+      <button id="restart-button">PLAY AGAIN</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+      // Game variables
+      let scene,
+        camera,
+        renderer,
+        gridSize = 20;
+      let playerSnake,
+        aiSnakes = [],
+        food;
+      let gameStarted = false;
+      let direction = { x: 1, y: 0 };
+      let nextDirection = { x: 1, y: 0 };
+      let elapsedTime = 0;
+      let moveInterval = 0.15; // Time between moves in seconds
+      let score = 0;
+      let aiScores = [0, 0, 0];
+      let foodParticles = [];
+
+      // Create scene
+      function initScene() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000033);
+
+        // Create camera
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
+        camera.position.set(0, gridSize * 1.5, gridSize * 1.5);
+        camera.lookAt(0, 0, 0);
+
+        // Create renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        // Add lights
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(gridSize, gridSize * 2, gridSize);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        const pointLight = new THREE.PointLight(0x7c4dff, 1, gridSize * 3);
+        pointLight.position.set(0, gridSize / 2, 0);
+        scene.add(pointLight);
+
+        // Handle window resize
+        window.addEventListener("resize", () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        createGameBoard();
+      }
+
+      // Create the game board
+      function createGameBoard() {
+        const gridGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
+        const gridMaterial = new THREE.MeshStandardMaterial({
+          color: 0x222244,
+          metalness: 0.3,
+          roughness: 0.8,
+        });
+        const grid = new THREE.Mesh(gridGeometry, gridMaterial);
+        grid.rotation.x = -Math.PI / 2;
+        grid.receiveShadow = true;
+        scene.add(grid);
+
+        // Add grid lines
+        const gridHelper = new THREE.GridHelper(
+          gridSize,
+          gridSize,
+          0x444466,
+          0x444466
+        );
+        gridHelper.position.y = 0.01;
+        scene.add(gridHelper);
+
+        // Add subtle glow to the board edges
+        const boardEdges = new THREE.BoxGeometry(
+          gridSize + 0.5,
+          0.1,
+          gridSize + 0.5
+        );
+        const edgeMaterial = new THREE.MeshBasicMaterial({
+          color: 0x7c4dff,
+          transparent: true,
+          opacity: 0.3,
+        });
+        const edges = new THREE.Mesh(boardEdges, edgeMaterial);
+        edges.position.y = -0.05;
+        scene.add(edges);
+      }
+
+      // Additional game functions would go here
+      // ... (createPlayerSnake, createAISnake, createFood, etc.)
+
+      // Initialize and start the game
+      document.getElementById("start-button").addEventListener("click", () => {
+        initScene();
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("score-container").style.display = "block";
+        gameStarted = true;
+        // Start the game loop
+      });
+    </script>
+  </body>
+</html>

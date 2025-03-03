@@ -6,32 +6,33 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.6.1
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
-  firebase_core: ^3.10.1
-  firebase_auth: ^5.4.1
-  cloud_firestore: ^5.6.2
-  google_sign_in: ^6.2.2
-  share_plus: ^10.1.4
-  firebase_dynamic_links: ^6.1.1
-  intl: ^0.20.2
-  firebase_analytics: ^11.4.1
-  provider: ^6.0.3
-  fl_chart: ^0.70.2
-  table_calendar: ^3.2.0
-  firebase_messaging: ^15.2.2
-  fluttertoast: ^8.0.8
-  rxdart: ^0.28.0
+  cupertino_icons: ^1.0.6
+  firebase_core: ^2.15.1
+  firebase_auth: ^4.7.3
+  cloud_firestore: ^4.8.5
+  google_sign_in: ^6.1.5
+  share_plus: ^7.1.0
+  firebase_dynamic_links: ^5.3.3
+  intl: ^0.18.1
+  firebase_analytics: ^10.4.5
+  provider: ^6.0.5
+  fl_chart: ^0.63.0
+  table_calendar: ^3.0.9
+  firebase_messaging: ^14.6.7
+  fluttertoast: ^8.2.2
+  rxdart: ^0.27.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^5.0.0
+  flutter_lints: ^2.0.2
 
 flutter:
   uses-material-design: true
