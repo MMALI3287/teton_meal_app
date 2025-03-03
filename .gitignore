@@ -48,4 +48,4 @@ app.*.map.json
 lib/firebase_options.dart
 
 
-android/app/.ccx
+android/app/.ccx/*
