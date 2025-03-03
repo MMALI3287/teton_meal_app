@@ -508,10 +508,13 @@ class CreatePollDialogState extends State<CreatePollDialog> {
           _selectedTime.minute);
       final endTimeMillis = endTime.millisecondsSinceEpoch;
 
+      // Fixed: track custom index separately for correct mapping
+      int customIndex = 0;
       final List<String> finalOptions = _selectedMeals.map((meal) {
         if (meal == 'Custom') {
-          int index = _getCustomControllerIndex(_selectedMeals.indexOf(meal));
-          return _customOptionControllers[index].text;
+          final text = _customOptionControllers[customIndex].text;
+          customIndex++;
+          return text;
         }
         return meal;
       }).toList();
