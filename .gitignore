@@ -46,3 +46,6 @@ app.*.map.json
 
 # Ignore firebase_options.dart file
 lib/firebase_options.dart
+
+
+android/app/.ccx
