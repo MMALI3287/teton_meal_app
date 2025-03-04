@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import "package:teton_meal_app/services/auth_service.dart";
 import 'package:flutter/material.dart';
 
 class VoteOption extends StatelessWidget {
@@ -15,7 +15,7 @@ class VoteOption extends StatelessWidget {
   });
 
   Future<void> _handleVote(BuildContext context) async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = AuthService().currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please sign in to vote')),
@@ -66,7 +66,7 @@ class VoteOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = AuthService().currentUser;
     final hasVotedThisOption = user != null &&
         (allVotes[option] != null &&
             (allVotes[option] as List).contains(user.uid));

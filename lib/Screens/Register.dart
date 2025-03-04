@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart'; // Add this import
-import 'package:firebase_core/firebase_core.dart'; // Add this import
+import 'package:fluttertoast/fluttertoast.dart';
 import '../Styles/colors.dart';
+import '../services/auth_service.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -20,7 +19,7 @@ class _RegisterState extends State<Register> {
   bool visible = false;
 
   final _formkey = GlobalKey<FormState>();
-  final _auth = FirebaseAuth.instance;
+  final _authService = AuthService();
 
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmpassController = TextEditingController();
@@ -297,52 +296,36 @@ class _RegisterState extends State<Register> {
   }
 
   void signUp(String email, String password, String role) async {
-    CircularProgressIndicator();
     if (_formkey.currentState!.validate()) {
-      User? currentUser = _auth.currentUser; // Save current user
-      String? currentEmail = currentUser?.email;
-      String? currentPassword = await _auth.currentUser!
-          .reauthenticateWithCredential(EmailAuthProvider.credential(
-              email: currentEmail!, password: passwordController.text))
-          .then((value) => passwordController.text); // Save current password
-
-      // Create a new instance of FirebaseAuth
-      FirebaseAuth newAuth = FirebaseAuth.instanceFor(app: Firebase.app());
-
-      // Create a new user without affecting the current user's session
-      await newAuth
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) {
-        postDetailsToFirestore(email, role);
-        Fluttertoast.showToast(
-            msg: "Registration Successful"); // Show toast message
+      try {
         setState(() {
-          showProgress = false; // Hide progress indicator
+          showProgress = true;
         });
-
-        _auth
-            .signInWithEmailAndPassword(
-                email: currentEmail!, password: currentPassword!)
-            .then((_) {
-          // Navigate back to the register page
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => Register()),
-          );
-        });
-      }).catchError((e) {
-        Fluttertoast.showToast(msg: e!.message); // Show error message
+        
+        // Register new user
+        final newUser = await _authService.register(email, password, role);
+        
+        Fluttertoast.showToast(msg: "Registration Successful");
+        
         setState(() {
-          showProgress = false; // Hide progress indicator
+          showProgress = false;
         });
-      });
+        
+        // Clear the form
+        emailController.clear();
+        passwordController.clear();
+        confirmpassController.clear();
+        setState(() {
+          _currentItemSelected = "Diner";
+          role = "Diner";
+        });
+        
+      } catch (e) {
+        Fluttertoast.showToast(msg: e.toString());
+        setState(() {
+          showProgress = false;
+        });
+      }
     }
-  }
-
-  postDetailsToFirestore(String email, String role) async {
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-    var user = _auth.currentUser;
-    CollectionReference ref = FirebaseFirestore.instance.collection('users');
-    ref.doc(user!.uid).set({'email': emailController.text, 'role': role});
   }
 }

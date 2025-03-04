@@ -4,8 +4,8 @@ import 'package:teton_meal_app/Screens/BottomNavPages/Votes/votes_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Menus/menu_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Account/accounts_page.dart';
 import 'package:teton_meal_app/Screens/Register.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:teton_meal_app/services/auth_service.dart';
 
 void main() => runApp(const NavbarApp());
 
@@ -38,14 +38,10 @@ class _NavbarState extends State<Navbar> {
   }
 
   Future<void> _fetchUserRole() async {
-    User? user = FirebaseAuth.instance.currentUser;
+    final user = AuthService().currentUser;
     if (user != null) {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
       setState(() {
-        _userRole = userDoc['role'];
+        _userRole = user.role;
       });
     }
   }

@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:teton_meal_app/Screens/Login.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:teton_meal_app/services/auth_service.dart';
 
 class AccountsPage extends StatefulWidget {
   const AccountsPage({super.key});
@@ -13,7 +13,7 @@ class AccountsPage extends StatefulWidget {
 
 class _AccountsPageState extends State<AccountsPage> {
   final _formKey = GlobalKey<FormState>();
-  User? user;
+  UserModel? user;
 
   TextEditingController? _nameController;
   TextEditingController? _emailController;
@@ -38,11 +38,9 @@ class _AccountsPageState extends State<AccountsPage> {
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       _fcmToken = newToken;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('users').doc(user?.uid).set(
-          {
-            'fcm_token': newToken,
-          },
-          SetOptions(merge: true),
+        await AuthService().updateUserProfile(
+          uid: user!.uid,
+          fcmToken: newToken,
         );
       }
     });
@@ -50,21 +48,14 @@ class _AccountsPageState extends State<AccountsPage> {
 
   Future<void> _loadUserData() async {
     try {
-      user = FirebaseAuth.instance.currentUser;
-      await user?.reload();
-      user = FirebaseAuth.instance.currentUser;
+      user = AuthService().currentUser;
 
       _nameController = TextEditingController(text: user?.displayName ?? '');
       _emailController = TextEditingController(text: user?.email ?? '');
       _passwordController = TextEditingController();
       _confirmPasswordController = TextEditingController();
 
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user?.uid)
-          .get();
-      _notificationsEnabled =
-          userDoc['notifications_enabled'] ?? true; // Default to true
+      _notificationsEnabled = user?.notificationsEnabled ?? true;
     } finally {
       setState(() {
         _isLoading = false;
@@ -91,27 +82,19 @@ class _AccountsPageState extends State<AccountsPage> {
               const Center(child: CircularProgressIndicator()),
         );
 
-        await user?.updateDisplayName(_nameController?.text ?? '');
-        if (user?.email != _emailController?.text) {
-          await user?.updateEmail(_emailController?.text ?? '');
+        if (user != null) {
+          await AuthService().updateUserProfile(
+            uid: user!.uid,
+            displayName: _nameController?.text,
+            email: _emailController?.text,
+            password: (_passwordController?.text != null && _passwordController!.text.isNotEmpty) ? _passwordController!.text : null,
+            fcmToken: _fcmToken,
+            notificationsEnabled: _notificationsEnabled,
+          );
+
+          // Get the updated user
+          user = AuthService().currentUser;
         }
-
-        if (_passwordController?.text.isNotEmpty ?? false) {
-          await user?.updatePassword(_passwordController?.text ?? '');
-        }
-
-        await FirebaseFirestore.instance.collection('users').doc(user?.uid).set(
-          {
-            'displayName': _nameController?.text ?? '',
-            'email': _emailController?.text ?? '',
-            'fcm_token': _fcmToken,
-            'notifications_enabled': _notificationsEnabled,
-          },
-          SetOptions(merge: true),
-        );
-
-        await user?.reload();
-        user = FirebaseAuth.instance.currentUser;
 
         Navigator.pop(context);
 
@@ -140,7 +123,7 @@ class _AccountsPageState extends State<AccountsPage> {
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      await FirebaseAuth.instance.signOut();
+      await AuthService().signOut();
 
       Navigator.pushAndRemoveUntil(
         context,

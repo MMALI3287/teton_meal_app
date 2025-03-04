@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:teton_meal_app/Screens/Navbar.dart';
 import 'package:teton_meal_app/Screens/login.dart';
 import 'package:teton_meal_app/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:teton_meal_app/services/auth_service.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -69,26 +69,24 @@ Future<void> setupFirebaseMessaging() async {
   final token = await messaging.getToken();
 
   if (token != null) {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = AuthService().currentUser;
     if (user != null) {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
         {
           'fcm_token': token,
           'notifications_enabled': true, // Default to true
         },
-        SetOptions(merge: true),
       );
     }
   }
 
   FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = AuthService().currentUser;
     if (user != null) {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
         {
           'fcm_token': newToken,
         },
-        SetOptions(merge: true),
       );
     }
   });
@@ -119,33 +117,20 @@ class AuthCheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+    return StreamBuilder<UserModel?>(
+      stream: AuthService().authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasData) {
-          return FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance
-                .collection('users')
-                .doc(snapshot.data!.uid)
-                .get(),
-            builder: (context, userSnapshot) {
-              if (userSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (userSnapshot.hasData) {
-                final userRole = userSnapshot.data!.get('role');
-                if (userRole == 'Planner' ||
-                    userRole == 'Admin' ||
-                    userRole == 'Diner') {
-                  return Navbar();
-                }
-              } else {
-                return const LoginPage();
-              }
-              return const LoginPage();
-            },
-          );
+        } else if (snapshot.hasData && snapshot.data != null) {
+          final userRole = snapshot.data!.role;
+          if (userRole == 'Planner' ||
+              userRole == 'Admin' ||
+              userRole == 'Diner') {
+            return Navbar();
+          } else {
+            return const LoginPage();
+          }
         } else {
           return const LoginPage();
         }
