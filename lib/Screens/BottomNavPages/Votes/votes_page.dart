@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import "package:teton_meal_app/services/auth_service.dart";
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/vote_option.dart';
 import 'package:teton_meal_app/firebase_options.dart';
 import 'package:flutter/foundation.dart';
@@ -193,7 +193,7 @@ class _VotesPageState extends State<VotesPage> {
           final pollData = await _getLatestDeactivatedPoll();
 
           if (pollData != null) {
-            final userId = FirebaseAuth.instance.currentUser?.uid;
+            final userId = AuthService().currentUser?.uid;
             if (userId == null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

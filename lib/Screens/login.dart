@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/Screens/Navbar.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
+import 'package:teton_meal_app/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  final _auth = FirebaseAuth.instance;
+  final _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -211,38 +211,13 @@ class _LoginPageState extends State<LoginPage> {
   void signIn(String email, String password) async {
     if (_formkey.currentState!.validate()) {
       try {
-        UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        route();
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          print('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
-          print('Wrong password provided for that user.');
-        }
-      }
-    }
-  }
-
-  void route() {
-    User? user = FirebaseAuth.instance.currentUser;
-    var kk = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user!.uid)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        if (documentSnapshot.get('role') == "Planner") {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Navbar(),
-            ),
-          );
-        } else if (documentSnapshot.get('role') == "Admin") {
+        setState(() {
+          visible = true;
+        });
+        
+        final user = await _authService.signIn(email, password);
+        
+        if (user != null) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -250,16 +225,21 @@ class _LoginPageState extends State<LoginPage> {
             ),
           );
         } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Navbar(),
-            ),
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed. Please check your credentials.')),
           );
+          setState(() {
+            visible = false;
+          });
         }
-      } else {
-        print('Document does not exist on the database');
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+        setState(() {
+          visible = false;
+        });
       }
-    });
+    }
   }
 }

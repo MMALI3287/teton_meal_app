@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import "package:teton_meal_app/services/auth_service.dart";
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
@@ -498,7 +498,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
     }
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final user = AuthService().currentUser;
       if (user == null) return;
 
       String creatorName = user.displayName ?? user.email ?? user.uid;
@@ -508,10 +508,13 @@ class CreatePollDialogState extends State<CreatePollDialog> {
           _selectedTime.minute);
       final endTimeMillis = endTime.millisecondsSinceEpoch;
 
+      // Fixed: track custom index separately for correct mapping
+      int customIndex = 0;
       final List<String> finalOptions = _selectedMeals.map((meal) {
         if (meal == 'Custom') {
-          int index = _getCustomControllerIndex(_selectedMeals.indexOf(meal));
-          return _customOptionControllers[index].text;
+          final text = _customOptionControllers[customIndex].text;
+          customIndex++;
+          return text;
         }
         return meal;
       }).toList();
