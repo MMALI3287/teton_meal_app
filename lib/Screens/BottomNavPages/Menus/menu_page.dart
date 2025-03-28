@@ -591,28 +591,39 @@ class CreatePollDialogState extends State<CreatePollDialog> {
 
   void _addOption(String option) {
     setState(() {
-      _selectedMeals.add(option);
       if (option == 'Custom') {
+        // Add a new controller with empty text
         _customOptionControllers.add(TextEditingController());
       }
+      _selectedMeals.add(option);
     });
   }
 
   void _removeOption(int index) {
     setState(() {
       if (_selectedMeals[index] == 'Custom') {
-        _customOptionControllers.removeAt(_getCustomControllerIndex(index));
+        // Remove the corresponding controller
+        int controllerIndex = _getCustomControllerIndex(index);
+        _customOptionControllers[controllerIndex].dispose();
+        _customOptionControllers.removeAt(controllerIndex);
       }
       _selectedMeals.removeAt(index);
     });
   }
 
   int _getCustomControllerIndex(int optionIndex) {
-    int customCount = 0;
-    for (int i = 0; i < optionIndex; i++) {
-      if (_selectedMeals[i] == 'Custom') customCount++;
+    // Instead of counting custom options before the current index,
+    // just return the index of this custom option in the list
+    int customIndex = 0;
+    for (int i = 0; i <= optionIndex; i++) {
+      if (_selectedMeals[i] == 'Custom') {
+        if (i == optionIndex) {
+          return customIndex;
+        }
+        customIndex++;
+      }
     }
-    return customCount;
+    return customIndex;
   }
 
   @override

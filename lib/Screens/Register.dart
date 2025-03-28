@@ -260,6 +260,7 @@ class _RegisterState extends State<Register> {
           showProgress = false;
         });
 
+
         // Clear the form
         emailController.clear();
         passwordController.clear();
