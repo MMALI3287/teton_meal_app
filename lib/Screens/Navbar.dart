@@ -15,15 +15,32 @@ class Navbar extends StatefulWidget {
   State<Navbar> createState() => _NavbarState();
 }
 
-class _NavbarState extends State<Navbar> {
+class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   String _userRole = 'Diner';
   bool _isLoading = true;
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
     _fetchUserRole();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchUserRole() async {
@@ -67,57 +84,66 @@ class _NavbarState extends State<Navbar> {
     }
   }
 
-  List<BottomNavigationBarItem> _getBottomNavItems() {
+  List<NavItemData> _getNavItems() {
     if (_userRole == 'Admin') {
-      return const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.poll),
+      return [
+        NavItemData(
+          icon: Icons.poll,
+          activeIcon: Icons.poll_outlined,
           label: 'Vote',
           tooltip: 'View and cast votes',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.menu_book),
+        NavItemData(
+          icon: Icons.menu_book,
+          activeIcon: Icons.menu_book_outlined,
           label: 'Menu',
           tooltip: 'View and manage menus',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.app_registration),
+        NavItemData(
+          icon: Icons.app_registration,
+          activeIcon: Icons.app_registration_outlined,
           label: 'Register',
           tooltip: 'Register new users',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_box_sharp),
+        NavItemData(
+          icon: Icons.account_circle,
+          activeIcon: Icons.account_circle_outlined,
           label: 'Account',
           tooltip: 'Manage your account',
         ),
       ];
     } else if (_userRole == 'Planner') {
-      return const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.poll),
+      return [
+        NavItemData(
+          icon: Icons.poll,
+          activeIcon: Icons.poll_outlined,
           label: 'Vote',
           tooltip: 'View and cast votes',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.menu_book),
+        NavItemData(
+          icon: Icons.menu_book,
+          activeIcon: Icons.menu_book_outlined,
           label: 'Menu',
           tooltip: 'View and manage menus',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_box_sharp),
+        NavItemData(
+          icon: Icons.account_circle,
+          activeIcon: Icons.account_circle_outlined,
           label: 'Account',
           tooltip: 'Manage your account',
         ),
       ];
     } else {
-      return const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.poll),
+      return [
+        NavItemData(
+          icon: Icons.poll,
+          activeIcon: Icons.poll_outlined,
           label: 'Vote',
           tooltip: 'View and cast votes',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_box_sharp),
+        NavItemData(
+          icon: Icons.account_circle,
+          activeIcon: Icons.account_circle_outlined,
           label: 'Account',
           tooltip: 'Manage your account',
         ),
@@ -125,20 +151,31 @@ class _NavbarState extends State<Navbar> {
     }
   }
 
+  List<BottomNavigationBarItem> _getBottomNavItems() {
+    final navItems = _getNavItems();
+    return navItems
+        .map((item) => BottomNavigationBarItem(
+              icon: Icon(item.icon),
+              activeIcon: Icon(item.activeIcon),
+              label: item.label,
+              tooltip: item.tooltip,
+            ))
+        .toList();
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    
+
     String message = '';
     switch (index) {
       case 0:
         message = 'Place your lunch order';
         break;
       case 1:
-        message = _userRole == 'Diner' 
-            ? 'Manage your profile'
-            : 'Manage lunch menus';
+        message =
+            _userRole == 'Diner' ? 'Manage your profile' : 'Manage lunch menus';
         break;
       case 2:
         message = _userRole == 'Admin'
@@ -149,7 +186,7 @@ class _NavbarState extends State<Navbar> {
         message = 'Manage your profile';
         break;
     }
-    
+
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
@@ -162,36 +199,142 @@ class _NavbarState extends State<Navbar> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 60,
+                width: 60,
+                child: CircularProgressIndicator(
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+                  strokeWidth: 3,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Loading...",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
+    // Get current screen based on selected index
+    final currentScreen = _getScreens()[_selectedIndex];
+    final navItems = _getNavItems();
+
     return Scaffold(
-      body: _getScreens()[_selectedIndex],
+      body: FadeTransition(
+        opacity: _animation,
+        child: currentScreen,
+      ),
       bottomNavigationBar: Container(
+        height: 85,
         decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+              color: AppColors.shadowColor,
+              blurRadius: 15,
+              offset: const Offset(0, -3),
+              spreadRadius: 1,
             ),
           ],
         ),
-        child: BottomNavigationBar(
-          items: _getBottomNavItems(),
-          currentIndex: _selectedIndex,
-          selectedItemColor: AppColors.secondaryColor,
-          unselectedItemColor: Colors.grey,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          elevation: 0,
-          onTap: _onItemTapped,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(
+              navItems.length,
+              (index) => _buildNavItem(navItems[index], index),
+            ),
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildNavItem(NavItemData item, int index) {
+    final isSelected = _selectedIndex == index;
+    return InkWell(
+      onTap: () => _onItemTapped(index),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Container(
+        width: MediaQuery.of(context).size.width / _getNavItems().length,
+        padding: const EdgeInsets.symmetric(vertical: 8), // Increased padding
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: 3, // Increased indicator height
+              width: isSelected ? 25 : 0, // Increased indicator width
+              margin: const EdgeInsets.only(bottom: 4),
+              decoration: BoxDecoration(
+                color: AppColors.primaryColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8), // Increased padding
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.primaryColor.withOpacity(0.1)
+                    : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isSelected ? item.activeIcon : item.icon,
+                color: isSelected ? AppColors.primaryColor : Colors.grey[500],
+                size: 24, // Increased icon size
+              ),
+            ),
+            const SizedBox(height: 4), // Increased spacing
+            Text(
+              item.label,
+              style: TextStyle(
+                color: isSelected ? AppColors.primaryColor : Colors.grey[500],
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                fontSize: 13, // Increased font size
+                height: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Helper class for navigation items
+class NavItemData {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final String tooltip;
+
+  NavItemData({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.tooltip,
+  });
 }

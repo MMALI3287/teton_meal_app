@@ -13,16 +13,42 @@ class MenusPage extends StatefulWidget {
   _MenusPageState createState() => _MenusPageState();
 }
 
-class _MenusPageState extends State<MenusPage> {
+class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
   bool _isGridView = true;
   final Map<String, bool> _expandedCategories = {};
   Map<DateTime, List<QueryDocumentSnapshot>> _events = {};
   DateTime _selectedDay = DateTime.now();
+  late AnimationController _fabAnimationController;
+  late Animation<double> _fabScaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _setupFirebaseMessaging();
+
+    // Setup animation controller for FAB
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _fabScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fabAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    // Start animation after a short delay
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _fabAnimationController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _fabAnimationController.dispose();
+    super.dispose();
   }
 
   void _setupFirebaseMessaging() {
@@ -46,7 +72,7 @@ class _MenusPageState extends State<MenusPage> {
       msg: _isGridView ? "Switched to Calendar View" : "Switched to List View",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.blue,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       textColor: Colors.white,
     );
   }
@@ -62,13 +88,26 @@ class _MenusPageState extends State<MenusPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lunch Menu'),
-        elevation: 2,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
-          IconButton(
-            icon: Icon(_isGridView ? Icons.calendar_today : Icons.grid_view),
-            onPressed: _toggleView,
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: Icon(
+                  _isGridView ? Icons.calendar_month : Icons.grid_view,
+                  key: ValueKey<bool>(_isGridView),
+                ),
+              ),
+              onPressed: _toggleView,
+              tooltip: _isGridView
+                  ? 'Switch to Calendar View'
+                  : 'Switch to List View',
+            ),
           ),
         ],
       ),
@@ -78,31 +117,28 @@ class _MenusPageState extends State<MenusPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.blue.withOpacity(0.1),
-              Colors.white,
+              Theme.of(context).colorScheme.primary.withOpacity(0.05),
+              Theme.of(context).colorScheme.background,
             ],
           ),
         ),
         child: _isGridView ? _buildGridView() : _buildCalendarView(),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Fluttertoast.showToast(
-            msg: "Creating new lunch menu...",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.blue,
-            textColor: Colors.white,
-          );
-          showDialog(
-            context: context,
-            builder: (context) => const CreatePollDialog(),
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Create Menu'),
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        foregroundColor: Colors.white,
+      floatingActionButton: ScaleTransition(
+        scale: _fabScaleAnimation,
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => const CreatePollDialog(),
+            );
+          },
+          icon: const Icon(Icons.restaurant_menu),
+          label: const Text('Create Menu'),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          foregroundColor: Colors.white,
+          elevation: 4,
+        ),
       ),
     );
   }
@@ -122,22 +158,82 @@ class _MenusPageState extends State<MenusPage> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        // Get all polls
         final polls = snapshot.data!.docs;
+
+        // Sort polls by active status first, then by createdAt date
+        polls.sort((a, b) {
+          // First sort by active status
+          final aActive = a['isActive'] as bool;
+          final bActive = b['isActive'] as bool;
+
+          if (aActive != bActive) {
+            // Active polls first
+            return aActive ? -1 : 1;
+          }
+
+          // Then sort by createdAt date
+          final aCreatedAt =
+              (a['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
+          final bCreatedAt =
+              (b['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
+          // Sort descending (newer first)
+          return bCreatedAt.compareTo(aCreatedAt);
+        });
+
         final Map<String, Map<String, List<QueryDocumentSnapshot>>>
             categorizedPolls = {};
 
         for (var poll in polls) {
-          final date = DateTime.parse(poll['date']);
-          final year = date.year.toString();
-          final month = DateFormat('MMMM').format(date);
+          try {
+            // Parse date safely handling both formats (YYYY-MM-DD and DD/MM/YYYY)
+            final dateStr = poll['date'] as String;
+            DateTime date;
 
-          if (!categorizedPolls.containsKey(year)) {
-            categorizedPolls[year] = {};
+            if (dateStr.contains('/')) {
+              // DD/MM/YYYY format
+              final parts = dateStr.split('/');
+              if (parts.length == 3) {
+                try {
+                  date = DateTime(
+                    int.parse(parts[2]), // Year
+                    int.parse(parts[1]), // Month
+                    int.parse(parts[0]), // Day
+                  );
+                } catch (e) {
+                  // If there's an error parsing, use current date as fallback
+                  print('Error parsing date $dateStr: $e');
+                  date = DateTime.now();
+                }
+              } else {
+                // If format doesn't have exactly 3 parts, use current date
+                date = DateTime.now();
+              }
+            } else {
+              // YYYY-MM-DD format (old format)
+              try {
+                date = DateTime.parse(dateStr);
+              } catch (e) {
+                // If there's an error parsing, use current date as fallback
+                print('Error parsing date $dateStr: $e');
+                date = DateTime.now();
+              }
+            }
+
+            final year = date.year.toString();
+            final month = DateFormat('MMMM').format(date);
+
+            if (!categorizedPolls.containsKey(year)) {
+              categorizedPolls[year] = {};
+            }
+            if (!categorizedPolls[year]!.containsKey(month)) {
+              categorizedPolls[year]![month] = [];
+            }
+            categorizedPolls[year]![month]!.add(poll);
+          } catch (e) {
+            print('Error processing poll: $e');
+            // Continue to next poll if there's an error with this one
           }
-          if (!categorizedPolls[year]!.containsKey(month)) {
-            categorizedPolls[year]![month] = [];
-          }
-          categorizedPolls[year]![month]!.add(poll);
         }
 
         final now = DateTime.now();
@@ -184,19 +280,77 @@ class _MenusPageState extends State<MenusPage> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        // Get all polls
         final polls = snapshot.data!.docs;
+
+        // Sort polls by active status first, then by createdAt date
+        polls.sort((a, b) {
+          // First sort by active status
+          final aActive = a['isActive'] as bool;
+          final bActive = b['isActive'] as bool;
+
+          if (aActive != bActive) {
+            // Active polls first
+            return aActive ? -1 : 1;
+          }
+
+          // Then sort by createdAt date
+          final aCreatedAt =
+              (a['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
+          final bCreatedAt =
+              (b['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
+          // Sort descending (newer first)
+          return bCreatedAt.compareTo(aCreatedAt);
+        });
+
         _events = {};
 
         for (var poll in polls) {
-          final dateStr = poll['date'] as String;
-          final date = DateTime.parse(dateStr);
+          try {
+            // Parse date safely handling both formats (YYYY-MM-DD and DD/MM/YYYY)
+            final dateStr = poll['date'] as String;
+            DateTime date;
 
-          final day = DateTime(date.year, date.month, date.day);
+            if (dateStr.contains('/')) {
+              // DD/MM/YYYY format
+              final parts = dateStr.split('/');
+              if (parts.length == 3) {
+                try {
+                  date = DateTime(
+                    int.parse(parts[2]), // Year
+                    int.parse(parts[1]), // Month
+                    int.parse(parts[0]), // Day
+                  );
+                } catch (e) {
+                  // If there's an error parsing, use current date as fallback
+                  print('Error parsing date $dateStr: $e');
+                  date = DateTime.now();
+                }
+              } else {
+                // If format doesn't have exactly 3 parts, use current date
+                date = DateTime.now();
+              }
+            } else {
+              // YYYY-MM-DD format (old format)
+              try {
+                date = DateTime.parse(dateStr);
+              } catch (e) {
+                // If there's an error parsing, use current date as fallback
+                print('Error parsing date $dateStr: $e');
+                date = DateTime.now();
+              }
+            }
 
-          if (!_events.containsKey(day)) {
-            _events[day] = [];
+            final day = DateTime(date.year, date.month, date.day);
+
+            if (!_events.containsKey(day)) {
+              _events[day] = [];
+            }
+            _events[day]!.add(poll);
+          } catch (e) {
+            print('Error processing poll: $e');
+            // Continue to next poll if there's an error with this one
           }
-          _events[day]!.add(poll);
         }
 
         return Column(
@@ -297,64 +451,250 @@ class MenuPollCard extends StatelessWidget {
     }
   }
 
+  Future<void> _deletePoll(BuildContext context) async {
+    // Show confirmation dialog before deleting
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Delete'),
+        content: const Text(
+            'Are you sure you want to delete this menu? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true) return;
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(pollData.id)
+          .delete();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Menu deleted successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting menu: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool isActive = pollData['isActive'] ?? false;
+    final theme = Theme.of(context);
+
     return Card(
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isActive
+              ? theme.colorScheme.secondary.withOpacity(0.3)
+              : Colors.grey.withOpacity(0.2),
+          width: isActive ? 1 : 0.5,
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header with date and active switch
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  pollData['date'],
-                  style: Theme.of(context).textTheme.titleMedium,
+                Container(
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? theme.colorScheme.secondary.withOpacity(0.1)
+                        : Colors.grey.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 16,
+                        color: isActive
+                            ? theme.colorScheme.secondary
+                            : Colors.grey,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        pollData['date'],
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: isActive
+                              ? theme.colorScheme.secondary
+                              : Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Switch(
-                  value: pollData['isActive'],
+                  value: isActive,
+                  activeColor: theme.colorScheme.secondary,
                   onChanged: (value) => _togglePollStatus(context),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(pollData['question']),
-            const SizedBox(height: 8),
+
+            const SizedBox(height: 16),
+
+            // Menu question
+            Text(
+              pollData['question'],
+              style: theme.textTheme.titleMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const Divider(height: 24),
+
+            // Menu options
             ...pollData['options']
                 .map<Widget>(
                   (option) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Text('• $option'),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            option,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 )
                 .toList(),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PollVotesPage(pollData: pollData),
+
+            const SizedBox(height: 16),
+            const Divider(height: 8),
+
+            // Action buttons
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              PollVotesPage(pollData: pollData),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.visibility_outlined,
+                      color: theme.colorScheme.primary,
+                      size: 20,
+                    ),
+                    label: Text(
+                      'View Orders',
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w500,
                       ),
-                    );
-                  },
-                  child: const Text('View Orders'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => EditPollDialog(pollData: pollData),
-                    );
-                  },
-                  child: const Text('Edit'),
-                ),
-              ],
+                    ),
+                    style: TextButton.styleFrom(
+                      backgroundColor:
+                          theme.colorScheme.primary.withOpacity(0.1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                    ),
+                  ),
+                  // Show Edit button for active polls, Delete button for inactive polls
+                  isActive
+                      ? TextButton.icon(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) =>
+                                  EditPollDialog(pollData: pollData),
+                            );
+                          },
+                          icon: Icon(
+                            Icons.edit_outlined,
+                            color: theme.colorScheme.secondary,
+                            size: 20,
+                          ),
+                          label: Text(
+                            'Edit',
+                            style: TextStyle(
+                              color: theme.colorScheme.secondary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor:
+                                theme.colorScheme.secondary.withOpacity(0.1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                          ),
+                        )
+                      : TextButton.icon(
+                          onPressed: () => _deletePoll(context),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                            size: 20,
+                          ),
+                          label: const Text(
+                            'Delete',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.red.withOpacity(0.1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                          ),
+                        ),
+                ],
+              ),
             ),
           ],
         ),
@@ -375,6 +715,8 @@ class PollVotesPage extends StatefulWidget {
 class _PollVotesPageState extends State<PollVotesPage> {
   DocumentSnapshot? pollSnapshot;
   bool _isLoading = true;
+  Map<String, int> _voteCounts = {};
+  int _totalVotes = 0;
 
   @override
   void initState() {
@@ -387,6 +729,20 @@ class _PollVotesPageState extends State<PollVotesPage> {
         .collection('polls')
         .doc(widget.pollData.id)
         .get();
+
+    // Calculate vote counts for stats
+    if (pollSnapshot != null) {
+      final votes = pollSnapshot!['votes'] as Map<String, dynamic>;
+      _voteCounts = {};
+      _totalVotes = 0;
+
+      votes.forEach((option, voters) {
+        final count = (voters as List).length;
+        _voteCounts[option] = count;
+        _totalVotes += count;
+      });
+    }
+
     setState(() {
       _isLoading = false;
     });
@@ -404,79 +760,360 @@ class _PollVotesPageState extends State<PollVotesPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order removed successfully')),
+        SnackBar(
+          content: const Text('Order removed successfully'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+        ),
       );
 
       await _fetchPollData();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error removing order: $e')),
+        SnackBar(
+          content: Text('Error removing order: $e'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Lunch Orders'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
 
     if (pollSnapshot == null) {
-      return const Center(child: Text('Error loading menu data'));
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Lunch Orders'),
+        ),
+        body: Center(
+          child: Text(
+            'Error loading menu data',
+            style: theme.textTheme.titleMedium,
+          ),
+        ),
+      );
     }
 
     final votes = pollSnapshot!['votes'] as Map<String, dynamic>;
+    final isActive = pollSnapshot!['isActive'] as bool;
+    final dateText = pollSnapshot!['date'] as String;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lunch Orders'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      body: Column(
         children: [
-          Text(
-            pollSnapshot!['question'],
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          ...votes.entries.map((entry) {
-            String option = entry.key;
-            List<dynamic> optionVotes = entry.value;
-
-            return ExpansionTile(
-              title: Text(option),
-              subtitle: Text('${optionVotes.length} orders'),
-              children: optionVotes.map<Widget>((voterId) {
-                return FutureBuilder<DocumentSnapshot>(
-                  future: FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(voterId)
-                      .get(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const ListTile(
-                        title: Text('Loading...'),
-                      );
-                    }
-
-                    var userData =
-                        snapshot.data!.data() as Map<String, dynamic>?;
-                    String displayName = userData?['displayName'] ??
-                        userData?['email'] ??
-                        'Unknown User';
-
-                    return ListTile(
-                      title: Text(displayName),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.remove_circle_outline),
-                        onPressed: () => _removeVote(context, voterId, option),
+          // Header Card with Menu details
+          Card(
+            margin: const EdgeInsets.all(16),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? theme.colorScheme.secondary.withOpacity(0.1)
+                              : theme.colorScheme.error.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              isActive ? Icons.check_circle : Icons.cancel,
+                              size: 16,
+                              color: isActive
+                                  ? theme.colorScheme.secondary
+                                  : theme.colorScheme.error,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              isActive ? 'Active' : 'Inactive',
+                              style: theme.textTheme.bodyMedium!.copyWith(
+                                color: isActive
+                                    ? theme.colorScheme.secondary
+                                    : theme.colorScheme.error,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    );
-                  },
-                );
-              }).toList(),
-            );
-          }).toList(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              size: 16,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              dateText,
+                              style: theme.textTheme.bodyMedium!.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    pollSnapshot!['question'],
+                    style: theme.textTheme.titleLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Total Orders: $_totalVotes',
+                    style: theme.textTheme.bodyLarge!.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Orders list
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                // Order summary card
+                if (_totalVotes > 0)
+                  Card(
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Order Summary',
+                                style: theme.textTheme.titleMedium!.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '$_totalVotes orders',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          ..._voteCounts.entries.map((entry) {
+                            final percentage = _totalVotes > 0
+                                ? (entry.value / _totalVotes * 100).round()
+                                : 0;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        entry.key,
+                                        style: theme.textTheme.bodyMedium!
+                                            .copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      '${entry.value} ($percentage%)',
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: LinearProgressIndicator(
+                                    value: _totalVotes > 0
+                                        ? entry.value / _totalVotes
+                                        : 0,
+                                    backgroundColor: theme.colorScheme.primary
+                                        .withOpacity(0.1),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      theme.colorScheme.primary,
+                                    ),
+                                    minHeight: 8,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                Text(
+                  'Orders by Choice',
+                  style: theme.textTheme.titleMedium!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                if (votes.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No orders yet',
+                            style: theme.textTheme.bodyLarge!.copyWith(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ...votes.entries.map((entry) {
+                  String option = entry.key;
+                  List<dynamic> optionVotes = entry.value;
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ExpansionTile(
+                      childrenPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
+                      title: Text(
+                        option,
+                        style: theme.textTheme.titleMedium,
+                      ),
+                      subtitle: Text(
+                        '${optionVotes.length} ${optionVotes.length == 1 ? 'order' : 'orders'}',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      leading: CircleAvatar(
+                        backgroundColor:
+                            theme.colorScheme.primary.withOpacity(0.1),
+                        child: Text(
+                          '${optionVotes.length}',
+                          style: TextStyle(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      children: optionVotes.map<Widget>((voterId) {
+                        return FutureBuilder<DocumentSnapshot>(
+                          future: FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(voterId)
+                              .get(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return const ListTile(
+                                leading: CircularProgressIndicator(),
+                                title: Text('Loading...'),
+                              );
+                            }
+
+                            var userData =
+                                snapshot.data!.data() as Map<String, dynamic>?;
+                            String displayName = userData?['displayName'] ??
+                                userData?['email'] ??
+                                'Unknown User';
+
+                            // Get first letter for avatar
+                            String initial = displayName.isNotEmpty
+                                ? displayName[0].toUpperCase()
+                                : '?';
+
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: theme.colorScheme.secondary
+                                    .withOpacity(0.2),
+                                child: Text(
+                                  initial,
+                                  style: TextStyle(
+                                    color: theme.colorScheme.secondary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              title: Text(displayName),
+                              trailing: IconButton(
+                                icon: Icon(
+                                  Icons.remove_circle_outline,
+                                  color: theme.colorScheme.error,
+                                ),
+                                onPressed: () =>
+                                    _removeVote(context, voterId, option),
+                                tooltip: 'Remove Order',
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -507,7 +1144,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    final formattedDate = DateFormat('MM/dd/yy - EEEE').format(now);
+    final formattedDate = DateFormat('dd/MM/yy - EEEE').format(now);
     _questionController.text = '$formattedDate - Food menu';
     _selectedMeals.addAll(['Beef Khichuri', 'Fried Rice']);
   }
@@ -515,18 +1152,40 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   Future<void> _createPoll() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Check for duplicate custom options
-    final customOptions =
-        _customOptionControllers.map((controller) => controller.text).toList();
-    final duplicateOptions =
-        customOptions.toSet().length != customOptions.length;
-    if (duplicateOptions) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'Duplicate custom options found. Please ensure all custom options are unique.')),
-      );
-      return;
+    // Check for duplicates in all selected options (including both dropdown and custom fields)
+    final List<String> allOptions = [];
+    int customIndex = 0;
+
+    for (int i = 0; i < _selectedMeals.length; i++) {
+      String optionValue;
+      if (_selectedMeals[i] == 'Custom') {
+        optionValue = _customOptionControllers[customIndex].text;
+        customIndex++;
+      } else {
+        optionValue = _selectedMeals[i];
+      }
+
+      if (allOptions.contains(optionValue)) {
+        // Show dialog alert instead of toast (so it will be visible on top of the menu dialog)
+        if (context.mounted) {
+          await showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Duplicate Options'),
+              content: const Text(
+                  'Duplicate meal options found. Please ensure all options are unique.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+      allOptions.add(optionValue);
     }
 
     try {
@@ -561,7 +1220,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
           'uid': user.uid,
           'name': creatorName,
         },
-        'date': DateTime.now().toString().split(' ')[0],
+        'date': DateFormat('dd/MM/yyyy').format(DateTime.now()),
         'endTimeMillis': endTimeMillis,
       });
 
@@ -570,8 +1229,18 @@ class CreatePollDialogState extends State<CreatePollDialog> {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating poll: $e')),
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Error'),
+            content: Text('Error creating menu: $e'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
         );
       }
     }
@@ -628,122 +1297,297 @@ class CreatePollDialogState extends State<CreatePollDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Create New Poll',
-                  style: Theme.of(context).textTheme.titleLarge,
-                  textAlign: TextAlign.center,
+                Row(
+                  children: [
+                    Icon(Icons.restaurant_menu,
+                        color: theme.colorScheme.secondary),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Create New Menu',
+                      style: theme.textTheme.titleLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: _questionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Question',
-                    border: UnderlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: 'Menu Title',
+                    prefixIcon: Icon(Icons.title_outlined,
+                        color: theme.colorScheme.primary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.primary.withOpacity(0.3)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.primary, width: 2),
+                    ),
                   ),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Please enter a question' : null,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Please enter a menu title'
+                      : null,
                 ),
-                const SizedBox(height: 16),
-                ...List.generate(_selectedMeals.length, (index) {
-                  return Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              value: _selectedMeals[index],
-                              decoration: InputDecoration(
-                                labelText: 'Option ${index + 1}',
-                                border: const UnderlineInputBorder(),
+
+                const SizedBox(height: 24),
+
+                Card(
+                  elevation: 0,
+                  color: theme.colorScheme.background,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                        color: theme.colorScheme.primary.withOpacity(0.2)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.dinner_dining,
+                                color: theme.colorScheme.secondary, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Menu Options',
+                              style: theme.textTheme.titleMedium!.copyWith(
+                                fontWeight: FontWeight.w600,
                               ),
-                              items: _mealOptions.map((String meal) {
-                                return DropdownMenuItem<String>(
-                                  value: meal,
-                                  child: Text(meal),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  if (_selectedMeals[index] == 'Custom') {
-                                    _customOptionControllers.removeAt(
-                                        _getCustomControllerIndex(index));
-                                  }
-                                  _selectedMeals[index] = value!;
-                                  if (value == 'Custom') {
-                                    _customOptionControllers.insert(
-                                        _getCustomControllerIndex(index),
-                                        TextEditingController());
-                                  }
-                                });
-                              },
-                              validator: (value) => value?.isEmpty ?? true
-                                  ? 'Please select an option'
-                                  : null,
                             ),
-                          ),
-                          if (_selectedMeals.length > 2)
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle_outline),
-                              onPressed: () => _removeOption(index),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        ...List.generate(_selectedMeals.length, (index) {
+                          return Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                      color: Colors.grey.withOpacity(0.2)),
+                                ),
+                                margin: const EdgeInsets.only(bottom: 12),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 36,
+                                      height: 36,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.primary
+                                            .withOpacity(0.1),
+                                        borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(11),
+                                          bottomLeft: Radius.circular(11),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        value: _selectedMeals[index],
+                                        decoration: InputDecoration(
+                                          labelText: 'Option ${index + 1}',
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16),
+                                          border: InputBorder.none,
+                                        ),
+                                        items: _mealOptions.map((String meal) {
+                                          return DropdownMenuItem<String>(
+                                            value: meal,
+                                            child: Text(meal),
+                                          );
+                                        }).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            if (_selectedMeals[index] ==
+                                                'Custom') {
+                                              _customOptionControllers.removeAt(
+                                                  _getCustomControllerIndex(
+                                                      index));
+                                            }
+                                            _selectedMeals[index] = value!;
+                                            if (value == 'Custom') {
+                                              _customOptionControllers.insert(
+                                                  _getCustomControllerIndex(
+                                                      index),
+                                                  TextEditingController());
+                                            }
+                                          });
+                                        },
+                                        validator: (value) =>
+                                            value?.isEmpty ?? true
+                                                ? 'Please select an option'
+                                                : null,
+                                        dropdownColor: Colors.white,
+                                      ),
+                                    ),
+                                    if (_selectedMeals.length > 2)
+                                      IconButton(
+                                        icon: const Icon(
+                                            Icons.remove_circle_outline,
+                                            color: Colors.redAccent),
+                                        onPressed: () => _removeOption(index),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              if (_selectedMeals[index] == 'Custom')
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 16, left: 36),
+                                  child: TextFormField(
+                                    controller: _customOptionControllers[
+                                        _getCustomControllerIndex(index)],
+                                    decoration: InputDecoration(
+                                      labelText: 'Custom Option',
+                                      hintText: 'Enter your custom menu option',
+                                      prefixIcon: Icon(Icons.edit,
+                                          color: theme.colorScheme.secondary),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    validator: (value) => value?.isEmpty ?? true
+                                        ? 'Please enter a custom option'
+                                        : null,
+                                  ),
+                                ),
+                            ],
+                          );
+                        }),
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => _addOption('Beef Khichuri'),
+                            icon: Icon(Icons.add_circle_outline,
+                                color: theme.colorScheme.secondary),
+                            label: Text('Add Option',
+                                style: TextStyle(
+                                    color: theme.colorScheme.secondary)),
+                            style: TextButton.styleFrom(
+                              backgroundColor:
+                                  theme.colorScheme.secondary.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                             ),
-                        ],
-                      ),
-                      if (_selectedMeals[index] == 'Custom')
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: TextFormField(
-                            controller: _customOptionControllers[
-                                _getCustomControllerIndex(index)],
-                            decoration: const InputDecoration(
-                              labelText: 'Custom Option',
-                              border: UnderlineInputBorder(),
-                            ),
-                            validator: (value) => value?.isEmpty ?? true
-                                ? 'Please enter a custom option'
-                                : null,
                           ),
                         ),
-                    ],
-                  );
-                }),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const Text('End Time:'),
-                    const SizedBox(width: 8),
-                    TextButton(
-                      onPressed: () => _selectTime(context),
-                      child: Text(_selectedTime.format(context)),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => _addOption('Beef Khichuri'),
-                  child: const Text('Add Option'),
+
+                const SizedBox(height: 24),
+
+                // End Time Selection
+                Card(
+                  elevation: 0,
+                  color: theme.colorScheme.primary.withOpacity(0.05),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                        color: theme.colorScheme.primary.withOpacity(0.2)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.access_time,
+                            color: theme.colorScheme.primary),
+                        const SizedBox(width: 12),
+                        Text(
+                          'End Time:',
+                          style: theme.textTheme.titleSmall!.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        TextButton.icon(
+                          onPressed: () => _selectTime(context),
+                          icon: Icon(Icons.access_time_filled,
+                              size: 16, color: theme.colorScheme.primary),
+                          label: Text(
+                            _selectedTime.format(context),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor:
+                                theme.colorScheme.primary.withOpacity(0.1),
+                            shape: StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 16),
+
+                const SizedBox(height: 24),
+
+                // Action buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
+                    OutlinedButton(
                       onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey[700],
+                        side: BorderSide(color: Colors.grey[300]!),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                       child: const Text('Cancel'),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 16),
                     ElevatedButton(
                       onPressed: _createPoll,
-                      child: const Text('Create'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.secondary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Create Menu'),
                     ),
                   ],
                 ),
@@ -801,6 +1645,34 @@ class EditPollDialogState extends State<EditPollDialog> {
   Future<void> _updatePoll() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Check for duplicate options
+    final List<String> allOptions = [];
+    for (var controller in _optionControllers) {
+      String optionValue = controller.text;
+
+      if (allOptions.contains(optionValue)) {
+        // Show dialog alert for duplicate options
+        if (context.mounted) {
+          await showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Duplicate Options'),
+              content: const Text(
+                  'Duplicate meal options found. Please ensure all options are unique.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
+      allOptions.add(optionValue);
+    }
+
     try {
       final now = DateTime.now();
       final endTime = DateTime(now.year, now.month, now.day, _selectedTime.hour,
@@ -822,8 +1694,19 @@ class EditPollDialogState extends State<EditPollDialog> {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating poll: $e')),
+        // Use dialog instead of SnackBar to ensure visibility
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Error'),
+            content: Text('Error updating menu: $e'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
         );
       }
     }
@@ -841,6 +1724,20 @@ class EditPollDialogState extends State<EditPollDialog> {
     }
   }
 
+  void _removeOption(int index) {
+    if (_optionControllers.length <= 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('A poll must have at least 2 options')),
+      );
+      return;
+    }
+
+    setState(() {
+      _optionControllers[index].dispose();
+      _optionControllers.removeAt(index);
+    });
+  }
+
   @override
   void dispose() {
     _questionController.dispose();
@@ -852,81 +1749,270 @@ class EditPollDialogState extends State<EditPollDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Edit Poll',
-                style: Theme.of(context).textTheme.titleLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              TextFormField(
-                controller: _questionController,
-                decoration: const InputDecoration(
-                  labelText: 'Question',
-                  border: UnderlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter a question' : null,
-              ),
-              const SizedBox(height: 16),
-              ...List.generate(_optionControllers.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: TextFormField(
-                    controller: _optionControllers[index],
-                    decoration: InputDecoration(
-                      labelText: 'Option ${index + 1}',
-                      border: const UnderlineInputBorder(),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.edit_note, color: theme.colorScheme.secondary),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Edit Menu',
+                      style: theme.textTheme.titleLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
-                    validator: (value) => value?.isEmpty ?? true
-                        ? 'Please enter an option'
-                        : null,
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                TextFormField(
+                  controller: _questionController,
+                  decoration: InputDecoration(
+                    labelText: 'Menu Title',
+                    prefixIcon: Icon(Icons.title_outlined,
+                        color: theme.colorScheme.primary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.primary.withOpacity(0.3)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: theme.colorScheme.primary, width: 2),
+                    ),
                   ),
-                );
-              }),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  const Text('End Time:'),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed: () => _selectTime(context),
-                    child: Text(_selectedTime.format(context)),
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Please enter a menu title'
+                      : null,
+                ),
+
+                const SizedBox(height: 24),
+
+                Card(
+                  elevation: 0,
+                  color: theme.colorScheme.background,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                        color: theme.colorScheme.primary.withOpacity(0.2)),
                   ),
-                ],
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _optionControllers.add(TextEditingController());
-                  });
-                },
-                child: const Text('Add Option'),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.restaurant_menu,
+                                color: theme.colorScheme.secondary, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Menu Options',
+                              style: theme.textTheme.titleMedium!.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        ...List.generate(_optionControllers.length, (index) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: Colors.grey.withOpacity(0.2)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.02),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 56,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary
+                                        .withOpacity(0.1),
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(11),
+                                      bottomLeft: Radius.circular(11),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: TextFormField(
+                                      controller: _optionControllers[index],
+                                      decoration: InputDecoration(
+                                        labelText: 'Option ${index + 1}',
+                                        border: InputBorder.none,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 16),
+                                      ),
+                                      validator: (value) =>
+                                          value?.isEmpty ?? true
+                                              ? 'Please enter an option'
+                                              : null,
+                                    ),
+                                  ),
+                                ),
+                                if (_optionControllers.length > 2)
+                                  IconButton(
+                                    icon: const Icon(
+                                        Icons.remove_circle_outline,
+                                        color: Colors.redAccent),
+                                    onPressed: () => _removeOption(index),
+                                    tooltip: 'Remove option',
+                                  ),
+                              ],
+                            ),
+                          );
+                        }),
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _optionControllers.add(TextEditingController());
+                              });
+                            },
+                            icon: Icon(Icons.add_circle_outline,
+                                color: theme.colorScheme.secondary),
+                            label: Text('Add Option',
+                                style: TextStyle(
+                                    color: theme.colorScheme.secondary)),
+                            style: TextButton.styleFrom(
+                              backgroundColor:
+                                  theme.colorScheme.secondary.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _updatePoll,
-                    child: const Text('Save'),
+                ),
+
+                const SizedBox(height: 24),
+
+                // End Time Selection
+                Card(
+                  elevation: 0,
+                  color: theme.colorScheme.primary.withOpacity(0.05),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                        color: theme.colorScheme.primary.withOpacity(0.2)),
                   ),
-                ],
-              ),
-            ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.access_time,
+                            color: theme.colorScheme.primary),
+                        const SizedBox(width: 12),
+                        Text(
+                          'End Time:',
+                          style: theme.textTheme.titleSmall!.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        TextButton.icon(
+                          onPressed: () => _selectTime(context),
+                          icon: Icon(Icons.access_time_filled,
+                              size: 16, color: theme.colorScheme.primary),
+                          label: Text(
+                            _selectedTime.format(context),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor:
+                                theme.colorScheme.primary.withOpacity(0.1),
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Action buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey[700],
+                        side: BorderSide(color: Colors.grey[300]!),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: _updatePoll,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.secondary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Save Changes'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

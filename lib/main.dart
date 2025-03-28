@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:teton_meal_app/Styles/colors.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -82,7 +83,10 @@ Future<void> setupFirebaseMessaging() async {
     if (token != null) {
       final user = AuthService().currentUser;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({
           'fcm_token': token,
           'notifications_enabled': true,
         });
@@ -92,7 +96,10 @@ Future<void> setupFirebaseMessaging() async {
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       final user = AuthService().currentUser;
       if (user != null) {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({
           'fcm_token': newToken,
         });
       }
@@ -120,29 +127,83 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'Teton Meal App',
       theme: ThemeData(
-        primaryColor: Colors.blue[900],
+        primaryColor: AppColors.primaryColor,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue[900]!,
-          primary: Colors.blue[900]!,
-          secondary: Colors.blue[700]!,
+          seedColor: AppColors.primaryColor,
+          primary: AppColors.primaryColor,
+          secondary: AppColors.secondaryColor,
+          tertiary: AppColors.warning,
+          error: AppColors.error,
+          background: AppColors.backgroundColor,
+          surface: AppColors.cardBackground,
+          onPrimary: AppColors.white,
+          onSecondary: AppColors.white,
+          onSurface: AppColors.primaryText,
+          onBackground: AppColors.primaryText,
+          brightness: Brightness.light,
         ),
         useMaterial3: true,
+        fontFamily: 'Poppins',
+        scaffoldBackgroundColor: AppColors.backgroundColor,
+        cardTheme: CardTheme(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          color: AppColors.cardBackground,
+          shadowColor: AppColors.shadowColor,
+        ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: AppColors.cardBackground,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.inputBorderColor),
           ),
-          contentPadding: const EdgeInsets.all(20),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.inputBorderColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: AppColors.primaryColor, width: 1.5),
+          ),
+          contentPadding: const EdgeInsets.all(16),
+          hintStyle: TextStyle(color: AppColors.tertiaryText),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             elevation: 0,
-            padding: const EdgeInsets.symmetric(vertical: 15),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            backgroundColor: AppColors.primaryColor,
+            foregroundColor: AppColors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: AppColors.primaryColor,
+          foregroundColor: AppColors.white,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: AppColors.white,
           ),
         ),
       ),
@@ -167,7 +228,9 @@ class AuthCheck extends StatelessWidget {
           );
         } else if (snapshot.hasData && snapshot.data != null) {
           final userRole = snapshot.data!.role;
-          if (userRole == 'Planner' || userRole == 'Admin' || userRole == 'Diner') {
+          if (userRole == 'Planner' ||
+              userRole == 'Admin' ||
+              userRole == 'Diner') {
             return const Navbar();
           } else {
             Fluttertoast.showToast(

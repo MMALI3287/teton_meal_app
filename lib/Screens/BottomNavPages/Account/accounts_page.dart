@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:teton_meal_app/Screens/Login.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:teton_meal_app/Styles/colors.dart';
 
 class AccountsPage extends StatefulWidget {
   const AccountsPage({super.key});
@@ -12,7 +11,8 @@ class AccountsPage extends StatefulWidget {
   State<AccountsPage> createState() => _AccountsPageState();
 }
 
-class _AccountsPageState extends State<AccountsPage> {
+class _AccountsPageState extends State<AccountsPage>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   UserModel? user;
 
@@ -27,11 +27,27 @@ class _AccountsPageState extends State<AccountsPage> {
   bool _notificationsEnabled = true; // Default to true
   String? _fcmToken;
 
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
     _loadFCMToken();
+
+    // Setup animation
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+
+    _animationController.forward();
   }
 
   Future<void> _loadFCMToken() async {
@@ -70,6 +86,7 @@ class _AccountsPageState extends State<AccountsPage> {
     _emailController?.dispose();
     _passwordController?.dispose();
     _confirmPasswordController?.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -88,7 +105,10 @@ class _AccountsPageState extends State<AccountsPage> {
             uid: user!.uid,
             displayName: _nameController?.text,
             email: _emailController?.text,
-            password: (_passwordController?.text != null && _passwordController!.text.isNotEmpty) ? _passwordController!.text : null,
+            password: (_passwordController?.text != null &&
+                    _passwordController!.text.isNotEmpty)
+                ? _passwordController!.text
+                : null,
             fcmToken: _fcmToken,
             notificationsEnabled: _notificationsEnabled,
           );
@@ -142,252 +162,541 @@ class _AccountsPageState extends State<AccountsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Profile'),
-        elevation: 2,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: () {
-              if (_isEditing) {
-                _saveChanges();
-                Fluttertoast.showToast(
-                  msg: "Updating your profile...",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  backgroundColor: Colors.blue,
-                  textColor: Colors.white,
-                );
-              } else {
-                setState(() {
-                  _isEditing = true;
-                });
-                Fluttertoast.showToast(
-                  msg: "You can now edit your profile",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  backgroundColor: Colors.blue,
-                  textColor: Colors.white,
-                );
-              }
-            },
-          ),
+          if (!_isLoading)
+            IconButton(
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: Icon(
+                  _isEditing ? Icons.save_outlined : Icons.edit_outlined,
+                  key: ValueKey<bool>(_isEditing),
+                ),
+              ),
+              tooltip: _isEditing ? 'Save changes' : 'Edit profile',
+              onPressed: () {
+                if (_isEditing) {
+                  _saveChanges();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Saving your profile changes...'),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: theme.colorScheme.secondary,
+                    ),
+                  );
+                } else {
+                  setState(() {
+                    _isEditing = true;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Edit mode activated'),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: theme.colorScheme.primary,
+                    ),
+                  );
+                }
+              },
+            ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.blue.withOpacity(0.1),
-              Colors.white,
-            ],
-          ),
-        ),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primaryColor,
+              ),
+            )
+          : Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.primaryColor.withOpacity(0.05),
+                    AppColors.backgroundColor,
+                  ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              child: FadeTransition(
+                opacity: _animation,
+                child: Form(
+                  key: _formKey,
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 24),
                     children: [
-                      Center(
-                        child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              child: Text(
-                                _nameController!.text.isNotEmpty
-                                    ? _nameController!.text[0].toUpperCase()
-                                    : '?',
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                      // Profile Header with Avatar
+                      FadeTransition(
+                        opacity: _animation,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, -0.2),
+                            end: Offset.zero,
+                          ).animate(_animation),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 5),
                                 ),
-                              ),
-                             ),
-                            // if (_isEditing)
-                            //   Positioned(
-                            //     right: 0,
-                            //     bottom: 0,
-                            //     child: Container(
-                            //       padding: const EdgeInsets.all(4),
-                            //       decoration: BoxDecoration(
-                            //         color: Theme.of(context).colorScheme.secondary,
-                            //         shape: BoxShape.circle,
-                            //       ),
-                            //       child: const Icon(
-                            //         Icons.edit,
-                            //         color: Colors.white,
-                            //         size: 20,
-                            //       ),
-                            //     ),
-                            //   ),
-                          ],
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              children: [
+                                Hero(
+                                  tag: 'profile-avatar',
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: theme.colorScheme.primary
+                                                .withOpacity(0.2),
+                                            width: 4,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: theme.colorScheme.primary
+                                                  .withOpacity(0.2),
+                                              blurRadius: 15,
+                                              spreadRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                        child: CircleAvatar(
+                                          radius: 50,
+                                          backgroundColor:
+                                              theme.colorScheme.primary,
+                                          child: Text(
+                                            _getInitials(),
+                                            style: const TextStyle(
+                                              fontSize: 36,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      if (_isEditing)
+                                        Positioned(
+                                          right: 0,
+                                          bottom: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  theme.colorScheme.secondary,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.1),
+                                                  blurRadius: 6,
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.photo_camera,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  user?.displayName ?? 'User',
+                                  style: theme.textTheme.titleLarge!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  user?.email ?? 'No email',
+                                  style: theme.textTheme.bodyMedium!.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary
+                                        .withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    user?.role ?? 'User',
+                                    style: theme.textTheme.bodySmall!.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
+
                       const SizedBox(height: 24),
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Name',
-                          border: const OutlineInputBorder(),
-                          enabled: _isEditing,
-                          prefixIcon: const Icon(Icons.person),
+
+                      // User Information Card
+                      SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.2),
+                          end: Offset.zero,
+                        ).animate(_animation),
+                        child: Card(
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: AppColors.primaryColor.withOpacity(0.1),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person_outline,
+                                      color: theme.colorScheme.secondary,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Account Information',
+                                      style:
+                                          theme.textTheme.titleMedium!.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.colorScheme.secondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: _isEditing
+                                      ? Column(
+                                          children: [
+                                            _buildFormField(
+                                              controller: _nameController!,
+                                              label: 'Full Name',
+                                              icon: Icons.badge_outlined,
+                                              isEnabled: _isEditing,
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return 'Please enter your name';
+                                                }
+                                                return null;
+                                              },
+                                            ),
+                                            const SizedBox(height: 16),
+                                            _buildFormField(
+                                              controller: _emailController!,
+                                              label: 'Email Address',
+                                              icon: Icons.email_outlined,
+                                              isEnabled: _isEditing,
+                                              keyboardType:
+                                                  TextInputType.emailAddress,
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return 'Please enter your email';
+                                                }
+                                                if (!RegExp(
+                                                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                                    .hasMatch(value)) {
+                                                  return 'Please enter a valid email';
+                                                }
+                                                return null;
+                                              },
+                                            ),
+                                          ],
+                                        )
+                                      : Column(
+                                          children: [
+                                            _buildInfoTile(
+                                              title: 'Full Name',
+                                              value: user?.displayName ??
+                                                  'Not set',
+                                              icon: Icons.badge_outlined,
+                                            ),
+                                            const Divider(height: 24),
+                                            _buildInfoTile(
+                                              title: 'Email Address',
+                                              value: user?.email ?? 'Not set',
+                                              icon: Icons.email_outlined,
+                                            ),
+                                            const Divider(height: 24),
+                                            _buildInfoTile(
+                                              title: 'Account Type',
+                                              value: user?.role ?? 'User',
+                                              icon: Icons
+                                                  .admin_panel_settings_outlined,
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        enabled: _isEditing,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
                       ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          border: const OutlineInputBorder(),
-                          enabled: _isEditing,
-                          prefixIcon: const Icon(Icons.email),
-                        ),
-                        enabled: _isEditing,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
+
+                      // Password Card (Only visible in edit mode)
                       if (_isEditing) ...[
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _isObscure,
-                          decoration: InputDecoration(
-                            labelText: 'New Password',
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _isObscure ? Icons.visibility_off : Icons.visibility,
+                        const SizedBox(height: 20),
+                        SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.3),
+                            end: Offset.zero,
+                          ).animate(_animation),
+                          child: Card(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              side: BorderSide(
+                                color:
+                                    theme.colorScheme.primary.withOpacity(0.1),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _isObscure = !_isObscure;
-                                });
-                              },
                             ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return null;
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: _isObscure2,
-                          decoration: InputDecoration(
-                            labelText: 'Confirm Password',
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _isObscure2 ? Icons.visibility_off : Icons.visibility,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.lock_outline,
+                                        color: theme.colorScheme.secondary,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Change Password',
+                                        style: theme.textTheme.titleMedium!
+                                            .copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: theme.colorScheme.secondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Leave blank if you don\'t want to change your password',
+                                    style: theme.textTheme.bodySmall!.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildPasswordField(
+                                    controller: _passwordController!,
+                                    label: 'New Password',
+                                    isObscure: _isObscure,
+                                    onToggle: () {
+                                      setState(() {
+                                        _isObscure = !_isObscure;
+                                      });
+                                    },
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return null; // Password is optional
+                                      }
+                                      if (value.length < 6) {
+                                        return 'Password must be at least 6 characters';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildPasswordField(
+                                    controller: _confirmPasswordController!,
+                                    label: 'Confirm New Password',
+                                    isObscure: _isObscure2,
+                                    onToggle: () {
+                                      setState(() {
+                                        _isObscure2 = !_isObscure2;
+                                      });
+                                    },
+                                    validator: (value) {
+                                      if (_passwordController!
+                                              .text.isNotEmpty &&
+                                          value != _passwordController?.text) {
+                                        return 'Passwords do not match';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _isObscure2 = !_isObscure2;
-                                });
-                              },
                             ),
-                          ),
-                          validator: (value) {
-                            if (_passwordController!.text.isNotEmpty && value != _passwordController?.text) {
-                              return 'Passwords do not match';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        SwitchListTile(
-                          title: const Text('Lunch Menu Notifications'),
-                          subtitle: Text(
-                            _notificationsEnabled 
-                                ? 'You will be notified when new lunch menus are posted' 
-                                : 'You will not receive lunch menu notifications'
-                          ),
-                          value: _notificationsEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              _notificationsEnabled = value;
-                            });
-                            Fluttertoast.showToast(
-                              msg: value 
-                                  ? "Notifications enabled"
-                                  : "Notifications disabled",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.blue,
-                              textColor: Colors.white,
-                            );
-                          },
-                          secondary: Icon(
-                            _notificationsEnabled 
-                                ? Icons.notifications_active 
-                                : Icons.notifications_off,
-                            color: _notificationsEnabled 
-                                ? Theme.of(context).colorScheme.primary 
-                                : Colors.grey,
                           ),
                         ),
                       ],
-                      const SizedBox(height: 24),
-                      Center(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Fluttertoast.showToast(
-                              msg: "Signing out...",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                            );
-                            _logout(context);
-                          },
-                          icon: const Icon(Icons.logout),
-                          label: const Text('Sign Out'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
+
+                      // Notifications Card
+                      const SizedBox(height: 20),
+                      SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.4),
+                          end: Offset.zero,
+                        ).animate(_animation),
+                        child: Card(
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: theme.colorScheme.primary.withOpacity(0.1),
                             ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.notifications_outlined,
+                                      color: theme.colorScheme.secondary,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Notification Settings',
+                                      style:
+                                          theme.textTheme.titleMedium!.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.colorScheme.secondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                SwitchListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(
+                                    'Lunch Menu Notifications',
+                                    style: theme.textTheme.bodyMedium!.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    _notificationsEnabled
+                                        ? 'You will be notified when new lunch menus are posted'
+                                        : 'You will not receive lunch menu notifications',
+                                    style: theme.textTheme.bodySmall!.copyWith(
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  secondary: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: _notificationsEnabled
+                                          ? theme.colorScheme.primary
+                                              .withOpacity(0.1)
+                                          : Colors.grey.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      _notificationsEnabled
+                                          ? Icons.notifications_active_outlined
+                                          : Icons.notifications_off_outlined,
+                                      color: _notificationsEnabled
+                                          ? theme.colorScheme.primary
+                                          : Colors.grey,
+                                    ),
+                                  ),
+                                  value: _notificationsEnabled,
+                                  activeColor: theme.colorScheme.primary,
+                                  onChanged: _isEditing
+                                      ? (value) {
+                                          setState(() {
+                                            _notificationsEnabled = value;
+                                          });
+                                        }
+                                      : null,
+                                ),
+                                if (!_isEditing && !_notificationsEnabled)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      'Edit your profile to change notification settings',
+                                      style:
+                                          theme.textTheme.bodySmall!.copyWith(
+                                        color: Colors.grey[600],
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Sign Out Button
+                      SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.5),
+                          end: Offset.zero,
+                        ).animate(_animation),
+                        child: Center(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showLogoutDialog(context),
+                            icon: const Icon(Icons.logout),
+                            label: const Text('Sign Out'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.colorScheme.error,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      // App Info
+                      Center(
+                        child: Text(
+                          'Teton Meal App v1.0.0',
+                          style: theme.textTheme.bodySmall!.copyWith(
+                            color: Colors.grey[500],
                           ),
                         ),
                       ),
@@ -395,10 +704,191 @@ class _AccountsPageState extends State<AccountsPage> {
                   ),
                 ),
               ),
+            ),
+    );
+  }
+
+  Widget _buildFormField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isEnabled = true,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    final theme = Theme.of(context);
+
+    return TextFormField(
+      controller: controller,
+      enabled: isEnabled,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon,
+            color: isEnabled ? theme.colorScheme.primary : Colors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+        ),
+        filled: true,
+        fillColor: isEnabled ? Colors.white : Colors.grey[50],
+      ),
+      validator: validator,
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+    required bool isObscure,
+    required VoidCallback onToggle,
+    String? Function(String?)? validator,
+  }) {
+    final theme = Theme.of(context);
+
+    return TextFormField(
+      controller: controller,
+      obscureText: isObscure,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.primary),
+        suffixIcon: IconButton(
+          icon: Icon(
+            isObscure
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            color: Colors.grey[600],
+          ),
+          onPressed: onToggle,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      validator: validator,
+    );
+  }
+
+  Widget _buildInfoTile({
+    required String title,
+    required String value,
+    required IconData icon,
+  }) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: theme.colorScheme.primary,
+            size: 22,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.bodySmall!.copyWith(
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: theme.textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
         ),
-      ),
+      ],
+    );
+  }
+
+  String _getInitials() {
+    if (user?.displayName != null && user!.displayName!.isNotEmpty) {
+      final names = user!.displayName!.split(' ');
+      final initials =
+          names.map((name) => name.isNotEmpty ? name[0] : '').join();
+      return initials.toUpperCase();
+    }
+    return 'U'; // Default initial if no name is set
+  }
+
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    final theme = Theme.of(context);
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.logout, color: theme.colorScheme.error),
+              const SizedBox(width: 10),
+              const Text('Sign Out'),
+            ],
+          ),
+          content:
+              const Text('Are you sure you want to sign out of your account?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _logout(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.error,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

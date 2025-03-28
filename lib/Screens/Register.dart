@@ -34,198 +34,361 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-              child: Form(
-                key: _formkey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 60),
-                    Text(
-                      'Create Account',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.email),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        hintText: 'Email',
-                        enabled: true,
-                        contentPadding: const EdgeInsets.all(20),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Email cannot be empty";
-                        }
-                        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
-                            .hasMatch(value)) {
-                          return "Please enter a valid email";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      obscureText: _isObscure,
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isObscure ? Icons.visibility_off : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isObscure = !_isObscure;
-                            });
-                          },
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        hintText: 'Password',
-                        enabled: true,
-                        contentPadding: const EdgeInsets.all(20),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      validator: (value) {
-                        RegExp regex = RegExp(r'^.{6,}$');
-                        if (value!.isEmpty) {
-                          return "Password cannot be empty";
-                        }
-                        if (!regex.hasMatch(value)) {
-                          return "Please enter valid password (Min. 6 characters)";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      obscureText: _isObscure2,
-                      controller: confirmpassController,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isObscure2 ? Icons.visibility_off : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isObscure2 = !_isObscure2;
-                            });
-                          },
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        hintText: 'Confirm Password',
-                        enabled: true,
-                        contentPadding: const EdgeInsets.all(20),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      validator: (value) {
-                        if (confirmpassController.text != passwordController.text) {
-                          return "Passwords do not match";
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.person_outline, color: Colors.grey),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                dropdownColor: Colors.white,
-                                items: rool.map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(
-                                      value,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    _currentItemSelected = newValue!;
-                                    role = newValue;
-                                  });
-                                },
-                                value: _currentItemSelected,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    MaterialButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 0,
-                      minWidth: double.maxFinite,
-                      height: 50,
-                      onPressed: () {
-                        // Removed premature setState for showProgress.
-                        signUp(emailController.text, passwordController.text, role);
-                      },
-                      color: Theme.of(context).primaryColor,
-                      child: showProgress
-                          ? const CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            )
-                          : const Text(
-                              "Register",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
+      body: Stack(
+        children: [
+          // Background with gradient
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.cardBackground,
+                  AppColors.backgroundColor,
+                ],
+              ),
+            ),
+          ),
+
+          // Decorative design elements
+          Positioned(
+            top: -50,
+            right: -50,
+            child: Container(
+              height: 150,
+              width: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppColors.primaryColor.withOpacity(0.2),
+                    AppColors.primaryColor.withOpacity(0.0),
                   ],
                 ),
               ),
             ),
-            if (showProgress)
-              Container(
-                color: Colors.black.withOpacity(0.5),
-                child: const Center(
-                  child: CircularProgressIndicator(),
+          ),
+
+          Positioned(
+            bottom: -100,
+            left: -50,
+            child: Container(
+              height: 200,
+              width: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppColors.secondaryColor.withOpacity(0.2),
+                    AppColors.secondaryColor.withOpacity(0.0),
+                  ],
                 ),
               ),
-          ],
+            ),
+          ),
+
+          SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 50),
+                  // Logo or Icon (optional)
+                  Center(
+                    child: Container(
+                      height: 80,
+                      width: 80,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryColor.withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.restaurant_menu,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Heading
+                  Center(
+                    child: Text(
+                      'Create Account',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Subheading
+                  Center(
+                    child: Text(
+                      'Join Teton Meals today',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Form
+                  Form(
+                    key: _formkey,
+                    child: Column(
+                      children: [
+                        // Email field
+                        buildTextField(
+                          controller: emailController,
+                          hint: 'Email',
+                          icon: Icons.email_outlined,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Email cannot be empty";
+                            }
+                            if (!RegExp(
+                                    "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                                .hasMatch(value)) {
+                              return "Please enter a valid email";
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Password field
+                        buildTextField(
+                          controller: passwordController,
+                          hint: 'Password',
+                          icon: Icons.lock_outline,
+                          obscure: _isObscure,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isObscure
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.grey[500],
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isObscure = !_isObscure;
+                              });
+                            },
+                          ),
+                          validator: (value) {
+                            RegExp regex = RegExp(r'^.{6,}$');
+                            if (value!.isEmpty) {
+                              return "Password cannot be empty";
+                            }
+                            if (!regex.hasMatch(value)) {
+                              return "Please enter valid password (Min. 6 characters)";
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Confirm Password field
+                        buildTextField(
+                          controller: confirmpassController,
+                          hint: 'Confirm Password',
+                          icon: Icons.lock_outline,
+                          obscure: _isObscure2,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isObscure2
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.grey[500],
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isObscure2 = !_isObscure2;
+                              });
+                            },
+                          ),
+                          validator: (value) {
+                            if (confirmpassController.text !=
+                                passwordController.text) {
+                              return "Passwords do not match";
+                            }
+                            return null;
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Role selection
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.person_outline,
+                                  color: AppColors.primaryColor),
+                              const SizedBox(width: 15),
+                              Expanded(
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    isExpanded: true,
+                                    dropdownColor: Colors.white,
+                                    items: rool.map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
+                                          value,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        _currentItemSelected = newValue!;
+                                        role = newValue;
+                                      });
+                                    },
+                                    value: _currentItemSelected,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // Register Button
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              signUp(emailController.text,
+                                  passwordController.text, role);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primaryColor,
+                              foregroundColor: Colors.white,
+                              elevation: showProgress ? 0 : 5,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              shadowColor:
+                                  AppColors.primaryColor.withOpacity(0.5),
+                            ),
+                            child: showProgress
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                      strokeWidth: 3,
+                                    ),
+                                  )
+                                : const Text(
+                                    "CREATE ACCOUNT",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        const SizedBox(height: 30),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          if (showProgress)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.secondaryColor),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to build consistent text fields
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool obscure = false,
+    Widget? suffixIcon,
+    required FormFieldValidator<String> validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        validator: validator,
+        style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(fontSize: 16, color: Colors.grey[400]),
+          prefixIcon: Icon(icon, color: AppColors.primaryColor),
+          suffixIcon: suffixIcon,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 20),
         ),
       ),
     );
@@ -234,7 +397,7 @@ class _RegisterState extends State<Register> {
   void signUp(String email, String password, String role) async {
     if (_formkey.currentState!.validate()) {
       setState(() {
-        showProgress = true; // Moved showProgress update here after validation passes
+        showProgress = true;
       });
       try {
         // Show registration in progress toast
@@ -260,7 +423,6 @@ class _RegisterState extends State<Register> {
           showProgress = false;
         });
 
-
         // Clear the form
         emailController.clear();
         passwordController.clear();
@@ -269,7 +431,6 @@ class _RegisterState extends State<Register> {
           _currentItemSelected = "Diner";
           role = "Diner";
         });
-
       } catch (e) {
         // Error toast
         Fluttertoast.showToast(
@@ -278,7 +439,7 @@ class _RegisterState extends State<Register> {
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.red,
         );
-        
+
         setState(() {
           showProgress = false;
         });
