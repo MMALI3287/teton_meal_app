@@ -6,19 +6,7 @@ import 'package:teton_meal_app/Screens/BottomNavPages/Account/accounts_page.dart
 import 'package:teton_meal_app/Screens/Register.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
-
-void main() => runApp(const NavbarApp());
-
-class NavbarApp extends StatelessWidget {
-  const NavbarApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Navbar(),
-    );
-  }
-}
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Navbar extends StatefulWidget {
   const Navbar({super.key});
@@ -30,6 +18,7 @@ class Navbar extends StatefulWidget {
 class _NavbarState extends State<Navbar> {
   int _selectedIndex = 0;
   String _userRole = 'Diner';
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -38,11 +27,21 @@ class _NavbarState extends State<Navbar> {
   }
 
   Future<void> _fetchUserRole() async {
-    final user = AuthService().currentUser;
-    if (user != null) {
-      setState(() {
-        _userRole = user.role;
-      });
+    try {
+      final user = AuthService().currentUser;
+      if (user != null) {
+        setState(() {
+          _userRole = user.role;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Failed to fetch user role: ${e.toString()}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+      setState(() => _isLoading = false);
     }
   }
 
@@ -74,18 +73,22 @@ class _NavbarState extends State<Navbar> {
         BottomNavigationBarItem(
           icon: Icon(Icons.poll),
           label: 'Vote',
+          tooltip: 'View and cast votes',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.menu_book),
           label: 'Menu',
+          tooltip: 'View and manage menus',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.app_registration),
           label: 'Register',
+          tooltip: 'Register new users',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.account_box_sharp),
           label: 'Account',
+          tooltip: 'Manage your account',
         ),
       ];
     } else if (_userRole == 'Planner') {
@@ -93,14 +96,17 @@ class _NavbarState extends State<Navbar> {
         BottomNavigationBarItem(
           icon: Icon(Icons.poll),
           label: 'Vote',
+          tooltip: 'View and cast votes',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.menu_book),
           label: 'Menu',
+          tooltip: 'View and manage menus',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.account_box_sharp),
           label: 'Account',
+          tooltip: 'Manage your account',
         ),
       ];
     } else {
@@ -108,10 +114,12 @@ class _NavbarState extends State<Navbar> {
         BottomNavigationBarItem(
           icon: Icon(Icons.poll),
           label: 'Vote',
+          tooltip: 'View and cast votes',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.account_box_sharp),
           label: 'Account',
+          tooltip: 'Manage your account',
         ),
       ];
     }
@@ -121,18 +129,68 @@ class _NavbarState extends State<Navbar> {
     setState(() {
       _selectedIndex = index;
     });
+    
+    String message = '';
+    switch (index) {
+      case 0:
+        message = 'Place your lunch order';
+        break;
+      case 1:
+        message = _userRole == 'Diner' 
+            ? 'Manage your profile'
+            : 'Manage lunch menus';
+        break;
+      case 2:
+        message = _userRole == 'Admin'
+            ? 'Register new employee'
+            : 'Manage your profile';
+        break;
+      case 3:
+        message = 'Manage your profile';
+        break;
+    }
+    
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.black54,
+      textColor: Colors.white,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       body: _getScreens()[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: _getBottomNavItems(),
-        currentIndex: _selectedIndex,
-        selectedItemColor: AppColors.secondaryColor,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          items: _getBottomNavItems(),
+          currentIndex: _selectedIndex,
+          selectedItemColor: AppColors.secondaryColor,
+          unselectedItemColor: Colors.grey,
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }

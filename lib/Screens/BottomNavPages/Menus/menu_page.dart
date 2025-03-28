@@ -4,6 +4,7 @@ import "package:teton_meal_app/services/auth_service.dart";
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MenusPage extends StatefulWidget {
   const MenusPage({super.key});
@@ -30,7 +31,7 @@ class _MenusPageState extends State<MenusPage> {
       if (message.notification != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(message.notification!.title ?? 'New Notification'),
+            content: Text(message.notification!.title ?? 'New update'),
           ),
         );
       }
@@ -41,6 +42,13 @@ class _MenusPageState extends State<MenusPage> {
     setState(() {
       _isGridView = !_isGridView;
     });
+    Fluttertoast.showToast(
+      msg: _isGridView ? "Switched to Calendar View" : "Switched to List View",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.blue,
+      textColor: Colors.white,
+    );
   }
 
   void _toggleCategory(String category) {
@@ -53,7 +61,10 @@ class _MenusPageState extends State<MenusPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Menu'),
+        title: const Text('Lunch Menu'),
+        elevation: 2,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: Icon(_isGridView ? Icons.calendar_today : Icons.grid_view),
@@ -61,15 +72,37 @@ class _MenusPageState extends State<MenusPage> {
           ),
         ],
       ),
-      body: _isGridView ? _buildGridView() : _buildCalendarView(),
-      floatingActionButton: FloatingActionButton(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blue.withOpacity(0.1),
+              Colors.white,
+            ],
+          ),
+        ),
+        child: _isGridView ? _buildGridView() : _buildCalendarView(),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
+          Fluttertoast.showToast(
+            msg: "Creating new lunch menu...",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.blue,
+            textColor: Colors.white,
+          );
           showDialog(
             context: context,
             builder: (context) => const CreatePollDialog(),
           );
         },
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text('Create Menu'),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Colors.white,
       ),
     );
   }
@@ -213,7 +246,7 @@ class _MenusPageState extends State<MenusPage> {
     final polls = _events[selectedDate] ?? [];
 
     if (polls.isEmpty) {
-      return const Center(child: Text('No polls for this date'));
+      return const Center(child: Text('No lunch menu available for this date'));
     }
 
     return ListView.builder(
@@ -234,7 +267,7 @@ class PollsByDatePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Polls by Date'),
+        title: const Text('Orders by Date'),
       ),
       body: ListView.builder(
         itemCount: polls.length,
@@ -259,7 +292,7 @@ class MenuPollCard extends StatelessWidget {
           .update({'isActive': !pollData['isActive']});
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating poll: $e')),
+        SnackBar(content: Text('Error updating menu: $e')),
       );
     }
   }
@@ -310,7 +343,7 @@ class MenuPollCard extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('View votes'),
+                  child: const Text('View Orders'),
                 ),
                 TextButton(
                   onPressed: () {
@@ -371,13 +404,13 @@ class _PollVotesPageState extends State<PollVotesPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vote removed successfully')),
+        const SnackBar(content: Text('Order removed successfully')),
       );
 
       await _fetchPollData();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error removing vote: $e')),
+        SnackBar(content: Text('Error removing order: $e')),
       );
     }
   }
@@ -389,14 +422,14 @@ class _PollVotesPageState extends State<PollVotesPage> {
     }
 
     if (pollSnapshot == null) {
-      return const Center(child: Text('Error loading poll data'));
+      return const Center(child: Text('Error loading menu data'));
     }
 
     final votes = pollSnapshot!['votes'] as Map<String, dynamic>;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Votes'),
+        title: const Text('Lunch Orders'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -412,7 +445,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
 
             return ExpansionTile(
               title: Text(option),
-              subtitle: Text('${optionVotes.length} votes'),
+              subtitle: Text('${optionVotes.length} orders'),
               children: optionVotes.map<Widget>((voterId) {
                 return FutureBuilder<DocumentSnapshot>(
                   future: FirebaseFirestore.instance
@@ -433,7 +466,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                         'Unknown User';
 
                     return ListTile(
-                      leading: const Icon(Icons.person),
                       title: Text(displayName),
                       trailing: IconButton(
                         icon: const Icon(Icons.remove_circle_outline),

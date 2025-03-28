@@ -9,20 +9,26 @@ import 'package:teton_meal_app/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:teton_meal_app/message_stream.dart'; // Add this import
+import 'package:teton_meal_app/message_stream.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class VotesPage extends StatefulWidget {
   const VotesPage({super.key});
 
   @override
   State<VotesPage> createState() => _VotesPageState();
+
+  String _formatTime(int? endTimeMillis) {
+    if (endTimeMillis == null) return 'unknown time';
+    final date = DateTime.fromMillisecondsSinceEpoch(endTimeMillis);
+    return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
 }
 
 class _VotesPageState extends State<VotesPage> {
   String _lastMessage = '';
   _VotesPageState() {
     messageStreamController.listen((message) {
-      // Use the exported controller
       setState(() {
         if (message.notification != null) {
           _lastMessage = 'Received a notification message:'
@@ -35,6 +41,7 @@ class _VotesPageState extends State<VotesPage> {
       });
     });
   }
+  
   Future<QueryDocumentSnapshot?> _getLatestDeactivatedPoll() async {
     try {
       final snapshot = await FirebaseFirestore.instance
@@ -57,7 +64,7 @@ class _VotesPageState extends State<VotesPage> {
     // Get options and votes from poll data
     final options = List<String>.from(pollData['options'] ?? []);
     final votes = pollData['votes'] as Map<String, dynamic>? ?? {};
-    final question = pollData['question'] as String? ?? 'Unknown Menu';
+    final question = pollData['question'] as String? ?? 'Unknown Poll Question';
 
     // Find user's vote
     String selectedOption = "Did not vote";
@@ -142,77 +149,121 @@ class _VotesPageState extends State<VotesPage> {
     );
   }
 
+  void _showLoadingToast() {
+    Fluttertoast.showToast(
+      msg: "Loading your vote token...",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: Colors.blue.withOpacity(0.9),
+      textColor: Colors.white,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vote'),
+        title: const Text('Today\'s Lunch Menu'),
+        elevation: 2,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
       ),
-      body: Center(
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('polls')
-              .where('isActive', isEqualTo: true)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              print('Error in StreamBuilder: ${snapshot.error}');
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blue.withOpacity(0.1),
+              Colors.white,
+            ],
+          ),
+        ),
+        child: Center(
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('polls')
+                .where('isActive', isEqualTo: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                print('Error in StreamBuilder: ${snapshot.error}');
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            final polls = snapshot.data?.docs ?? [];
-            print('Fetched ${polls.length} active polls'); // Debug print
+              final polls = snapshot.data?.docs ?? [];
+              print('Fetched ${polls.length} active polls'); // Debug print
 
-            if (polls.isEmpty) {
-              return const Center(child: Text('No active polls'));
-            }
+              if (polls.isEmpty) {
+                return const Center(child: Text('No active polls for today'));
+              }
 
-            return ListView.builder(
-              itemCount: polls.length,
-              itemBuilder: (context, index) {
-                try {
-                  final poll = polls[index];
-                  print('Poll data: ${poll.data()}'); // Debug print
+              return ListView.builder(
+                itemCount: polls.length,
+                itemBuilder: (context, index) {
+                  try {
+                    final poll = polls[index];
+                    print('Poll data: ${poll.data()}'); // Debug print
 
-                  return PollCard(pollData: poll);
-                } catch (e) {
-                  print('Error building poll card: $e');
-                  return const SizedBox();
-                }
-              },
-            );
-          },
+                    return PollCard(pollData: poll);
+                  } catch (e) {
+                    print('Error building poll card: $e');
+                    return const SizedBox();
+                  }
+                },
+              );
+            },
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
+          _showLoadingToast();
           final pollData = await _getLatestDeactivatedPoll();
 
           if (pollData != null) {
             final userId = AuthService().currentUser?.uid;
             if (userId == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Please sign in to generate a token')),
+              Fluttertoast.showToast(
+                msg: "Please sign in to view your lunch receipt",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
               );
               return;
             }
 
             final imageData = await _generateTokenImage(
                 pollData.data() as Map<String, dynamic>, userId);
+            
+            Fluttertoast.showToast(
+              msg: "Lunch receipt generated!",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+            );
 
             _showTokenDialog(context, imageData);
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No deactivated polls available')),
+            Fluttertoast.showToast(
+              msg: "No completed lunch orders found",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Colors.orange,
+              textColor: Colors.white,
             );
           }
         },
-        child: const Icon(Icons.token),
+        icon: const Icon(Icons.receipt_long),
+        label: const Text('View Receipt'),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Colors.white,
       ),
     );
   }
@@ -279,11 +330,11 @@ class PollCard extends StatelessWidget {
         ),
       );
     } catch (e) {
-      print('Error in PollCard: $e');
+      print('Error in MenuCard: $e');
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(16),
-          child: Text('Error loading poll'),
+          child: Text('Error loading lunch menu'),
         ),
       );
     }

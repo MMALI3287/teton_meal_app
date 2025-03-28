@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class UserModel {
   final String uid;
@@ -231,6 +233,40 @@ class AuthService {
       }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<void> setupFirebaseMessaging() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      const vapidKey =
+          "BDclHqth8ixTjMFYKUj3WjXpXEkpULwD84XPLqBM100gFmetTQGaokvfyQl-V6G9TPFlZGOzpmgtGPItEbgGhxI";
+      final token = await messaging.getToken(vapidKey: vapidKey);
+
+      if (token != null) {
+        final user = currentUser;
+        if (user != null) {
+          await _firestore.collection('users').doc(user.uid).update({
+            'fcm_token': token,
+            'notifications_enabled': true,
+          });
+        }
+      }
+
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+        final user = currentUser;
+        if (user != null) {
+          await _firestore.collection('users').doc(user.uid).update({
+            'fcm_token': newToken,
+          });
+        }
+      });
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Failed to setup notifications: ${e.toString()}",
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+      );
     }
   }
 
