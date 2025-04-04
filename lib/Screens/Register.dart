@@ -247,38 +247,88 @@ class _RegisterState extends State<Register> {
                                 offset: const Offset(0, 2),
                               ),
                             ],
+                            border: Border.all(
+                              color: Colors.grey.withOpacity(0.2),
+                              width: 1,
+                            ),
                           ),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.person_outline,
-                                  color: AppColors.primaryColor),
-                              const SizedBox(width: 15),
-                              Expanded(
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    isExpanded: true,
-                                    dropdownColor: Colors.white,
-                                    items: rool.map((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.grey[800],
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        _currentItemSelected = newValue!;
-                                        role = newValue;
-                                      });
-                                    },
-                                    value: _currentItemSelected,
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5, top: 8, bottom: 5),
+                                child: Text(
+                                  "Select Role",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
+                              ),
+                              Row(
+                                children: [
+                                  Icon(Icons.badge_outlined,
+                                      color: AppColors.primaryColor),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        isExpanded: true,
+                                        dropdownColor: Colors.white,
+                                        icon: Icon(
+                                          Icons.arrow_drop_down_circle,
+                                          color: AppColors.primaryColor,
+                                        ),
+                                        items: rool.map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Row(
+                                              children: [
+                                                // Show different icons based on role
+                                                Icon(
+                                                  value == "Diner" 
+                                                      ? Icons.dining_outlined
+                                                      : value == "Planner" 
+                                                          ? Icons.event_note_outlined
+                                                          : Icons.admin_panel_settings_outlined,
+                                                  color: _currentItemSelected == value 
+                                                      ? AppColors.primaryColor 
+                                                      : Colors.grey[400],
+                                                  size: 18,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                  value,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: _currentItemSelected == value
+                                                        ? AppColors.primaryColor
+                                                        : Colors.grey[800],
+                                                    fontWeight: _currentItemSelected == value
+                                                        ? FontWeight.bold
+                                                        : FontWeight.normal,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            _currentItemSelected = newValue!;
+                                            role = newValue;
+                                          });
+                                        },
+                                        value: _currentItemSelected,
+                                        menuMaxHeight: 300,
+                                        // Add some style to the dropdown itself
+                                        borderRadius: BorderRadius.circular(15),
+                                        elevation: 8,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

@@ -7,12 +7,14 @@ class VoteOption extends StatefulWidget {
   final String option;
   final String pollId;
   final Map<String, dynamic> allVotes;
+  final int? endTimeMillis; // Add endTimeMillis parameter
 
   const VoteOption({
     super.key,
     required this.option,
     required this.pollId,
     required this.allVotes,
+    this.endTimeMillis, // Add this parameter
   });
 
   @override
@@ -70,6 +72,22 @@ class _VoteOptionState extends State<VoteOption>
   }
 
   Future<void> _handleVote() async {
+    // Check if the end time has passed
+    if (widget.endTimeMillis != null) {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (now > widget.endTimeMillis!) {
+        // Show toast message that voting time is over
+        Fluttertoast.showToast(
+            msg: "The time to place orders has ended",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        return;
+      }
+    }
+
     final user = AuthService().currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(

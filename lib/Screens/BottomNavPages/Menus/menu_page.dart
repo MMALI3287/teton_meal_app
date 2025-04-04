@@ -1412,17 +1412,49 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                     Expanded(
                                       child: DropdownButtonFormField<String>(
                                         value: _selectedMeals[index],
+                                        isDense: true, // Make dropdown more compact
+                                        isExpanded: true, // Ensure it doesn't overflow
                                         decoration: InputDecoration(
                                           labelText: 'Option ${index + 1}',
                                           contentPadding:
                                               const EdgeInsets.symmetric(
-                                                  horizontal: 16),
+                                                  horizontal: 12, vertical: 8),
                                           border: InputBorder.none,
                                         ),
                                         items: _mealOptions.map((String meal) {
                                           return DropdownMenuItem<String>(
                                             value: meal,
-                                            child: Text(meal),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min, // Prevent row from expanding too much
+                                              children: [
+                                                // Show icons for each meal option
+                                                Icon(
+                                                  meal == 'Custom' 
+                                                      ? Icons.edit
+                                                      : Icons.restaurant,
+                                                  color: _selectedMeals[index] == meal 
+                                                      ? theme.colorScheme.primary
+                                                      : Colors.grey[400],
+                                                  size: 18,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Flexible(
+                                                  child: Text(
+                                                    meal,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: _selectedMeals[index] == meal
+                                                          ? theme.colorScheme.primary
+                                                          : Colors.grey[800],
+                                                      fontWeight: _selectedMeals[index] == meal
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           );
                                         }).toList(),
                                         onChanged: (value) {
@@ -1447,6 +1479,14 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                                 ? 'Please select an option'
                                                 : null,
                                         dropdownColor: Colors.white,
+                                        // Add some style to the dropdown itself
+                                        icon: Icon(
+                                          Icons.arrow_drop_down_circle,
+                                          color: theme.colorScheme.primary,
+                                          size: 20, // Make icon smaller
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        elevation: 8,
                                       ),
                                     ),
                                     if (_selectedMeals.length > 2)
@@ -1624,18 +1664,38 @@ class EditPollDialogState extends State<EditPollDialog> {
   late List<TextEditingController> _optionControllers;
   late TimeOfDay _selectedTime;
 
+  // Define standard meal options
+  final List<String> _mealOptions = [
+    'Beef Khichuri',
+    'Fried Rice',
+    'Fried Egg with Rice',
+    'Custom',
+  ];
+
+  // Track which options are standard vs custom
+  late List<String> _optionTypes; // 'standard' or 'custom'
+
   @override
   void initState() {
     super.initState();
 
     _questionController =
         TextEditingController(text: widget.pollData['question']);
+
+    // Initialize option controllers and types
+    final options = widget.pollData['options'] as List;
     _optionControllers = List.generate(
-      (widget.pollData['options'] as List).length,
-      (index) => TextEditingController(
-        text: (widget.pollData['options'] as List)[index],
-      ),
+      options.length,
+      (index) => TextEditingController(text: options[index]),
     );
+
+    // Determine if each option is standard or custom
+    _optionTypes = List.generate(options.length, (index) {
+      final option = options[index];
+      return _mealOptions.contains(option) && option != 'Custom'
+          ? 'standard'
+          : 'custom';
+    });
 
     final endTimeMillis = widget.pollData['endTimeMillis'] as int;
     final endTime = DateTime.fromMillisecondsSinceEpoch(endTimeMillis);
@@ -1712,6 +1772,17 @@ class EditPollDialogState extends State<EditPollDialog> {
     }
   }
 
+  // Toggle between dropdown and text field
+  void _toggleOptionType(int index, String type) {
+    setState(() {
+      _optionTypes[index] = type;
+      // If changing to standard, reset the text to first standard option
+      if (type == 'standard') {
+        _optionControllers[index].text = _mealOptions.first;
+      }
+    });
+  }
+
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -1735,6 +1806,7 @@ class EditPollDialogState extends State<EditPollDialog> {
     setState(() {
       _optionControllers[index].dispose();
       _optionControllers.removeAt(index);
+      _optionTypes.removeAt(index);
     });
   }
 
@@ -1830,6 +1902,12 @@ class EditPollDialogState extends State<EditPollDialog> {
                         ),
                         const SizedBox(height: 16),
                         ...List.generate(_optionControllers.length, (index) {
+                          final isStandard = _optionTypes[index] == 'standard';
+                          final currentText = _optionControllers[index].text;
+                          final isExistingOption =
+                              _mealOptions.contains(currentText) &&
+                                  currentText != 'Custom';
+
                           return Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -1871,22 +1949,118 @@ class EditPollDialogState extends State<EditPollDialog> {
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 16.0),
-                                    child: TextFormField(
-                                      controller: _optionControllers[index],
-                                      decoration: InputDecoration(
-                                        labelText: 'Option ${index + 1}',
-                                        border: InputBorder.none,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 16),
-                                      ),
-                                      validator: (value) =>
-                                          value?.isEmpty ?? true
-                                              ? 'Please enter an option'
-                                              : null,
-                                    ),
+                                    child: isStandard || isExistingOption
+                                        ? DropdownButtonFormField<String>(
+                                            value: isStandard
+                                                ? currentText
+                                                : _mealOptions.first,
+                                            isDense: true, // Make dropdown more compact
+                                            isExpanded: true, // Ensure it doesn't overflow
+                                            decoration: InputDecoration(
+                                              labelText: 'Option ${index + 1}',
+                                              border: InputBorder.none,
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 12, horizontal: 0),
+                                            ),
+                                            items: _mealOptions
+                                                .where((m) => m != 'Custom')
+                                                .map((String meal) {
+                                              return DropdownMenuItem<String>(
+                                                value: meal,
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min, // Prevent row from expanding too much
+                                                  children: [
+                                                    Icon(
+                                                      Icons.restaurant,
+                                                      color: currentText == meal
+                                                          ? theme.colorScheme
+                                                              .primary
+                                                          : Colors.grey[400],
+                                                      size: 18,
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Flexible(
+                                                      child: Text(
+                                                        meal,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: currentText ==
+                                                                  meal
+                                                              ? theme.colorScheme
+                                                                  .primary
+                                                              : Colors.grey[800],
+                                                          fontWeight:
+                                                              currentText == meal
+                                                                  ? FontWeight
+                                                                      .bold
+                                                                  : FontWeight
+                                                                      .normal,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }).toList(),
+                                            onChanged: (value) {
+                                              _optionControllers[index].text =
+                                                  value!;
+                                            },
+                                            validator: (value) =>
+                                                value?.isEmpty ?? true
+                                                    ? 'Please select an option'
+                                                    : null,
+                                            dropdownColor: Colors.white,
+                                            icon: Icon(
+                                              Icons.arrow_drop_down_circle,
+                                              color: theme.colorScheme.primary,
+                                              size: 20, // Smaller icon
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            elevation: 8,
+                                          )
+                                        : TextFormField(
+                                            controller:
+                                                _optionControllers[index],
+                                            decoration: InputDecoration(
+                                                labelText:
+                                                    'Custom Option ${index + 1}',
+                                                border: InputBorder.none,
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 16),
+                                                suffixIcon: IconButton(
+                                                  icon: Icon(
+                                                    Icons.menu_book,
+                                                    color: theme
+                                                        .colorScheme.primary,
+                                                  ),
+                                                  onPressed: () =>
+                                                      _toggleOptionType(
+                                                          index, 'standard'),
+                                                  tooltip:
+                                                      'Switch to standard options',
+                                                )),
+                                            validator: (value) =>
+                                                value?.isEmpty ?? true
+                                                    ? 'Please enter an option'
+                                                    : null,
+                                          ),
                                   ),
                                 ),
+                                if (isStandard || isExistingOption)
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.edit,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                    onPressed: () =>
+                                        _toggleOptionType(index, 'custom'),
+                                    tooltip: 'Switch to custom input',
+                                  ),
                                 if (_optionControllers.length > 2)
                                   IconButton(
                                     icon: const Icon(
@@ -1904,6 +2078,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                             onPressed: () {
                               setState(() {
                                 _optionControllers.add(TextEditingController());
+                                _optionTypes.add('custom');
                               });
                             },
                             icon: Icon(Icons.add_circle_outline,

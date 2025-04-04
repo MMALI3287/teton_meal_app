@@ -670,7 +670,7 @@ class PollCard extends StatelessWidget {
 
     final String question = data['question'] ?? 'No Question';
     final String date = data['date'] ?? 'No Date';
-    final int? endTimeMs = data['endTime'];
+    final int? endTimeMs = data['endTimeMillis'];
     final List<String> options = List<String>.from(data['options'] ?? []);
     final Map<String, dynamic> votes = data['votes'] ?? {};
 
@@ -865,6 +865,7 @@ class PollCard extends StatelessWidget {
                         option: options[index],
                         pollId: pollData.id,
                         allVotes: votes,
+                        endTimeMillis: endTimeMs,
                       );
                     },
                   ),
