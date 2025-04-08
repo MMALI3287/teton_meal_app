@@ -2,7 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
-// used to pass messages from event handler to the UI
+
 final _messageStreamController = BehaviorSubject<RemoteMessage>();
 
 void setupFirebaseMessaging() {
@@ -18,5 +18,5 @@ void setupFirebaseMessaging() {
   });
 }
 
-// Export the message stream controller
+
 BehaviorSubject<RemoteMessage> get messageStreamController => _messageStreamController;

@@ -228,7 +228,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
       );
     }
 
-    // Get current screen based on selected index
+    
     final currentScreen = _getScreens()[_selectedIndex];
     final navItems = _getNavItems();
 
@@ -279,14 +279,14 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
       highlightColor: Colors.transparent,
       child: Container(
         width: MediaQuery.of(context).size.width / _getNavItems().length,
-        padding: const EdgeInsets.symmetric(vertical: 8), // Increased padding
+        padding: const EdgeInsets.symmetric(vertical: 8), 
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
-              height: 3, // Increased indicator height
-              width: isSelected ? 25 : 0, // Increased indicator width
+              height: 3, 
+              width: isSelected ? 25 : 0, 
               margin: const EdgeInsets.only(bottom: 4),
               decoration: BoxDecoration(
                 color: AppColors.primaryColor,
@@ -294,7 +294,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(8), // Increased padding
+              padding: const EdgeInsets.all(8), 
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.primaryColor.withOpacity(0.1)
@@ -304,16 +304,16 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
               child: Icon(
                 isSelected ? item.activeIcon : item.icon,
                 color: isSelected ? AppColors.primaryColor : Colors.grey[500],
-                size: 24, // Increased icon size
+                size: 24, 
               ),
             ),
-            const SizedBox(height: 4), // Increased spacing
+            const SizedBox(height: 4), 
             Text(
               item.label,
               style: TextStyle(
                 color: isSelected ? AppColors.primaryColor : Colors.grey[500],
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                fontSize: 13, // Increased font size
+                fontSize: 13, 
                 height: 1.2,
               ),
             ),
@@ -324,7 +324,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
   }
 }
 
-// Helper class for navigation items
+
 class NavItemData {
   final IconData icon;
   final IconData activeIcon;

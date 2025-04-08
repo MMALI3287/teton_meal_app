@@ -26,7 +26,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
     super.initState();
     _setupFirebaseMessaging();
 
-    // Setup animation controller for FAB
+    
     _fabAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -39,7 +39,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
       ),
     );
 
-    // Start animation after a short delay
+    
     Future.delayed(const Duration(milliseconds: 200), () {
       _fabAnimationController.forward();
     });
@@ -158,26 +158,26 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // Get all polls
+        
         final polls = snapshot.data!.docs;
 
-        // Sort polls by active status first, then by createdAt date
+        
         polls.sort((a, b) {
-          // First sort by active status
+          
           final aActive = a['isActive'] as bool;
           final bActive = b['isActive'] as bool;
 
           if (aActive != bActive) {
-            // Active polls first
+            
             return aActive ? -1 : 1;
           }
 
-          // Then sort by createdAt date
+          
           final aCreatedAt =
               (a['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
           final bCreatedAt =
               (b['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
-          // Sort descending (newer first)
+          
           return bCreatedAt.compareTo(aCreatedAt);
         });
 
@@ -186,35 +186,35 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
 
         for (var poll in polls) {
           try {
-            // Parse date safely handling both formats (YYYY-MM-DD and DD/MM/YYYY)
+            
             final dateStr = poll['date'] as String;
             DateTime date;
 
             if (dateStr.contains('/')) {
-              // DD/MM/YYYY format
+              
               final parts = dateStr.split('/');
               if (parts.length == 3) {
                 try {
                   date = DateTime(
-                    int.parse(parts[2]), // Year
-                    int.parse(parts[1]), // Month
-                    int.parse(parts[0]), // Day
+                    int.parse(parts[2]), 
+                    int.parse(parts[1]), 
+                    int.parse(parts[0]), 
                   );
                 } catch (e) {
-                  // If there's an error parsing, use current date as fallback
+                  
                   print('Error parsing date $dateStr: $e');
                   date = DateTime.now();
                 }
               } else {
-                // If format doesn't have exactly 3 parts, use current date
+                
                 date = DateTime.now();
               }
             } else {
-              // YYYY-MM-DD format (old format)
+              
               try {
                 date = DateTime.parse(dateStr);
               } catch (e) {
-                // If there's an error parsing, use current date as fallback
+                
                 print('Error parsing date $dateStr: $e');
                 date = DateTime.now();
               }
@@ -232,7 +232,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
             categorizedPolls[year]![month]!.add(poll);
           } catch (e) {
             print('Error processing poll: $e');
-            // Continue to next poll if there's an error with this one
+            
           }
         }
 
@@ -280,26 +280,26 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // Get all polls
+        
         final polls = snapshot.data!.docs;
 
-        // Sort polls by active status first, then by createdAt date
+        
         polls.sort((a, b) {
-          // First sort by active status
+          
           final aActive = a['isActive'] as bool;
           final bActive = b['isActive'] as bool;
 
           if (aActive != bActive) {
-            // Active polls first
+            
             return aActive ? -1 : 1;
           }
 
-          // Then sort by createdAt date
+          
           final aCreatedAt =
               (a['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
           final bCreatedAt =
               (b['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
-          // Sort descending (newer first)
+          
           return bCreatedAt.compareTo(aCreatedAt);
         });
 
@@ -307,35 +307,35 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
 
         for (var poll in polls) {
           try {
-            // Parse date safely handling both formats (YYYY-MM-DD and DD/MM/YYYY)
+            
             final dateStr = poll['date'] as String;
             DateTime date;
 
             if (dateStr.contains('/')) {
-              // DD/MM/YYYY format
+              
               final parts = dateStr.split('/');
               if (parts.length == 3) {
                 try {
                   date = DateTime(
-                    int.parse(parts[2]), // Year
-                    int.parse(parts[1]), // Month
-                    int.parse(parts[0]), // Day
+                    int.parse(parts[2]), 
+                    int.parse(parts[1]), 
+                    int.parse(parts[0]), 
                   );
                 } catch (e) {
-                  // If there's an error parsing, use current date as fallback
+                  
                   print('Error parsing date $dateStr: $e');
                   date = DateTime.now();
                 }
               } else {
-                // If format doesn't have exactly 3 parts, use current date
+                
                 date = DateTime.now();
               }
             } else {
-              // YYYY-MM-DD format (old format)
+              
               try {
                 date = DateTime.parse(dateStr);
               } catch (e) {
-                // If there's an error parsing, use current date as fallback
+                
                 print('Error parsing date $dateStr: $e');
                 date = DateTime.now();
               }
@@ -349,7 +349,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
             _events[day]!.add(poll);
           } catch (e) {
             print('Error processing poll: $e');
-            // Continue to next poll if there's an error with this one
+            
           }
         }
 
@@ -452,7 +452,7 @@ class MenuPollCard extends StatelessWidget {
   }
 
   Future<void> _deletePoll(BuildContext context) async {
-    // Show confirmation dialog before deleting
+    
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -513,7 +513,7 @@ class MenuPollCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with date and active switch
+            
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -559,7 +559,7 @@ class MenuPollCard extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Menu question
+            
             Text(
               pollData['question'],
               style: theme.textTheme.titleMedium!.copyWith(
@@ -569,7 +569,7 @@ class MenuPollCard extends StatelessWidget {
 
             const Divider(height: 24),
 
-            // Menu options
+            
             ...pollData['options']
                 .map<Widget>(
                   (option) => Padding(
@@ -600,7 +600,7 @@ class MenuPollCard extends StatelessWidget {
             const SizedBox(height: 16),
             const Divider(height: 8),
 
-            // Action buttons
+            
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
@@ -638,7 +638,7 @@ class MenuPollCard extends StatelessWidget {
                           horizontal: 16, vertical: 8),
                     ),
                   ),
-                  // Show Edit button for active polls, Delete button for inactive polls
+                  
                   isActive
                       ? TextButton.icon(
                           onPressed: () {
@@ -730,7 +730,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
         .doc(widget.pollData.id)
         .get();
 
-    // Calculate vote counts for stats
+    
     if (pollSnapshot != null) {
       final votes = pollSnapshot!['votes'] as Map<String, dynamic>;
       _voteCounts = {};
@@ -818,7 +818,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
       ),
       body: Column(
         children: [
-          // Header Card with Menu details
+          
           Card(
             margin: const EdgeInsets.all(16),
             elevation: 2,
@@ -910,12 +910,12 @@ class _PollVotesPageState extends State<PollVotesPage> {
             ),
           ),
 
-          // Orders list
+          
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                // Order summary card
+                
                 if (_totalVotes > 0)
                   Card(
                     elevation: 1,
@@ -1077,7 +1077,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                                 userData?['email'] ??
                                 'Unknown User';
 
-                            // Get first letter for avatar
+                            
                             String initial = displayName.isNotEmpty
                                 ? displayName[0].toUpperCase()
                                 : '?';
@@ -1152,7 +1152,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   Future<void> _createPoll() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Check for duplicates in all selected options (including both dropdown and custom fields)
+    
     final List<String> allOptions = [];
     int customIndex = 0;
 
@@ -1166,7 +1166,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
       }
 
       if (allOptions.contains(optionValue)) {
-        // Show dialog alert instead of toast (so it will be visible on top of the menu dialog)
+        
         if (context.mounted) {
           await showDialog(
             context: context,
@@ -1199,7 +1199,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
           _selectedTime.minute);
       final endTimeMillis = endTime.millisecondsSinceEpoch;
 
-      // Fixed: track custom index separately for correct mapping
+      
       int customIndex = 0;
       final List<String> finalOptions = _selectedMeals.map((meal) {
         if (meal == 'Custom') {
@@ -1261,7 +1261,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   void _addOption(String option) {
     setState(() {
       if (option == 'Custom') {
-        // Add a new controller with empty text
+        
         _customOptionControllers.add(TextEditingController());
       }
       _selectedMeals.add(option);
@@ -1271,7 +1271,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   void _removeOption(int index) {
     setState(() {
       if (_selectedMeals[index] == 'Custom') {
-        // Remove the corresponding controller
+        
         int controllerIndex = _getCustomControllerIndex(index);
         _customOptionControllers[controllerIndex].dispose();
         _customOptionControllers.removeAt(controllerIndex);
@@ -1281,8 +1281,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   }
 
   int _getCustomControllerIndex(int optionIndex) {
-    // Instead of counting custom options before the current index,
-    // just return the index of this custom option in the list
+    
+    
     int customIndex = 0;
     for (int i = 0; i <= optionIndex; i++) {
       if (_selectedMeals[i] == 'Custom') {
@@ -1412,8 +1412,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                     Expanded(
                                       child: DropdownButtonFormField<String>(
                                         value: _selectedMeals[index],
-                                        isDense: true, // Make dropdown more compact
-                                        isExpanded: true, // Ensure it doesn't overflow
+                                        isDense: true, 
+                                        isExpanded: true, 
                                         decoration: InputDecoration(
                                           labelText: 'Option ${index + 1}',
                                           contentPadding:
@@ -1425,9 +1425,9 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                           return DropdownMenuItem<String>(
                                             value: meal,
                                             child: Row(
-                                              mainAxisSize: MainAxisSize.min, // Prevent row from expanding too much
+                                              mainAxisSize: MainAxisSize.min, 
                                               children: [
-                                                // Show icons for each meal option
+                                                
                                                 Icon(
                                                   meal == 'Custom' 
                                                       ? Icons.edit
@@ -1479,11 +1479,11 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                                 ? 'Please select an option'
                                                 : null,
                                         dropdownColor: Colors.white,
-                                        // Add some style to the dropdown itself
+                                        
                                         icon: Icon(
                                           Icons.arrow_drop_down_circle,
                                           color: theme.colorScheme.primary,
-                                          size: 20, // Make icon smaller
+                                          size: 20, 
                                         ),
                                         borderRadius: BorderRadius.circular(12),
                                         elevation: 8,
@@ -1548,7 +1548,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
 
                 const SizedBox(height: 24),
 
-                // End Time Selection
+                
                 Card(
                   elevation: 0,
                   color: theme.colorScheme.primary.withOpacity(0.05),
@@ -1597,7 +1597,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
 
                 const SizedBox(height: 24),
 
-                // Action buttons
+                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -1664,7 +1664,7 @@ class EditPollDialogState extends State<EditPollDialog> {
   late List<TextEditingController> _optionControllers;
   late TimeOfDay _selectedTime;
 
-  // Define standard meal options
+  
   final List<String> _mealOptions = [
     'Beef Khichuri',
     'Fried Rice',
@@ -1672,8 +1672,8 @@ class EditPollDialogState extends State<EditPollDialog> {
     'Custom',
   ];
 
-  // Track which options are standard vs custom
-  late List<String> _optionTypes; // 'standard' or 'custom'
+  
+  late List<String> _optionTypes; 
 
   @override
   void initState() {
@@ -1682,14 +1682,14 @@ class EditPollDialogState extends State<EditPollDialog> {
     _questionController =
         TextEditingController(text: widget.pollData['question']);
 
-    // Initialize option controllers and types
+    
     final options = widget.pollData['options'] as List;
     _optionControllers = List.generate(
       options.length,
       (index) => TextEditingController(text: options[index]),
     );
 
-    // Determine if each option is standard or custom
+    
     _optionTypes = List.generate(options.length, (index) {
       final option = options[index];
       return _mealOptions.contains(option) && option != 'Custom'
@@ -1705,13 +1705,13 @@ class EditPollDialogState extends State<EditPollDialog> {
   Future<void> _updatePoll() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Check for duplicate options
+    
     final List<String> allOptions = [];
     for (var controller in _optionControllers) {
       String optionValue = controller.text;
 
       if (allOptions.contains(optionValue)) {
-        // Show dialog alert for duplicate options
+        
         if (context.mounted) {
           await showDialog(
             context: context,
@@ -1754,7 +1754,7 @@ class EditPollDialogState extends State<EditPollDialog> {
       }
     } catch (e) {
       if (context.mounted) {
-        // Use dialog instead of SnackBar to ensure visibility
+        
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -1772,11 +1772,11 @@ class EditPollDialogState extends State<EditPollDialog> {
     }
   }
 
-  // Toggle between dropdown and text field
+  
   void _toggleOptionType(int index, String type) {
     setState(() {
       _optionTypes[index] = type;
-      // If changing to standard, reset the text to first standard option
+      
       if (type == 'standard') {
         _optionControllers[index].text = _mealOptions.first;
       }
@@ -1954,8 +1954,8 @@ class EditPollDialogState extends State<EditPollDialog> {
                                             value: isStandard
                                                 ? currentText
                                                 : _mealOptions.first,
-                                            isDense: true, // Make dropdown more compact
-                                            isExpanded: true, // Ensure it doesn't overflow
+                                            isDense: true, 
+                                            isExpanded: true, 
                                             decoration: InputDecoration(
                                               labelText: 'Option ${index + 1}',
                                               border: InputBorder.none,
@@ -1969,7 +1969,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                                               return DropdownMenuItem<String>(
                                                 value: meal,
                                                 child: Row(
-                                                  mainAxisSize: MainAxisSize.min, // Prevent row from expanding too much
+                                                  mainAxisSize: MainAxisSize.min, 
                                                   children: [
                                                     Icon(
                                                       Icons.restaurant,
@@ -2016,7 +2016,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                                             icon: Icon(
                                               Icons.arrow_drop_down_circle,
                                               color: theme.colorScheme.primary,
-                                              size: 20, // Smaller icon
+                                              size: 20, 
                                             ),
                                             borderRadius:
                                                 BorderRadius.circular(12),
@@ -2103,7 +2103,7 @@ class EditPollDialogState extends State<EditPollDialog> {
 
                 const SizedBox(height: 24),
 
-                // End Time Selection
+                
                 Card(
                   elevation: 0,
                   color: theme.colorScheme.primary.withOpacity(0.05),
@@ -2152,7 +2152,7 @@ class EditPollDialogState extends State<EditPollDialog> {
 
                 const SizedBox(height: 24),
 
-                // Action buttons
+                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

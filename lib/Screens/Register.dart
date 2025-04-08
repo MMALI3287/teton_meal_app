@@ -36,7 +36,7 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background with gradient
+          
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -50,7 +50,7 @@ class _RegisterState extends State<Register> {
             ),
           ),
 
-          // Decorative design elements
+          
           Positioned(
             top: -50,
             right: -50,
@@ -94,7 +94,7 @@ class _RegisterState extends State<Register> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 50),
-                  // Logo or Icon (optional)
+                  
                   Center(
                     child: Container(
                       height: 80,
@@ -119,7 +119,7 @@ class _RegisterState extends State<Register> {
                   ),
                   const SizedBox(height: 30),
 
-                  // Heading
+                  
                   Center(
                     child: Text(
                       'Create Account',
@@ -132,7 +132,7 @@ class _RegisterState extends State<Register> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Subheading
+                  
                   Center(
                     child: Text(
                       'Join Teton Meals today',
@@ -145,12 +145,12 @@ class _RegisterState extends State<Register> {
 
                   const SizedBox(height: 40),
 
-                  // Form
+                  
                   Form(
                     key: _formkey,
                     child: Column(
                       children: [
-                        // Email field
+                        
                         buildTextField(
                           controller: emailController,
                           hint: 'Email',
@@ -170,7 +170,7 @@ class _RegisterState extends State<Register> {
 
                         const SizedBox(height: 20),
 
-                        // Password field
+                        
                         buildTextField(
                           controller: passwordController,
                           hint: 'Password',
@@ -203,7 +203,7 @@ class _RegisterState extends State<Register> {
 
                         const SizedBox(height: 20),
 
-                        // Confirm Password field
+                        
                         buildTextField(
                           controller: confirmpassController,
                           hint: 'Confirm Password',
@@ -233,7 +233,7 @@ class _RegisterState extends State<Register> {
 
                         const SizedBox(height: 20),
 
-                        // Role selection
+                        
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 5),
@@ -285,7 +285,7 @@ class _RegisterState extends State<Register> {
                                             value: value,
                                             child: Row(
                                               children: [
-                                                // Show different icons based on role
+                                                
                                                 Icon(
                                                   value == "Diner" 
                                                       ? Icons.dining_outlined
@@ -322,7 +322,7 @@ class _RegisterState extends State<Register> {
                                         },
                                         value: _currentItemSelected,
                                         menuMaxHeight: 300,
-                                        // Add some style to the dropdown itself
+                                        
                                         borderRadius: BorderRadius.circular(15),
                                         elevation: 8,
                                       ),
@@ -336,7 +336,7 @@ class _RegisterState extends State<Register> {
 
                         const SizedBox(height: 40),
 
-                        // Register Button
+                        
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           width: double.infinity,
@@ -403,7 +403,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  // Helper method to build consistent text fields
+  
   Widget buildTextField({
     required TextEditingController controller,
     required String hint,
@@ -450,7 +450,7 @@ class _RegisterState extends State<Register> {
         showProgress = true;
       });
       try {
-        // Show registration in progress toast
+        
         Fluttertoast.showToast(
           msg: "Creating employee account...",
           toastLength: Toast.LENGTH_SHORT,
@@ -458,10 +458,10 @@ class _RegisterState extends State<Register> {
           backgroundColor: Colors.blue,
         );
 
-        // Register new user
+        
         final newUser = await _authService.register(email, password, role);
 
-        // Success toast
+        
         Fluttertoast.showToast(
           msg: "Employee account created successfully",
           toastLength: Toast.LENGTH_LONG,
@@ -473,7 +473,7 @@ class _RegisterState extends State<Register> {
           showProgress = false;
         });
 
-        // Clear the form
+        
         emailController.clear();
         passwordController.clear();
         confirmpassController.clear();
@@ -482,7 +482,7 @@ class _RegisterState extends State<Register> {
           role = "Diner";
         });
       } catch (e) {
-        // Error toast
+        
         Fluttertoast.showToast(
           msg: "Registration failed: ${e.toString()}",
           toastLength: Toast.LENGTH_LONG,
@@ -495,7 +495,7 @@ class _RegisterState extends State<Register> {
         });
       }
     } else {
-      // Validation error toast
+      
       Fluttertoast.showToast(
         msg: "Please fill all fields correctly",
         toastLength: Toast.LENGTH_LONG,

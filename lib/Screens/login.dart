@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage>
   final TextEditingController passwordController = TextEditingController();
   final _authService = AuthService();
 
-  // Animation controller for the logo
+  
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
@@ -52,13 +52,13 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    // Get screen dimensions for responsive design
+    
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Stack(
         children: [
-          // Background gradient
+          
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage>
             ),
           ),
 
-          // Decorative design elements - circles with brand colors
+          
           Positioned(
             top: -screenSize.height * 0.15,
             right: -screenSize.width * 0.1,
@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage>
             ),
           ),
 
-          // Small decorative elements
+          
           ...List.generate(5, (index) {
             return Positioned(
               top: screenSize.height * (0.2 + index * 0.15),
@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage>
                   children: [
                     const SizedBox(height: 50),
 
-                    // Animated App Logo/Icon
+                    
                     Center(
                       child: ScaleTransition(
                         scale: _scaleAnimation,
@@ -196,7 +196,7 @@ class _LoginPageState extends State<LoginPage>
 
                     const SizedBox(height: 40),
 
-                    // Welcome Text - with enhanced styling
+                    
                     ShaderMask(
                       shaderCallback: (bounds) => LinearGradient(
                         colors: [
@@ -230,12 +230,12 @@ class _LoginPageState extends State<LoginPage>
 
                     const SizedBox(height: 60),
 
-                    // Login Form - with enhanced styling
+                    
                     Form(
                       key: _formKey,
                       child: Column(
                         children: [
-                          // Email Field
+                          
                           _buildTextField(
                             controller: emailController,
                             icon: Icons.email_outlined,
@@ -254,7 +254,7 @@ class _LoginPageState extends State<LoginPage>
 
                           const SizedBox(height: 20),
 
-                          // Password Field
+                          
                           _buildTextField(
                             controller: passwordController,
                             icon: Icons.lock_outline,
@@ -292,7 +292,7 @@ class _LoginPageState extends State<LoginPage>
                           ),
                           const SizedBox(height: 40),
 
-                          // Login Button - with enhanced styling and animation
+                          
                           TweenAnimationBuilder<double>(
                             tween: Tween<double>(begin: 0.0, end: 1.0),
                             duration: const Duration(milliseconds: 800),
@@ -367,7 +367,7 @@ class _LoginPageState extends State<LoginPage>
 
                           const SizedBox(height: 40),
 
-                          // Social divider
+                          
                           Row(
                             children: [
                               Expanded(
@@ -401,7 +401,7 @@ class _LoginPageState extends State<LoginPage>
 
                           const SizedBox(height: 40),
 
-                          // App branding footer
+                          
                           Text(
                             'TETON MEAL APP',
                             style: TextStyle(
@@ -426,7 +426,7 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // Enhanced text field builder with animation
+  
   Widget _buildTextField({
     required TextEditingController controller,
     required IconData icon,

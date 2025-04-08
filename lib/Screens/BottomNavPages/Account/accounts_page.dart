@@ -24,7 +24,7 @@ class _AccountsPageState extends State<AccountsPage>
   bool _isLoading = true;
   bool _isObscure = true;
   bool _isObscure2 = true;
-  bool _notificationsEnabled = true; // Default to true
+  bool _notificationsEnabled = true; 
   String? _fcmToken;
 
   late AnimationController _animationController;
@@ -36,7 +36,7 @@ class _AccountsPageState extends State<AccountsPage>
     _loadUserData();
     _loadFCMToken();
 
-    // Setup animation
+    
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -113,7 +113,7 @@ class _AccountsPageState extends State<AccountsPage>
             notificationsEnabled: _notificationsEnabled,
           );
 
-          // Get the updated user
+          
           user = AuthService().currentUser;
         }
 
@@ -233,7 +233,7 @@ class _AccountsPageState extends State<AccountsPage>
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 24),
                     children: [
-                      // Profile Header with Avatar
+                      
                       FadeTransition(
                         opacity: _animation,
                         child: SlideTransition(
@@ -360,7 +360,7 @@ class _AccountsPageState extends State<AccountsPage>
 
                       const SizedBox(height: 24),
 
-                      // User Information Card
+                      
                       SlideTransition(
                         position: Tween<Offset>(
                           begin: const Offset(0, 0.2),
@@ -468,7 +468,7 @@ class _AccountsPageState extends State<AccountsPage>
                         ),
                       ),
 
-                      // Password Card (Only visible in edit mode)
+                      
                       if (_isEditing) ...[
                         const SizedBox(height: 20),
                         SlideTransition(
@@ -526,7 +526,7 @@ class _AccountsPageState extends State<AccountsPage>
                                     },
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return null; // Password is optional
+                                        return null; 
                                       }
                                       if (value.length < 6) {
                                         return 'Password must be at least 6 characters';
@@ -560,7 +560,7 @@ class _AccountsPageState extends State<AccountsPage>
                         ),
                       ],
 
-                      // Notifications Card
+                      
                       const SizedBox(height: 20),
                       SlideTransition(
                         position: Tween<Offset>(
@@ -662,7 +662,7 @@ class _AccountsPageState extends State<AccountsPage>
 
                       const SizedBox(height: 32),
 
-                      // Sign Out Button
+                      
                       SlideTransition(
                         position: Tween<Offset>(
                           begin: const Offset(0, 0.5),
@@ -691,7 +691,7 @@ class _AccountsPageState extends State<AccountsPage>
 
                       const SizedBox(height: 40),
 
-                      // App Info
+                      
                       Center(
                         child: Text(
                           'Teton Meal App v1.0.0',
@@ -845,7 +845,7 @@ class _AccountsPageState extends State<AccountsPage>
           names.map((name) => name.isNotEmpty ? name[0] : '').join();
       return initials.toUpperCase();
     }
-    return 'U'; // Default initial if no name is set
+    return 'U'; 
   }
 
   Future<void> _showLogoutDialog(BuildContext context) async {

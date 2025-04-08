@@ -47,7 +47,7 @@ class _VotesPageState extends State<VotesPage>
     );
     _animationController.forward();
 
-    // Initialize message handling
+    
     _initializeMessageHandling();
   }
 
@@ -91,13 +91,13 @@ class _VotesPageState extends State<VotesPage>
 
   Future<Uint8List> _generateTokenImage(
       Map<String, dynamic> pollData, String userId) async {
-    // Get options and votes from poll data
+    
     final options = List<String>.from(pollData['options'] ?? []);
     final votes = pollData['votes'] as Map<String, dynamic>? ?? {};
     final question = pollData['question'] as String? ?? 'Unknown Poll Question';
     final date = pollData['date'] as String? ?? 'Unknown Date';
 
-    // Find user's vote
+    
     String selectedOption = "Did not vote";
     for (String option in votes.keys) {
       final votersList = votes[option] as List?;
@@ -107,11 +107,11 @@ class _VotesPageState extends State<VotesPage>
       }
     }
 
-    // Create canvas and set up painting
+    
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 400, 500));
 
-    // Background with gradient
+    
     final rect = Rect.fromLTWH(0, 0, 400, 500);
     final gradient = LinearGradient(
       begin: Alignment.topCenter,
@@ -124,20 +124,20 @@ class _VotesPageState extends State<VotesPage>
     final paint = Paint()..shader = gradient.createShader(rect);
     canvas.drawRect(rect, paint);
 
-    // Header rectangle
+    
     final headerPaint = Paint()
       ..color = Colors.white.withOpacity(0.15)
       ..style = PaintingStyle.fill;
     canvas.drawRect(const Rect.fromLTWH(0, 0, 400, 80), headerPaint);
 
-    // Draw divider line
+    
     final dividerPaint = Paint()
       ..color = Colors.white.withOpacity(0.5)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
     canvas.drawLine(const Offset(20, 82), const Offset(380, 82), dividerPaint);
 
-    // Draw receipt background
+    
     final receiptPaint = Paint()
       ..color = Colors.white.withOpacity(0.2)
       ..style = PaintingStyle.fill;
@@ -147,14 +147,14 @@ class _VotesPageState extends State<VotesPage>
     );
     canvas.drawRRect(receiptRect, receiptPaint);
 
-    // Draw receipt border
+    
     final borderPaint = Paint()
       ..color = Colors.white.withOpacity(0.5)
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
     canvas.drawRRect(receiptRect, borderPaint);
 
-    // Text styles
+    
     final titleStyle = TextStyle(
       color: Colors.white,
       fontSize: 24,
@@ -182,7 +182,7 @@ class _VotesPageState extends State<VotesPage>
       fontSize: 16,
     );
 
-    // Draw app title
+    
     final appTitleSpan = TextSpan(text: "TETON MEAL APP", style: titleStyle);
     final appTitlePainter = TextPainter(
       text: appTitleSpan,
@@ -191,7 +191,7 @@ class _VotesPageState extends State<VotesPage>
     appTitlePainter.layout(maxWidth: 360);
     appTitlePainter.paint(canvas, const Offset(20, 20));
 
-    // Draw receipt title
+    
     final receiptSpan = TextSpan(text: "Lunch Receipt", style: subtitleStyle);
     final receiptPainter = TextPainter(
       text: receiptSpan,
@@ -200,7 +200,7 @@ class _VotesPageState extends State<VotesPage>
     receiptPainter.layout(maxWidth: 360);
     receiptPainter.paint(canvas, const Offset(20, 50));
 
-    // Draw date
+    
     final dateSpan = TextSpan(text: "Date: $date", style: detailStyle);
     final datePainter = TextPainter(
       text: dateSpan,
@@ -209,7 +209,7 @@ class _VotesPageState extends State<VotesPage>
     datePainter.layout(maxWidth: 360);
     datePainter.paint(canvas, const Offset(40, 120));
 
-    // Draw menu title
+    
     final menuSpan = TextSpan(text: "Menu:", style: headerStyle);
     final menuPainter = TextPainter(
       text: menuSpan,
@@ -218,7 +218,7 @@ class _VotesPageState extends State<VotesPage>
     menuPainter.layout(maxWidth: 360);
     menuPainter.paint(canvas, const Offset(40, 160));
 
-    // Draw menu question
+    
     final questionSpan = TextSpan(text: question, style: bodyStyle);
     final questionPainter = TextPainter(
       text: questionSpan,
@@ -229,14 +229,14 @@ class _VotesPageState extends State<VotesPage>
     questionPainter.layout(maxWidth: 320);
     questionPainter.paint(canvas, const Offset(40, 190));
 
-    // Draw separator line
+    
     canvas.drawLine(
       const Offset(40, 250),
       const Offset(360, 250),
       Paint()..color = Colors.white.withOpacity(0.5),
     );
 
-    // Draw order title
+    
     final orderTitleSpan = TextSpan(text: "Your Order:", style: headerStyle);
     final orderTitlePainter = TextPainter(
       text: orderTitleSpan,
@@ -245,7 +245,7 @@ class _VotesPageState extends State<VotesPage>
     orderTitlePainter.layout(maxWidth: 360);
     orderTitlePainter.paint(canvas, const Offset(40, 280));
 
-    // Draw selected option
+    
     final selectedSpan = TextSpan(text: selectedOption, style: bodyStyle);
     final selectedPainter = TextPainter(
       text: selectedSpan,
@@ -254,7 +254,7 @@ class _VotesPageState extends State<VotesPage>
     selectedPainter.layout(maxWidth: 320);
     selectedPainter.paint(canvas, const Offset(40, 320));
 
-    // Draw thank you message
+    
     final thanksSpan = TextSpan(
       text: "Thank you for dining with us!",
       style: detailStyle.copyWith(fontStyle: FontStyle.italic),
@@ -266,7 +266,7 @@ class _VotesPageState extends State<VotesPage>
     thanksPainter.layout(maxWidth: 320);
     thanksPainter.paint(canvas, const Offset(40, 380));
 
-    // Convert to image
+    
     final picture = recorder.endRecording();
     final img = await picture.toImage(400, 500);
     final byteData = await img.toByteData(format: ImageByteFormat.png);
@@ -674,7 +674,7 @@ class PollCard extends StatelessWidget {
     final List<String> options = List<String>.from(data['options'] ?? []);
     final Map<String, dynamic> votes = data['votes'] ?? {};
 
-    // Format end time
+    
     final DateTime? endTime = endTimeMs != null
         ? DateTime.fromMillisecondsSinceEpoch(endTimeMs)
         : null;
@@ -683,7 +683,7 @@ class PollCard extends StatelessWidget {
         ? '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}'
         : 'Unknown';
 
-    // Calculate time remaining
+    
     final now = DateTime.now();
     final bool isPollActive = endTime != null && endTime.isAfter(now);
     final difference =
@@ -703,7 +703,7 @@ class PollCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with poll question, date and timer
+          
           Container(
             decoration: BoxDecoration(
               color: theme.colorScheme.primary,
@@ -798,7 +798,7 @@ class PollCard extends StatelessWidget {
             ),
           ),
 
-          // Divider with shadow effect
+          
           Container(
             height: 6,
             decoration: BoxDecoration(
@@ -813,7 +813,7 @@ class PollCard extends StatelessWidget {
             ),
           ),
 
-          // Poll options list
+          
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: Column(
@@ -873,7 +873,7 @@ class PollCard extends StatelessWidget {
             ),
           ),
 
-          // Footer with total orders count
+          
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -891,7 +891,7 @@ class PollCard extends StatelessWidget {
   }
 
   Widget _buildTotalVotesRow(Map<String, dynamic> votes) {
-    // Calculate total votes
+    
     int totalVotes = 0;
     for (var entry in votes.entries) {
       totalVotes += (entry.value as List?)?.length ?? 0;

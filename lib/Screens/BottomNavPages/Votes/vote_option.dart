@@ -7,14 +7,14 @@ class VoteOption extends StatefulWidget {
   final String option;
   final String pollId;
   final Map<String, dynamic> allVotes;
-  final int? endTimeMillis; // Add endTimeMillis parameter
+  final int? endTimeMillis; 
 
   const VoteOption({
     super.key,
     required this.option,
     required this.pollId,
     required this.allVotes,
-    this.endTimeMillis, // Add this parameter
+    this.endTimeMillis, 
   });
 
   @override
@@ -43,7 +43,7 @@ class _VoteOptionState extends State<VoteOption>
       ),
     );
 
-    // Animation for progress bar
+    
     final user = AuthService().currentUser;
     final voteCount = (widget.allVotes[widget.option] as List?)?.length ?? 0;
     final totalVotes = widget.allVotes.entries
@@ -72,11 +72,11 @@ class _VoteOptionState extends State<VoteOption>
   }
 
   Future<void> _handleVote() async {
-    // Check if the end time has passed
+    
     if (widget.endTimeMillis != null) {
       final now = DateTime.now().millisecondsSinceEpoch;
       if (now > widget.endTimeMillis!) {
-        // Show toast message that voting time is over
+        
         Fluttertoast.showToast(
             msg: "The time to place orders has ended",
             toastLength: Toast.LENGTH_LONG,
@@ -102,7 +102,7 @@ class _VoteOptionState extends State<VoteOption>
       return;
     }
 
-    // Provide tactile feedback
+    
     _animationController.forward(from: 0.0);
     setState(() {
       _isProcessing = true;
@@ -112,7 +112,7 @@ class _VoteOptionState extends State<VoteOption>
       final userId = user.uid;
       final hasVotedThisOption = isUserSelectedOption(userId);
 
-      // Find if user voted for another option
+      
       String? previousOption;
       for (var entry in widget.allVotes.entries) {
         if (entry.key != widget.option &&
@@ -127,19 +127,19 @@ class _VoteOptionState extends State<VoteOption>
       final batch = FirebaseFirestore.instance.batch();
 
       if (hasVotedThisOption) {
-        // If voted for this option, remove vote
+        
         batch.update(pollRef, {
           'votes.${widget.option}': FieldValue.arrayRemove([userId])
         });
       } else {
-        // If voted for a different option, remove that vote first
+        
         if (previousOption != null) {
           batch.update(pollRef, {
             'votes.$previousOption': FieldValue.arrayRemove([userId])
           });
         }
 
-        // Add vote for this option
+        
         batch.update(pollRef, {
           'votes.${widget.option}': FieldValue.arrayUnion([userId])
         });
@@ -147,7 +147,7 @@ class _VoteOptionState extends State<VoteOption>
 
       await batch.commit();
 
-      // Show feedback based on action
+      
       if (mounted) {
         final theme = Theme.of(context);
         if (!hasVotedThisOption) {
@@ -197,7 +197,7 @@ class _VoteOptionState extends State<VoteOption>
         );
       }
     } finally {
-      // Reset processing state after a short delay for better UX
+      
       await Future.delayed(const Duration(milliseconds: 300));
       if (mounted) {
         setState(() {
@@ -218,7 +218,7 @@ class _VoteOptionState extends State<VoteOption>
 
     final voteCount = (widget.allVotes[widget.option] as List?)?.length ?? 0;
 
-    // Calculate total votes and percentage
+    
     int totalVotes = 0;
     for (var entry in widget.allVotes.entries) {
       totalVotes += (entry.value as List?)?.length ?? 0;
@@ -263,7 +263,7 @@ class _VoteOptionState extends State<VoteOption>
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Vote button with selected/unselected states
+                    
                     Stack(
                       alignment: Alignment.center,
                       children: [
@@ -320,7 +320,7 @@ class _VoteOptionState extends State<VoteOption>
                     ),
                     const SizedBox(width: 16),
 
-                    // Option name and selection status
+                    
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,7 +363,7 @@ class _VoteOptionState extends State<VoteOption>
                       ),
                     ),
 
-                    // Vote count badge
+                    
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
@@ -395,7 +395,7 @@ class _VoteOptionState extends State<VoteOption>
 
                 const SizedBox(height: 16),
 
-                // Progress indicator with percentage
+                
                 Row(
                   children: [
                     Expanded(
