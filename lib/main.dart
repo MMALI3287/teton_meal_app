@@ -145,7 +145,7 @@ class _MyAppState extends State<MyApp> {
         useMaterial3: true,
         fontFamily: 'Poppins',
         scaffoldBackgroundColor: AppColors.backgroundColor,
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),

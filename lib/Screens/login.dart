@@ -17,12 +17,12 @@ class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+  bool _rememberMe = false;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _authService = AuthService();
 
-  
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
@@ -52,190 +52,137 @@ class _LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
-    
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Stack(
-        children: [
-          
-          Container(
+        children: [          Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  AppColors.cardBackground,
-                  AppColors.backgroundColor,
-                ],
-              ),
+              color: Colors.white,
             ),
-          ),
-
-          
-          Positioned(
-            top: -screenSize.height * 0.15,
-            right: -screenSize.width * 0.1,
-            child: Container(
-              height: screenSize.width * 0.5,
-              width: screenSize.width * 0.5,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.primaryColor.withOpacity(0.2),
-                    AppColors.primaryColor.withOpacity(0.0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          Positioned(
-            top: screenSize.height * 0.12,
-            left: -screenSize.width * 0.25,
+          ),          Positioned(
+            top: -screenSize.height * 0.08,
+            right: -screenSize.width * 0.05,
             child: Container(
               height: screenSize.width * 0.3,
               width: screenSize.width * 0.3,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.secondaryColor.withOpacity(0.2),
-              ),
-            ),
-          ),
-
-          Positioned(
-            bottom: -screenSize.height * 0.1,
-            right: -screenSize.width * 0.15,
-            child: Container(
-              height: screenSize.width * 0.4,
-              width: screenSize.width * 0.4,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.secondaryColor.withOpacity(0.5),
-                    AppColors.secondaryColor.withOpacity(0.0),
+                    Color(0xFFFF4E6A).withOpacity(0.1),
+                    Color(0xFFFF4E6A).withOpacity(0.0),
                   ],
                 ),
               ),
             ),
           ),
-
-          
-          ...List.generate(5, (index) {
+          Positioned(
+            top: screenSize.height * 0.15,
+            left: -screenSize.width * 0.15,
+            child: Container(
+              height: screenSize.width * 0.2,
+              width: screenSize.width * 0.2,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFFF6B81).withOpacity(0.1),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -screenSize.height * 0.05,
+            right: -screenSize.width * 0.1,
+            child: Container(
+              height: screenSize.width * 0.25,
+              width: screenSize.width * 0.25,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Color(0xFFFF4E6A).withOpacity(0.15),
+                    Color(0xFFFF4E6A).withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),          ...List.generate(4, (index) {
             return Positioned(
-              top: screenSize.height * (0.2 + index * 0.15),
-              left: screenSize.width * (0.1 + index * 0.18),
+              top: screenSize.height * (0.25 + index * 0.15),
+              left: screenSize.width * (0.1 + index * 0.2),
               child: Opacity(
-                opacity: 0.1 + (index * 0.05),
+                opacity: 0.05 + (index * 0.02),
                 child: Container(
-                  height: 8,
-                  width: 8,
+                  height: 5,
+                  width: 5,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: index % 2 == 0
-                        ? AppColors.primaryColor
-                        : AppColors.secondaryColor,
+                        ? Color(0xFFFF4E6A)
+                        : Color(0xFFFF6B81),
                   ),
                 ),
               ),
             );
           }),
-
           SafeArea(
             child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
+              physics: const BouncingScrollPhysics(),              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 50),
-
-                    
+                  children: [                    const SizedBox(height: 40),
                     Center(
                       child: ScaleTransition(
                         scale: _scaleAnimation,
-                        child: Container(
-                          height: 120,
-                          width: 120,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                        child: Container(                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(                            gradient: LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                AppColors.primaryColor,
-                                AppColors.secondaryColor,
+                                Color(0xFFFF6B81),
+                                Color(0xFFFF4E6A),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(25),
+                            borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.shadowColor,
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                                spreadRadius: 2,
-                              ),
-                              BoxShadow(
-                                color: AppColors.cardBackground,
+                                color: Colors.grey.withOpacity(0.2),
                                 blurRadius: 10,
-                                offset: const Offset(-5, -5),
-                                spreadRadius: 1,
+                                offset: const Offset(0, 5),
+                                spreadRadius: 0,
                               ),
                             ],
-                          ),
-                          child: const Icon(
+                          ),                          child: const Icon(
                             Icons.restaurant_menu,
                             color: Colors.white,
-                            size: 60,
+                            size: 50,
                           ),
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: [
-                          AppColors.primaryColor,
-                          AppColors.secondaryColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ).createShader(bounds),
-                      child: const Text(
-                        'Welcome Back',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                    ),                    const SizedBox(height: 30),
+                    const Text(
+                      'Welcome back',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
-
-                    const SizedBox(height: 12),
-
+                    const SizedBox(height: 6),
                     Text(
-                      'Sign in to continue your culinary journey',
+                      'sign in to access your account',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.secondaryText,
-                        letterSpacing: 0.5,
+                        fontSize: 14,
+                        color: Colors.grey[600],
                       ),
                     ),
-
-                    const SizedBox(height: 60),
-
-                    
+                    const SizedBox(height: 30),
                     Form(
                       key: _formKey,
                       child: Column(
                         children: [
-                          
                           _buildTextField(
                             controller: emailController,
                             icon: Icons.email_outlined,
@@ -250,11 +197,7 @@ class _LoginPageState extends State<LoginPage>
                               }
                               return null;
                             },
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          
+                          ),                          const SizedBox(height: 16),
                           _buildTextField(
                             controller: passwordController,
                             icon: Icons.lock_outline,
@@ -272,9 +215,8 @@ class _LoginPageState extends State<LoginPage>
                                   _isPasswordVisible
                                       ? Icons.visibility_off
                                       : Icons.visibility,
-                                  key: ValueKey(_isPasswordVisible),
-                                  color:
-                                      AppColors.primaryColor.withOpacity(0.7),
+                                  key: ValueKey(_isPasswordVisible),                                  color: Colors.grey[400],
+                                  size: 20,
                                 ),
                               ),
                               onPressed: () {
@@ -289,10 +231,54 @@ class _LoginPageState extends State<LoginPage>
                               }
                               return null;
                             },
-                          ),
-                          const SizedBox(height: 40),
+                          ),                          const SizedBox(height: 12),
+                          // Remember me and Forgot password row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Remember me checkbox
+                              Row(
+                                children: [                                  SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: Checkbox(
+                                      value: _rememberMe,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _rememberMe = value ?? false;
+                                        });
+                                      },                                    activeColor: Color(0xFFFF4E6A),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Remember me',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
 
-                          
+                              // Forgot password link
+                              GestureDetector(
+                                onTap: () {
+                                  // Handle forgot password
+                                },
+                                child: Text(
+                                  'Forgot password?',
+                                  style: TextStyle(
+                                    color: Color(0xFFFF4E6A),                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),                          const SizedBox(height: 24),
                           TweenAnimationBuilder<double>(
                             tween: Tween<double>(begin: 0.0, end: 1.0),
                             duration: const Duration(milliseconds: 800),
@@ -305,69 +291,49 @@ class _LoginPageState extends State<LoginPage>
                                 ),
                               );
                             },
-                            child: Container(
-                              width: double.infinity,
-                              height: 60,
+                            child: Container(                              width: double.infinity,
+                              height: 48,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
+                                borderRadius: BorderRadius.circular(20),                                boxShadow: [
                                   BoxShadow(
                                     color:
-                                        AppColors.primaryColor.withOpacity(0.3),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 8),
-                                    spreadRadius: -5,
+                                        Color(0xFFFF4E6A).withOpacity(0.2),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                    spreadRadius: 0,
                                   ),
                                 ],
                               ),
                               child: ElevatedButton(
-                                onPressed: _isLoading ? null : _handleLogin,
-                                style: ElevatedButton.styleFrom(
+                                onPressed: _isLoading ? null : _handleLogin,                                style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
-                                  backgroundColor: AppColors.primaryColor,
+                                  backgroundColor: Color(0xFFFF4E6A),
                                   disabledBackgroundColor:
-                                      AppColors.primaryColor.withOpacity(0.7),
-                                  elevation: 0,
+                                      Color(0xFFFF4E6A).withOpacity(0.7),                                  elevation: 0,
                                   padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: _isLoading
-                                    ? SizedBox(
-                                        height: 25,
-                                        width: 25,
+                                child: _isLoading                                    ? SizedBox(
+                                        height: 20,
+                                        width: 20,
                                         child: CircularProgressIndicator(
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
                                                   Colors.white),
                                           strokeWidth: 2.5,
                                         ),
-                                      )
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "SIGN IN",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: 1.5,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Icon(Icons.arrow_forward, size: 20),
-                                        ],
+                                      )                                    : Text(
+                                        "Sign In",
+                                        style: TextStyle(                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                               ),
                             ),
-                          ),
-
-                          const SizedBox(height: 40),
-
-                          
+                          ),                          const SizedBox(height: 30),
                           Row(
                             children: [
                               Expanded(
@@ -377,7 +343,7 @@ class _LoginPageState extends State<LoginPage>
                                     gradient: LinearGradient(
                                       colors: [
                                         Colors.grey.withOpacity(0.1),
-                                        Colors.grey.withOpacity(0.4),
+                                        Colors.grey.withOpacity(0.3),
                                       ],
                                     ),
                                   ),
@@ -389,7 +355,7 @@ class _LoginPageState extends State<LoginPage>
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
-                                        Colors.grey.withOpacity(0.4),
+                                        Colors.grey.withOpacity(0.3),
                                         Colors.grey.withOpacity(0.1),
                                       ],
                                     ),
@@ -398,21 +364,17 @@ class _LoginPageState extends State<LoginPage>
                               ),
                             ],
                           ),
-
-                          const SizedBox(height: 40),
-
-                          
+                          const SizedBox(height: 30),
                           Text(
                             'TETON MEAL APP',
                             style: TextStyle(
-                              letterSpacing: 3,
-                              fontSize: 12,
+                              letterSpacing: 2,
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                               color: Colors.grey.withOpacity(0.6),
                             ),
                           ),
-
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
@@ -426,7 +388,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  
   Widget _buildTextField({
     required TextEditingController controller,
     required IconData icon,
@@ -446,16 +407,14 @@ class _LoginPageState extends State<LoginPage>
             child: child,
           ),
         );
-      },
-      child: Container(
-        decoration: BoxDecoration(
+      },              child: Container(        decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: Colors.grey.withOpacity(0.03),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
               spreadRadius: 0,
             ),
           ],
@@ -463,32 +422,34 @@ class _LoginPageState extends State<LoginPage>
         child: TextFormField(
           controller: controller,
           obscureText: obscure,
-          validator: validator,
-          style: TextStyle(fontSize: 16, color: Colors.grey[800]),
+          validator: validator,          style: TextStyle(fontSize: 14, color: Colors.grey[800]),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(fontSize: 16, color: Colors.grey[400]),
-            prefixIcon: Container(
-              padding: const EdgeInsets.all(12),
-              child: Icon(
-                icon,
-                color: AppColors.primaryColor.withOpacity(0.7),
+            hintStyle: TextStyle(fontSize: 14, color: Colors.grey[400]),            // Icon moved to the right side
+            suffixIcon: hint == 'Password'
+                ? suffixIcon
+                : Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Icon(
+                      icon,
+                      color: Colors.grey[400],
+                      size: 20,
+                    ),
+                  ),border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.grey.withOpacity(0.2),
+                width: 1.0,
               ),
-            ),
-            suffixIcon: suffixIcon,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 22, horizontal: 12),
+            ),            contentPadding:
+                const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             fillColor: Colors.white,
             filled: true,
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppColors.primaryColor.withOpacity(0.3),
-                width: 1.5,
+                color: Colors.grey.withOpacity(0.3),
+                width: 1.0,
               ),
             ),
             errorStyle: TextStyle(
