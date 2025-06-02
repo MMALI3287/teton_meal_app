@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import "package:teton_meal_app/services/auth_service.dart";
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -26,7 +27,6 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
     super.initState();
     _setupFirebaseMessaging();
 
-    
     _fabAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -39,7 +39,6 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
       ),
     );
 
-    
     Future.delayed(const Duration(milliseconds: 200), () {
       _fabAnimationController.forward();
     });
@@ -158,26 +157,21 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
           return const Center(child: CircularProgressIndicator());
         }
 
-        
         final polls = snapshot.data!.docs;
 
-        
         polls.sort((a, b) {
-          
           final aActive = a['isActive'] as bool;
           final bActive = b['isActive'] as bool;
 
           if (aActive != bActive) {
-            
             return aActive ? -1 : 1;
           }
 
-          
           final aCreatedAt =
               (a['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
           final bCreatedAt =
               (b['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
-          
+
           return bCreatedAt.compareTo(aCreatedAt);
         });
 
@@ -186,35 +180,29 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
 
         for (var poll in polls) {
           try {
-            
             final dateStr = poll['date'] as String;
             DateTime date;
 
             if (dateStr.contains('/')) {
-              
               final parts = dateStr.split('/');
               if (parts.length == 3) {
                 try {
                   date = DateTime(
-                    int.parse(parts[2]), 
-                    int.parse(parts[1]), 
-                    int.parse(parts[0]), 
+                    int.parse(parts[2]),
+                    int.parse(parts[1]),
+                    int.parse(parts[0]),
                   );
                 } catch (e) {
-                  
                   print('Error parsing date $dateStr: $e');
                   date = DateTime.now();
                 }
               } else {
-                
                 date = DateTime.now();
               }
             } else {
-              
               try {
                 date = DateTime.parse(dateStr);
               } catch (e) {
-                
                 print('Error parsing date $dateStr: $e');
                 date = DateTime.now();
               }
@@ -232,7 +220,6 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
             categorizedPolls[year]![month]!.add(poll);
           } catch (e) {
             print('Error processing poll: $e');
-            
           }
         }
 
@@ -242,6 +229,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
         final currentCategory = '$currentYear-$currentMonth';
 
         return ListView(
+          padding: EdgeInsets.only(bottom: 80.h), // Added bottom padding
           children: categorizedPolls.entries.map((yearEntry) {
             return ExpansionTile(
               title: Text(yearEntry.key),
@@ -280,26 +268,21 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
           return const Center(child: CircularProgressIndicator());
         }
 
-        
         final polls = snapshot.data!.docs;
 
-        
         polls.sort((a, b) {
-          
           final aActive = a['isActive'] as bool;
           final bActive = b['isActive'] as bool;
 
           if (aActive != bActive) {
-            
             return aActive ? -1 : 1;
           }
 
-          
           final aCreatedAt =
               (a['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
           final bCreatedAt =
               (b['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
-          
+
           return bCreatedAt.compareTo(aCreatedAt);
         });
 
@@ -307,35 +290,29 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
 
         for (var poll in polls) {
           try {
-            
             final dateStr = poll['date'] as String;
             DateTime date;
 
             if (dateStr.contains('/')) {
-              
               final parts = dateStr.split('/');
               if (parts.length == 3) {
                 try {
                   date = DateTime(
-                    int.parse(parts[2]), 
-                    int.parse(parts[1]), 
-                    int.parse(parts[0]), 
+                    int.parse(parts[2]),
+                    int.parse(parts[1]),
+                    int.parse(parts[0]),
                   );
                 } catch (e) {
-                  
                   print('Error parsing date $dateStr: $e');
                   date = DateTime.now();
                 }
               } else {
-                
                 date = DateTime.now();
               }
             } else {
-              
               try {
                 date = DateTime.parse(dateStr);
               } catch (e) {
-                
                 print('Error parsing date $dateStr: $e');
                 date = DateTime.now();
               }
@@ -349,7 +326,6 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
             _events[day]!.add(poll);
           } catch (e) {
             print('Error processing poll: $e');
-            
           }
         }
 
@@ -404,6 +380,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
     }
 
     return ListView.builder(
+      padding: EdgeInsets.only(bottom: 80.h), // Added bottom padding
       itemCount: polls.length,
       itemBuilder: (context, index) {
         return MenuPollCard(pollData: polls[index]);
@@ -452,7 +429,6 @@ class MenuPollCard extends StatelessWidget {
   }
 
   Future<void> _deletePoll(BuildContext context) async {
-    
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -513,7 +489,6 @@ class MenuPollCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -556,20 +531,14 @@ class MenuPollCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
-            
             Text(
               pollData['question'],
               style: theme.textTheme.titleMedium!.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const Divider(height: 24),
-
-            
             ...pollData['options']
                 .map<Widget>(
                   (option) => Padding(
@@ -596,11 +565,8 @@ class MenuPollCard extends StatelessWidget {
                   ),
                 )
                 .toList(),
-
             const SizedBox(height: 16),
             const Divider(height: 8),
-
-            
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
@@ -638,7 +604,6 @@ class MenuPollCard extends StatelessWidget {
                           horizontal: 16, vertical: 8),
                     ),
                   ),
-                  
                   isActive
                       ? TextButton.icon(
                           onPressed: () {
@@ -730,7 +695,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
         .doc(widget.pollData.id)
         .get();
 
-    
     if (pollSnapshot != null) {
       final votes = pollSnapshot!['votes'] as Map<String, dynamic>;
       _voteCounts = {};
@@ -818,7 +782,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
       ),
       body: Column(
         children: [
-          
           Card(
             margin: const EdgeInsets.all(16),
             elevation: 2,
@@ -909,13 +872,10 @@ class _PollVotesPageState extends State<PollVotesPage> {
               ),
             ),
           ),
-
-          
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
-                
                 if (_totalVotes > 0)
                   Card(
                     elevation: 1,
@@ -993,7 +953,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                       ),
                     ),
                   ),
-
                 Text(
                   'Orders by Choice',
                   style: theme.textTheme.titleMedium!.copyWith(
@@ -1001,7 +960,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 if (votes.isEmpty)
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -1077,7 +1035,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                                 userData?['email'] ??
                                 'Unknown User';
 
-                            
                             String initial = displayName.isNotEmpty
                                 ? displayName[0].toUpperCase()
                                 : '?';
@@ -1152,7 +1109,6 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   Future<void> _createPoll() async {
     if (!_formKey.currentState!.validate()) return;
 
-    
     final List<String> allOptions = [];
     int customIndex = 0;
 
@@ -1166,7 +1122,6 @@ class CreatePollDialogState extends State<CreatePollDialog> {
       }
 
       if (allOptions.contains(optionValue)) {
-        
         if (context.mounted) {
           await showDialog(
             context: context,
@@ -1199,7 +1154,6 @@ class CreatePollDialogState extends State<CreatePollDialog> {
           _selectedTime.minute);
       final endTimeMillis = endTime.millisecondsSinceEpoch;
 
-      
       int customIndex = 0;
       final List<String> finalOptions = _selectedMeals.map((meal) {
         if (meal == 'Custom') {
@@ -1261,7 +1215,6 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   void _addOption(String option) {
     setState(() {
       if (option == 'Custom') {
-        
         _customOptionControllers.add(TextEditingController());
       }
       _selectedMeals.add(option);
@@ -1271,7 +1224,6 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   void _removeOption(int index) {
     setState(() {
       if (_selectedMeals[index] == 'Custom') {
-        
         int controllerIndex = _getCustomControllerIndex(index);
         _customOptionControllers[controllerIndex].dispose();
         _customOptionControllers.removeAt(controllerIndex);
@@ -1281,8 +1233,6 @@ class CreatePollDialogState extends State<CreatePollDialog> {
   }
 
   int _getCustomControllerIndex(int optionIndex) {
-    
-    
     int customIndex = 0;
     for (int i = 0; i <= optionIndex; i++) {
       if (_selectedMeals[i] == 'Custom') {
@@ -1346,9 +1296,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                       ? 'Please enter a menu title'
                       : null,
                 ),
-
                 const SizedBox(height: 24),
-
                 Card(
                   elevation: 0,
                   color: theme.colorScheme.background,
@@ -1412,8 +1360,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                     Expanded(
                                       child: DropdownButtonFormField<String>(
                                         value: _selectedMeals[index],
-                                        isDense: true, 
-                                        isExpanded: true, 
+                                        isDense: true,
+                                        isExpanded: true,
                                         decoration: InputDecoration(
                                           labelText: 'Option ${index + 1}',
                                           contentPadding:
@@ -1425,15 +1373,17 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                           return DropdownMenuItem<String>(
                                             value: meal,
                                             child: Row(
-                                              mainAxisSize: MainAxisSize.min, 
+                                              mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                
                                                 Icon(
-                                                  meal == 'Custom' 
+                                                  meal == 'Custom'
                                                       ? Icons.edit
                                                       : Icons.restaurant,
-                                                  color: _selectedMeals[index] == meal 
-                                                      ? theme.colorScheme.primary
+                                                  color: _selectedMeals[
+                                                              index] ==
+                                                          meal
+                                                      ? theme
+                                                          .colorScheme.primary
                                                       : Colors.grey[400],
                                                   size: 18,
                                                 ),
@@ -1441,15 +1391,23 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                                 Flexible(
                                                   child: Text(
                                                     meal,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                     style: TextStyle(
                                                       fontSize: 16,
-                                                      color: _selectedMeals[index] == meal
-                                                          ? theme.colorScheme.primary
+                                                      color: _selectedMeals[
+                                                                  index] ==
+                                                              meal
+                                                          ? theme.colorScheme
+                                                              .primary
                                                           : Colors.grey[800],
-                                                      fontWeight: _selectedMeals[index] == meal
-                                                          ? FontWeight.bold
-                                                          : FontWeight.normal,
+                                                      fontWeight:
+                                                          _selectedMeals[
+                                                                      index] ==
+                                                                  meal
+                                                              ? FontWeight.bold
+                                                              : FontWeight
+                                                                  .normal,
                                                     ),
                                                   ),
                                                 ),
@@ -1479,11 +1437,10 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                                 ? 'Please select an option'
                                                 : null,
                                         dropdownColor: Colors.white,
-                                        
                                         icon: Icon(
                                           Icons.arrow_drop_down_circle,
                                           color: theme.colorScheme.primary,
-                                          size: 20, 
+                                          size: 20,
                                         ),
                                         borderRadius: BorderRadius.circular(12),
                                         elevation: 8,
@@ -1545,10 +1502,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                
                 Card(
                   elevation: 0,
                   color: theme.colorScheme.primary.withOpacity(0.05),
@@ -1594,10 +1548,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -1664,7 +1615,6 @@ class EditPollDialogState extends State<EditPollDialog> {
   late List<TextEditingController> _optionControllers;
   late TimeOfDay _selectedTime;
 
-  
   final List<String> _mealOptions = [
     'Beef Khichuri',
     'Fried Rice',
@@ -1672,8 +1622,7 @@ class EditPollDialogState extends State<EditPollDialog> {
     'Custom',
   ];
 
-  
-  late List<String> _optionTypes; 
+  late List<String> _optionTypes;
 
   @override
   void initState() {
@@ -1682,14 +1631,12 @@ class EditPollDialogState extends State<EditPollDialog> {
     _questionController =
         TextEditingController(text: widget.pollData['question']);
 
-    
     final options = widget.pollData['options'] as List;
     _optionControllers = List.generate(
       options.length,
       (index) => TextEditingController(text: options[index]),
     );
 
-    
     _optionTypes = List.generate(options.length, (index) {
       final option = options[index];
       return _mealOptions.contains(option) && option != 'Custom'
@@ -1705,13 +1652,11 @@ class EditPollDialogState extends State<EditPollDialog> {
   Future<void> _updatePoll() async {
     if (!_formKey.currentState!.validate()) return;
 
-    
     final List<String> allOptions = [];
     for (var controller in _optionControllers) {
       String optionValue = controller.text;
 
       if (allOptions.contains(optionValue)) {
-        
         if (context.mounted) {
           await showDialog(
             context: context,
@@ -1754,7 +1699,6 @@ class EditPollDialogState extends State<EditPollDialog> {
       }
     } catch (e) {
       if (context.mounted) {
-        
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -1772,11 +1716,10 @@ class EditPollDialogState extends State<EditPollDialog> {
     }
   }
 
-  
   void _toggleOptionType(int index, String type) {
     setState(() {
       _optionTypes[index] = type;
-      
+
       if (type == 'standard') {
         _optionControllers[index].text = _mealOptions.first;
       }
@@ -1847,9 +1790,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 24),
-
                 TextFormField(
                   controller: _questionController,
                   decoration: InputDecoration(
@@ -1871,9 +1812,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                       ? 'Please enter a menu title'
                       : null,
                 ),
-
                 const SizedBox(height: 24),
-
                 Card(
                   elevation: 0,
                   color: theme.colorScheme.background,
@@ -1954,14 +1893,15 @@ class EditPollDialogState extends State<EditPollDialog> {
                                             value: isStandard
                                                 ? currentText
                                                 : _mealOptions.first,
-                                            isDense: true, 
-                                            isExpanded: true, 
+                                            isDense: true,
+                                            isExpanded: true,
                                             decoration: InputDecoration(
                                               labelText: 'Option ${index + 1}',
                                               border: InputBorder.none,
                                               contentPadding:
                                                   const EdgeInsets.symmetric(
-                                                      vertical: 12, horizontal: 0),
+                                                      vertical: 12,
+                                                      horizontal: 0),
                                             ),
                                             items: _mealOptions
                                                 .where((m) => m != 'Custom')
@@ -1969,7 +1909,8 @@ class EditPollDialogState extends State<EditPollDialog> {
                                               return DropdownMenuItem<String>(
                                                 value: meal,
                                                 child: Row(
-                                                  mainAxisSize: MainAxisSize.min, 
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
                                                     Icon(
                                                       Icons.restaurant,
@@ -1983,16 +1924,20 @@ class EditPollDialogState extends State<EditPollDialog> {
                                                     Flexible(
                                                       child: Text(
                                                         meal,
-                                                        overflow: TextOverflow.ellipsis,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                         style: TextStyle(
                                                           fontSize: 16,
                                                           color: currentText ==
                                                                   meal
-                                                              ? theme.colorScheme
+                                                              ? theme
+                                                                  .colorScheme
                                                                   .primary
-                                                              : Colors.grey[800],
+                                                              : Colors
+                                                                  .grey[800],
                                                           fontWeight:
-                                                              currentText == meal
+                                                              currentText ==
+                                                                      meal
                                                                   ? FontWeight
                                                                       .bold
                                                                   : FontWeight
@@ -2016,7 +1961,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                                             icon: Icon(
                                               Icons.arrow_drop_down_circle,
                                               color: theme.colorScheme.primary,
-                                              size: 20, 
+                                              size: 20,
                                             ),
                                             borderRadius:
                                                 BorderRadius.circular(12),
@@ -2100,10 +2045,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                
                 Card(
                   elevation: 0,
                   color: theme.colorScheme.primary.withOpacity(0.05),
@@ -2149,10 +2091,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
-                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

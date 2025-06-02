@@ -27,12 +27,12 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
     super.initState();
     _fetchUserRole();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 150),
       vsync: this,
     );
     _animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeInOut,
+      curve: Curves.easeOut,
     );
     _controller.forward();
   }
@@ -157,6 +157,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
         _selectedIndex = index;
       });
 
+      _controller.stop();
       _controller.reset();
       _controller.forward();
     }
@@ -170,16 +171,16 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(
-                height: 60,
-                width: 60,
+              SizedBox(
+                height: 60.h,
+                width: 60.w,
                 child: CircularProgressIndicator(
                   valueColor:
                       AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
                   strokeWidth: 3,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Text(
                 "Loading...",
                 style: TextStyle(
@@ -251,7 +252,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
