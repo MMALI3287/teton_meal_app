@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/votes_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Menus/menu_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Account/accounts_page.dart';
 import 'package:teton_meal_app/Screens/Register.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -88,25 +88,25 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
     if (_userRole == 'Admin') {
       return [
         NavItemData(
-          icon: Icons.how_to_vote_outlined,
+          icon: Icons.how_to_vote_rounded,
           activeIcon: Icons.how_to_vote,
           label: 'Vote',
           tooltip: 'Place your vote',
         ),
         NavItemData(
-          icon: Icons.menu_book_outlined,
+          icon: Icons.menu_book_rounded,
           activeIcon: Icons.menu_book,
           label: 'Order',
           tooltip: 'View and manage orders',
         ),
         NavItemData(
-          icon: Icons.people_outline,
+          icon: Icons.people_rounded,
           activeIcon: Icons.people,
           label: 'User',
           tooltip: 'User management',
         ),
         NavItemData(
-          icon: Icons.settings_outlined,
+          icon: Icons.settings_rounded,
           activeIcon: Icons.settings,
           label: 'Settings',
           tooltip: 'Manage settings',
@@ -115,19 +115,19 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
     } else if (_userRole == 'Planner') {
       return [
         NavItemData(
-          icon: Icons.how_to_vote_outlined,
+          icon: Icons.how_to_vote_rounded,
           activeIcon: Icons.how_to_vote,
           label: 'Vote',
           tooltip: 'Place your vote',
         ),
         NavItemData(
-          icon: Icons.menu_book_outlined,
+          icon: Icons.menu_book_rounded,
           activeIcon: Icons.menu_book,
           label: 'Order',
           tooltip: 'Manage lunch menus',
         ),
         NavItemData(
-          icon: Icons.settings_outlined,
+          icon: Icons.settings_rounded,
           activeIcon: Icons.settings,
           label: 'Settings',
           tooltip: 'Manage settings',
@@ -136,13 +136,13 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
     } else {
       return [
         NavItemData(
-          icon: Icons.how_to_vote_outlined,
+          icon: Icons.how_to_vote_rounded,
           activeIcon: Icons.how_to_vote,
           label: 'Vote',
           tooltip: 'Place your vote',
         ),
         NavItemData(
-          icon: Icons.settings_outlined,
+          icon: Icons.settings_rounded,
           activeIcon: Icons.settings,
           label: 'Settings',
           tooltip: 'Manage settings',
@@ -151,62 +151,14 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
     }
   }
 
-  // Removed unused method _getBottomNavItems
   void _onItemTapped(int index) {
     if (_selectedIndex != index) {
       setState(() {
         _selectedIndex = index;
       });
 
-      // Reset and play animation for smoother transitions
       _controller.reset();
       _controller.forward();
-
-      String message = '';
-      if (_userRole == 'Admin') {
-        switch (index) {
-          case 0:
-            message = 'Place your lunch vote';
-            break;
-          case 1:
-            message = 'Manage lunch menus';
-            break;
-          case 2:
-            message = 'Register new employee';
-            break;
-          case 3:
-            message = 'Manage your profile';
-            break;
-        }
-      } else if (_userRole == 'Planner') {
-        switch (index) {
-          case 0:
-            message = 'Place your lunch vote';
-            break;
-          case 1:
-            message = 'Manage lunch menus';
-            break;
-          case 2:
-            message = 'Manage your profile';
-            break;
-        }
-      } else {
-        switch (index) {
-          case 0:
-            message = 'Place your lunch vote';
-            break;
-          case 1:
-            message = 'Manage your profile';
-            break;
-        }
-      }
-      Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppColors.primaryColor,
-        textColor: Colors.white,
-      );
     }
   }
 
@@ -218,7 +170,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 60,
                 width: 60,
                 child: CircularProgressIndicator(
@@ -251,31 +203,36 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
       ),
       extendBody: true,
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 15),
-        height: 58, // Further reduced height to avoid overflow
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
+        margin: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.5.h),
+        height: 67.h,
+        decoration: ShapeDecoration(
+          color: AppColors.fWhite,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.w),
+          ),
+          shadows: const [
             BoxShadow(
-              color: AppColors.shadowColor.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+              color: Color(0x19000000),
+              blurRadius: 4,
+              offset: Offset(0, 2),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: Color(0x19000000),
+              blurRadius: 4,
+              offset: Offset(2, -2),
               spreadRadius: 0,
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(
-                navItems.length,
-                (index) => Flexible(
-                  child: _buildNavItem(navItems[index], index),
-                ),
+          borderRadius: BorderRadius.circular(30.w),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(
+              navItems.length,
+              (index) => Flexible(
+                child: _buildNavItem(navItems[index], index),
               ),
             ),
           ),
@@ -286,9 +243,8 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
 
   Widget _buildNavItem(NavItemData item, int index) {
     final isSelected = _selectedIndex == index;
-    final activeColor =
-        AppColors.primaryColor; // Using app's primary color for selected items
-    final inactiveColor = Colors.black87; // Black color for non-selected items
+    const activeColor = AppColors.fRedBright;
+    const inactiveColor = AppColors.fTextH1;
 
     return InkWell(
       onTap: () => _onItemTapped(index),
@@ -299,21 +255,19 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Use a lightweight icon that matches the design in the second image
             Icon(
-              item.icon, // Always use outline version
+              item.icon,
               color: isSelected ? activeColor : inactiveColor,
-              size: 18, // Smaller icon size as per design
+              size: 20.w,
             ),
-            const SizedBox(height: 3), // Reduced spacing between icon and text
+            SizedBox(height: 5.37.h),
             Text(
               item.label,
               style: TextStyle(
                 color: isSelected ? activeColor : inactiveColor,
-                fontWeight: isSelected
-                    ? FontWeight.w500
-                    : FontWeight.w400, // Slightly bolder for selected items
-                fontSize: 9, // Smaller font size for text
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontSize: 10.sp,
+                fontFamily: 'DMSans',
               ),
             ),
           ],

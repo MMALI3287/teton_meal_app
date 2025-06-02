@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:teton_meal_app/Screens/Navbar.dart';
+import 'package:teton_meal_app/Screens/navbar.dart';
 import 'package:teton_meal_app/Screens/login.dart';
 import 'package:teton_meal_app/firebase_options.dart';
 import 'package:flutter/foundation.dart';
@@ -143,12 +143,10 @@ class _MyAppState extends State<MyApp> {
               secondary: AppColors.secondaryColor,
               tertiary: AppColors.warning,
               error: AppColors.error,
-              background: AppColors.backgroundColor,
-              surface: AppColors.cardBackground,
+              surface: AppColors.backgroundColor,
               onPrimary: AppColors.white,
               onSecondary: AppColors.white,
               onSurface: AppColors.primaryText,
-              onBackground: AppColors.primaryText,
               brightness: Brightness.light,
             ),
             useMaterial3: true,
@@ -176,10 +174,10 @@ class _MyAppState extends State<MyApp> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide:
-                    BorderSide(color: AppColors.primaryColor, width: 1.5),
+                    const BorderSide(color: AppColors.primaryColor, width: 1.5),
               ),
               contentPadding: const EdgeInsets.all(16),
-              hintStyle: TextStyle(color: AppColors.tertiaryText),
+              hintStyle: const TextStyle(color: AppColors.tertiaryText),
             ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
@@ -207,7 +205,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
             ),
-            appBarTheme: AppBarTheme(
+            appBarTheme: const AppBarTheme(
               backgroundColor: AppColors.primaryColor,
               foregroundColor: AppColors.white,
               elevation: 0,
