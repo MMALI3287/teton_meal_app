@@ -88,112 +88,126 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
     if (_userRole == 'Admin') {
       return [
         NavItemData(
-          icon: Icons.poll,
-          activeIcon: Icons.poll_outlined,
+          icon: Icons.how_to_vote_outlined,
+          activeIcon: Icons.how_to_vote,
           label: 'Vote',
-          tooltip: 'View and cast votes',
+          tooltip: 'Place your vote',
         ),
         NavItemData(
-          icon: Icons.menu_book,
-          activeIcon: Icons.menu_book_outlined,
-          label: 'Menu',
-          tooltip: 'View and manage menus',
+          icon: Icons.menu_book_outlined,
+          activeIcon: Icons.menu_book,
+          label: 'Order',
+          tooltip: 'View and manage orders',
         ),
         NavItemData(
-          icon: Icons.app_registration,
-          activeIcon: Icons.app_registration_outlined,
-          label: 'Register',
-          tooltip: 'Register new users',
+          icon: Icons.people_outline,
+          activeIcon: Icons.people,
+          label: 'User',
+          tooltip: 'User management',
         ),
         NavItemData(
-          icon: Icons.account_circle,
-          activeIcon: Icons.account_circle_outlined,
-          label: 'Account',
-          tooltip: 'Manage your account',
+          icon: Icons.settings_outlined,
+          activeIcon: Icons.settings,
+          label: 'Settings',
+          tooltip: 'Manage settings',
         ),
       ];
     } else if (_userRole == 'Planner') {
       return [
         NavItemData(
-          icon: Icons.poll,
-          activeIcon: Icons.poll_outlined,
+          icon: Icons.how_to_vote_outlined,
+          activeIcon: Icons.how_to_vote,
           label: 'Vote',
-          tooltip: 'View and cast votes',
+          tooltip: 'Place your vote',
         ),
         NavItemData(
-          icon: Icons.menu_book,
-          activeIcon: Icons.menu_book_outlined,
-          label: 'Menu',
-          tooltip: 'View and manage menus',
+          icon: Icons.menu_book_outlined,
+          activeIcon: Icons.menu_book,
+          label: 'Order',
+          tooltip: 'Manage lunch menus',
         ),
         NavItemData(
-          icon: Icons.account_circle,
-          activeIcon: Icons.account_circle_outlined,
-          label: 'Account',
-          tooltip: 'Manage your account',
+          icon: Icons.settings_outlined,
+          activeIcon: Icons.settings,
+          label: 'Settings',
+          tooltip: 'Manage settings',
         ),
       ];
     } else {
       return [
         NavItemData(
-          icon: Icons.poll,
-          activeIcon: Icons.poll_outlined,
+          icon: Icons.how_to_vote_outlined,
+          activeIcon: Icons.how_to_vote,
           label: 'Vote',
-          tooltip: 'View and cast votes',
+          tooltip: 'Place your vote',
         ),
         NavItemData(
-          icon: Icons.account_circle,
-          activeIcon: Icons.account_circle_outlined,
-          label: 'Account',
-          tooltip: 'Manage your account',
+          icon: Icons.settings_outlined,
+          activeIcon: Icons.settings,
+          label: 'Settings',
+          tooltip: 'Manage settings',
         ),
       ];
     }
   }
 
-  List<BottomNavigationBarItem> _getBottomNavItems() {
-    final navItems = _getNavItems();
-    return navItems
-        .map((item) => BottomNavigationBarItem(
-              icon: Icon(item.icon),
-              activeIcon: Icon(item.activeIcon),
-              label: item.label,
-              tooltip: item.tooltip,
-            ))
-        .toList();
-  }
-
+  // Removed unused method _getBottomNavItems
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (_selectedIndex != index) {
+      setState(() {
+        _selectedIndex = index;
+      });
 
-    String message = '';
-    switch (index) {
-      case 0:
-        message = 'Place your lunch order';
-        break;
-      case 1:
-        message =
-            _userRole == 'Diner' ? 'Manage your profile' : 'Manage lunch menus';
-        break;
-      case 2:
-        message = _userRole == 'Admin'
-            ? 'Register new employee'
-            : 'Manage your profile';
-        break;
-      case 3:
-        message = 'Manage your profile';
-        break;
+      // Reset and play animation for smoother transitions
+      _controller.reset();
+      _controller.forward();
+
+      String message = '';
+      if (_userRole == 'Admin') {
+        switch (index) {
+          case 0:
+            message = 'Place your lunch vote';
+            break;
+          case 1:
+            message = 'Manage lunch menus';
+            break;
+          case 2:
+            message = 'Register new employee';
+            break;
+          case 3:
+            message = 'Manage your profile';
+            break;
+        }
+      } else if (_userRole == 'Planner') {
+        switch (index) {
+          case 0:
+            message = 'Place your lunch vote';
+            break;
+          case 1:
+            message = 'Manage lunch menus';
+            break;
+          case 2:
+            message = 'Manage your profile';
+            break;
+        }
+      } else {
+        switch (index) {
+          case 0:
+            message = 'Place your lunch vote';
+            break;
+          case 1:
+            message = 'Manage your profile';
+            break;
+        }
+      }
+      Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: AppColors.primaryColor,
+        textColor: Colors.white,
+      );
     }
-
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.black54,
-      textColor: Colors.white,
-    );
   }
 
   @override
@@ -228,42 +242,41 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
       );
     }
 
-    
     final currentScreen = _getScreens()[_selectedIndex];
     final navItems = _getNavItems();
-
     return Scaffold(
       body: FadeTransition(
         opacity: _animation,
         child: currentScreen,
       ),
+      extendBody: true,
       bottomNavigationBar: Container(
-        height: 85,
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 15),
+        height: 58, // Further reduced height to avoid overflow
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor,
-              blurRadius: 15,
-              offset: const Offset(0, -3),
-              spreadRadius: 1,
+              color: AppColors.shadowColor.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+              spreadRadius: 0,
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(25),
-            topRight: Radius.circular(25),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(
-              navItems.length,
-              (index) => _buildNavItem(navItems[index], index),
+          borderRadius: BorderRadius.circular(30),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(
+                navItems.length,
+                (index) => Flexible(
+                  child: _buildNavItem(navItems[index], index),
+                ),
+              ),
             ),
           ),
         ),
@@ -273,48 +286,34 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
 
   Widget _buildNavItem(NavItemData item, int index) {
     final isSelected = _selectedIndex == index;
+    final activeColor =
+        AppColors.primaryColor; // Using app's primary color for selected items
+    final inactiveColor = Colors.black87; // Black color for non-selected items
+
     return InkWell(
       onTap: () => _onItemTapped(index),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       child: Container(
-        width: MediaQuery.of(context).size.width / _getNavItems().length,
-        padding: const EdgeInsets.symmetric(vertical: 8), 
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              height: 3, 
-              width: isSelected ? 25 : 0, 
-              margin: const EdgeInsets.only(bottom: 4),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
+            // Use a lightweight icon that matches the design in the second image
+            Icon(
+              item.icon, // Always use outline version
+              color: isSelected ? activeColor : inactiveColor,
+              size: 18, // Smaller icon size as per design
             ),
-            Container(
-              padding: const EdgeInsets.all(8), 
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primaryColor.withOpacity(0.1)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isSelected ? item.activeIcon : item.icon,
-                color: isSelected ? AppColors.primaryColor : Colors.grey[500],
-                size: 24, 
-              ),
-            ),
-            const SizedBox(height: 4), 
+            const SizedBox(height: 3), // Reduced spacing between icon and text
             Text(
               item.label,
               style: TextStyle(
-                color: isSelected ? AppColors.primaryColor : Colors.grey[500],
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                fontSize: 13, 
-                height: 1.2,
+                color: isSelected ? activeColor : inactiveColor,
+                fontWeight: isSelected
+                    ? FontWeight.w500
+                    : FontWeight.w400, // Slightly bolder for selected items
+                fontSize: 9, // Smaller font size for text
               ),
             ),
           ],
@@ -323,7 +322,6 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
     );
   }
 }
-
 
 class NavItemData {
   final IconData icon;
