@@ -6,8 +6,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:teton_meal_app/services/auth_service.dart";
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/vote_option.dart';
 import 'package:flutter/foundation.dart';
-import 'package:teton_meal_app/message_stream.dart';
+import 'package:teton_meal_app/services/message_stream.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Menus/dialogs/create_poll_dialog.dart';
 
 class VotesPage extends StatefulWidget {
   const VotesPage({super.key});
@@ -374,30 +375,12 @@ class _VotesPageState extends State<VotesPage>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.info_outline),
-            tooltip: 'About Today\'s Menu',
+            icon: const Icon(Icons.add),
+            tooltip: 'New Menu',
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: Text('Today\'s Lunch Menu',
-                      style: TextStyle(color: theme.colorScheme.primary)),
-                  content: const Text(
-                    'Place your lunch order by selecting one of the available options. '
-                    'You can change your selection at any time before ordering closes. '
-                    '\n\nOnce ordering is complete, you can view your lunch receipt by '
-                    'tapping the "View Receipt" button.',
-                  ),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text('Got it',
-                          style: TextStyle(color: theme.colorScheme.primary)),
-                    ),
-                  ],
-                ),
+                builder: (context) => const CreatePollDialog(),
               );
             },
           ),
@@ -444,21 +427,7 @@ class _VotesPageState extends State<VotesPage>
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _isLoading ? null : _generateLunchReceipt,
-        icon: _isLoading
-            ? SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                    color: Colors.white, strokeWidth: 2),
-              )
-            : const Icon(Icons.receipt_long),
-        label: Text(_isLoading ? 'Loading...' : 'View Receipt'),
-        backgroundColor: theme.colorScheme.secondary,
-        foregroundColor: Colors.white,
-        elevation: 4,
-      ),
+      // Removed floatingReceipt button to prevent overlap with bottom nav
     );
   }
 

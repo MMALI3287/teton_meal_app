@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/Screens/Navbar.dart';
-import 'package:teton_meal_app/Screens/Register.dart';
+import 'package:teton_meal_app/Screens/Authentications/register.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';

@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../Styles/colors.dart';
-import '../services/auth_service.dart';
+import '../../Styles/colors.dart';
+import '../../services/auth_service.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -36,7 +36,6 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       body: Stack(
         children: [
-          
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -49,8 +48,6 @@ class _RegisterState extends State<Register> {
               ),
             ),
           ),
-
-          
           Positioned(
             top: -50,
             right: -50,
@@ -68,7 +65,6 @@ class _RegisterState extends State<Register> {
               ),
             ),
           ),
-
           Positioned(
             bottom: -100,
             left: -50,
@@ -86,7 +82,6 @@ class _RegisterState extends State<Register> {
               ),
             ),
           ),
-
           SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
@@ -94,7 +89,6 @@ class _RegisterState extends State<Register> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 50),
-                  
                   Center(
                     child: Container(
                       height: 80,
@@ -118,8 +112,6 @@ class _RegisterState extends State<Register> {
                     ),
                   ),
                   const SizedBox(height: 30),
-
-                  
                   Center(
                     child: Text(
                       'Create Account',
@@ -131,8 +123,6 @@ class _RegisterState extends State<Register> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
-                  
                   Center(
                     child: Text(
                       'Join Teton Meals today',
@@ -142,15 +132,11 @@ class _RegisterState extends State<Register> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 40),
-
-                  
                   Form(
                     key: _formkey,
                     child: Column(
                       children: [
-                        
                         buildTextField(
                           controller: emailController,
                           hint: 'Email',
@@ -167,10 +153,7 @@ class _RegisterState extends State<Register> {
                             return null;
                           },
                         ),
-
                         const SizedBox(height: 20),
-
-                        
                         buildTextField(
                           controller: passwordController,
                           hint: 'Password',
@@ -200,10 +183,7 @@ class _RegisterState extends State<Register> {
                             return null;
                           },
                         ),
-
                         const SizedBox(height: 20),
-
-                        
                         buildTextField(
                           controller: confirmpassController,
                           hint: 'Confirm Password',
@@ -230,10 +210,7 @@ class _RegisterState extends State<Register> {
                             return null;
                           },
                         ),
-
                         const SizedBox(height: 20),
-
-                        
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 5),
@@ -256,7 +233,8 @@ class _RegisterState extends State<Register> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.only(left: 5, top: 8, bottom: 5),
+                                padding: const EdgeInsets.only(
+                                    left: 5, top: 8, bottom: 5),
                                 child: Text(
                                   "Select Role",
                                   style: TextStyle(
@@ -285,15 +263,17 @@ class _RegisterState extends State<Register> {
                                             value: value,
                                             child: Row(
                                               children: [
-                                                
                                                 Icon(
-                                                  value == "Diner" 
+                                                  value == "Diner"
                                                       ? Icons.dining_outlined
-                                                      : value == "Planner" 
-                                                          ? Icons.event_note_outlined
-                                                          : Icons.admin_panel_settings_outlined,
-                                                  color: _currentItemSelected == value 
-                                                      ? AppColors.primaryColor 
+                                                      : value == "Planner"
+                                                          ? Icons
+                                                              .event_note_outlined
+                                                          : Icons
+                                                              .admin_panel_settings_outlined,
+                                                  color: _currentItemSelected ==
+                                                          value
+                                                      ? AppColors.primaryColor
                                                       : Colors.grey[400],
                                                   size: 18,
                                                 ),
@@ -302,12 +282,17 @@ class _RegisterState extends State<Register> {
                                                   value,
                                                   style: TextStyle(
                                                     fontSize: 16,
-                                                    color: _currentItemSelected == value
-                                                        ? AppColors.primaryColor
-                                                        : Colors.grey[800],
-                                                    fontWeight: _currentItemSelected == value
-                                                        ? FontWeight.bold
-                                                        : FontWeight.normal,
+                                                    color:
+                                                        _currentItemSelected ==
+                                                                value
+                                                            ? AppColors
+                                                                .primaryColor
+                                                            : Colors.grey[800],
+                                                    fontWeight:
+                                                        _currentItemSelected ==
+                                                                value
+                                                            ? FontWeight.bold
+                                                            : FontWeight.normal,
                                                   ),
                                                 ),
                                               ],
@@ -322,7 +307,6 @@ class _RegisterState extends State<Register> {
                                         },
                                         value: _currentItemSelected,
                                         menuMaxHeight: 300,
-                                        
                                         borderRadius: BorderRadius.circular(15),
                                         elevation: 8,
                                       ),
@@ -333,10 +317,7 @@ class _RegisterState extends State<Register> {
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 40),
-
-                        
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           width: double.infinity,
@@ -376,9 +357,7 @@ class _RegisterState extends State<Register> {
                                   ),
                           ),
                         ),
-
                         const SizedBox(height: 30),
-
                         const SizedBox(height: 30),
                       ],
                     ),
@@ -387,7 +366,6 @@ class _RegisterState extends State<Register> {
               ),
             ),
           ),
-
           if (showProgress)
             Container(
               color: Colors.black.withOpacity(0.5),
@@ -403,7 +381,6 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  
   Widget buildTextField({
     required TextEditingController controller,
     required String hint,
@@ -450,7 +427,6 @@ class _RegisterState extends State<Register> {
         showProgress = true;
       });
       try {
-        
         Fluttertoast.showToast(
           msg: "Creating employee account...",
           toastLength: Toast.LENGTH_SHORT,
@@ -458,10 +434,8 @@ class _RegisterState extends State<Register> {
           backgroundColor: Colors.blue,
         );
 
-        
         final newUser = await _authService.register(email, password, role);
 
-        
         Fluttertoast.showToast(
           msg: "Employee account created successfully",
           toastLength: Toast.LENGTH_LONG,
@@ -473,7 +447,6 @@ class _RegisterState extends State<Register> {
           showProgress = false;
         });
 
-        
         emailController.clear();
         passwordController.clear();
         confirmpassController.clear();
@@ -482,7 +455,6 @@ class _RegisterState extends State<Register> {
           role = "Diner";
         });
       } catch (e) {
-        
         Fluttertoast.showToast(
           msg: "Registration failed: ${e.toString()}",
           toastLength: Toast.LENGTH_LONG,
@@ -495,7 +467,6 @@ class _RegisterState extends State<Register> {
         });
       }
     } else {
-      
       Fluttertoast.showToast(
         msg: "Please fill all fields correctly",
         toastLength: Toast.LENGTH_LONG,

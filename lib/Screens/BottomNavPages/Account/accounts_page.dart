@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:teton_meal_app/Screens/Login.dart';
+import 'package:teton_meal_app/Screens/Authentications/login.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
@@ -24,7 +24,7 @@ class _AccountsPageState extends State<AccountsPage>
   bool _isLoading = true;
   bool _isObscure = true;
   bool _isObscure2 = true;
-  bool _notificationsEnabled = true; 
+  bool _notificationsEnabled = true;
   String? _fcmToken;
 
   late AnimationController _animationController;
@@ -36,7 +36,6 @@ class _AccountsPageState extends State<AccountsPage>
     _loadUserData();
     _loadFCMToken();
 
-    
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -113,7 +112,6 @@ class _AccountsPageState extends State<AccountsPage>
             notificationsEnabled: _notificationsEnabled,
           );
 
-          
           user = AuthService().currentUser;
         }
 
@@ -233,7 +231,6 @@ class _AccountsPageState extends State<AccountsPage>
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 24),
                     children: [
-                      
                       FadeTransition(
                         opacity: _animation,
                         child: SlideTransition(
@@ -357,10 +354,7 @@ class _AccountsPageState extends State<AccountsPage>
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 24),
-
-                      
                       SlideTransition(
                         position: Tween<Offset>(
                           begin: const Offset(0, 0.2),
@@ -467,8 +461,6 @@ class _AccountsPageState extends State<AccountsPage>
                           ),
                         ),
                       ),
-
-                      
                       if (_isEditing) ...[
                         const SizedBox(height: 20),
                         SlideTransition(
@@ -526,7 +518,7 @@ class _AccountsPageState extends State<AccountsPage>
                                     },
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return null; 
+                                        return null;
                                       }
                                       if (value.length < 6) {
                                         return 'Password must be at least 6 characters';
@@ -559,8 +551,6 @@ class _AccountsPageState extends State<AccountsPage>
                           ),
                         ),
                       ],
-
-                      
                       const SizedBox(height: 20),
                       SlideTransition(
                         position: Tween<Offset>(
@@ -659,10 +649,7 @@ class _AccountsPageState extends State<AccountsPage>
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 32),
-
-                      
                       SlideTransition(
                         position: Tween<Offset>(
                           begin: const Offset(0, 0.5),
@@ -688,10 +675,7 @@ class _AccountsPageState extends State<AccountsPage>
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 40),
-
-                      
                       Center(
                         child: Text(
                           'Teton Meal App v1.0.0',
@@ -845,7 +829,7 @@ class _AccountsPageState extends State<AccountsPage>
           names.map((name) => name.isNotEmpty ? name[0] : '').join();
       return initials.toUpperCase();
     }
-    return 'U'; 
+    return 'U';
   }
 
   Future<void> _showLogoutDialog(BuildContext context) async {

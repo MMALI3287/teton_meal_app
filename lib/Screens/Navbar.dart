@@ -4,7 +4,7 @@ import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/votes_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Menus/menu_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Account/accounts_page.dart';
-import 'package:teton_meal_app/Screens/Register.dart';
+import 'package:teton_meal_app/Screens/Authentications/register.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
