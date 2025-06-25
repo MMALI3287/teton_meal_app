@@ -8,6 +8,7 @@ class VoteOption extends StatefulWidget {
   final String pollId;
   final Map<String, dynamic> allVotes;
   final int? endTimeMillis;
+  final bool isActive;
 
   const VoteOption({
     super.key,
@@ -15,6 +16,7 @@ class VoteOption extends StatefulWidget {
     required this.pollId,
     required this.allVotes,
     this.endTimeMillis,
+    required this.isActive,
   });
 
   @override
@@ -71,6 +73,59 @@ class _VoteOptionState extends State<VoteOption>
   }
 
   Future<void> _handleVote() async {
+    // Double-check poll status from Firestore to ensure we have the latest data
+    try {
+      final pollDoc = await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(widget.pollId)
+          .get();
+
+      if (!pollDoc.exists) {
+        Fluttertoast.showToast(
+            msg: "Menu not found",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        return;
+      }
+
+      final latestIsActive = pollDoc.data()?['isActive'] ?? false;
+
+      if (!latestIsActive) {
+        Fluttertoast.showToast(
+            msg: "This menu is no longer accepting orders",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            backgroundColor: Colors.orange,
+            textColor: Colors.white,
+            fontSize: 16.0);
+        return;
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+          msg: "Error checking menu status",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      return;
+    }
+
+    // Check if poll is still active (original check as backup)
+    if (!widget.isActive) {
+      Fluttertoast.showToast(
+          msg: "This menu is no longer accepting orders",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.orange,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      return;
+    }
+
     if (widget.endTimeMillis != null) {
       final now = DateTime.now().millisecondsSinceEpoch;
       if (now > widget.endTimeMillis!) {
@@ -205,6 +260,9 @@ class _VoteOptionState extends State<VoteOption>
     final theme = Theme.of(context);
     final user = AuthService().currentUser;
     final bool isSelected = user != null && isUserSelectedOption(user.uid);
+    final bool canVote = widget.isActive &&
+        (widget.endTimeMillis == null ||
+            DateTime.now().millisecondsSinceEpoch <= widget.endTimeMillis!);
 
     final voteCount = (widget.allVotes[widget.option] as List?)?.length ?? 0;
 
@@ -230,151 +288,180 @@ class _VoteOptionState extends State<VoteOption>
             ? theme.colorScheme.primary.withOpacity(0.3)
             : Colors.black12,
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        color: canVote ? null : Colors.grey.shade100,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: isSelected
-                ? theme.colorScheme.primary
-                : Colors.grey.withOpacity(0.2),
+            color: !canVote
+                ? Colors.grey.withOpacity(0.3)
+                : isSelected
+                    ? theme.colorScheme.primary
+                    : Colors.grey.withOpacity(0.2),
             width: isSelected ? 2 : 1,
           ),
         ),
         child: InkWell(
-          onTap: _isProcessing ? null : _handleVote,
+          onTap: (_isProcessing || !canVote) ? null : _handleVote,
           borderRadius: BorderRadius.circular(16),
-          splashColor: theme.colorScheme.primary.withOpacity(0.1),
-          highlightColor: theme.colorScheme.primary.withOpacity(0.05),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+          splashColor:
+              canVote ? theme.colorScheme.primary.withOpacity(0.1) : null,
+          highlightColor:
+              canVote ? theme.colorScheme.primary.withOpacity(0.05) : null,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Spacer in place of individual + button (moved to AppBar)
-                    SizedBox(width: 42, height: 42),
-                    const SizedBox(width: 16),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Spacer in place of individual + button (moved to AppBar)
+                        SizedBox(width: 42, height: 42),
+                        const SizedBox(width: 16),
 
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.option,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.option,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? theme.colorScheme.primary
+                                      : Colors.black87,
+                                ),
+                              ),
+                              if (isSelected)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle_outline,
+                                        size: 14,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Your current selection',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: theme.colorScheme.primary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? theme.colorScheme.primary.withOpacity(0.15)
+                                : Colors.grey.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
                               color: isSelected
-                                  ? theme.colorScheme.primary
-                                  : Colors.black87,
+                                  ? theme.colorScheme.primary.withOpacity(0.3)
+                                  : Colors.grey.withOpacity(0.2),
+                              width: 1.0,
                             ),
                           ),
-                          if (isSelected)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.check_circle_outline,
-                                    size: 14,
-                                    color: theme.colorScheme.primary,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Your current selection',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: theme.colorScheme.primary,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          child: Text(
+                            '$voteCount ${voteCount == 1 ? 'order' : 'orders'}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: isSelected
+                                  ? theme.colorScheme.primary
+                                  : Colors.grey[700],
                             ),
-                        ],
-                      ),
+                          ),
+                        ),
+                      ],
                     ),
-
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.colorScheme.primary.withOpacity(0.15)
-                            : Colors.grey.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? theme.colorScheme.primary.withOpacity(0.3)
-                              : Colors.grey.withOpacity(0.2),
-                          width: 1.0,
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: AnimatedBuilder(
+                              animation: _progressAnimation,
+                              builder: (context, _) {
+                                return LinearProgressIndicator(
+                                  value: percentage,
+                                  minHeight: 8,
+                                  backgroundColor: Colors.grey.withOpacity(0.1),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    isSelected
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.primary
+                                            .withOpacity(0.5),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        '$voteCount ${voteCount == 1 ? 'order' : 'orders'}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: isSelected
-                              ? theme.colorScheme.primary
-                              : Colors.grey[700],
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? theme.colorScheme.primary.withOpacity(0.1)
+                                : Colors.grey.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '$percentageDisplay%',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected
+                                  ? theme.colorScheme.primary
+                                  : Colors.grey[700],
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: AnimatedBuilder(
-                          animation: _progressAnimation,
-                          builder: (context, _) {
-                            return LinearProgressIndicator(
-                              value: percentage,
-                              minHeight: 8,
-                              backgroundColor: Colors.grey.withOpacity(0.1),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                isSelected
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.primary
-                                        .withOpacity(0.5),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+              ),
+              // Overlay for disabled state
+              if (!canVote)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    const SizedBox(width: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.colorScheme.primary.withOpacity(0.1)
-                            : Colors.grey.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                    child: Center(
                       child: Text(
-                        '$percentageDisplay%',
+                        'ORDERS CLOSED',
                         style: TextStyle(
-                          fontSize: 13,
+                          color: Colors.grey[600],
                           fontWeight: FontWeight.bold,
-                          color: isSelected
-                              ? theme.colorScheme.primary
-                              : Colors.grey[700],
+                          fontSize: 16,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

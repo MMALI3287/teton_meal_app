@@ -8,19 +8,6 @@ class MenuPollCard extends StatelessWidget {
 
   const MenuPollCard({super.key, required this.pollData});
 
-  Future<void> _togglePollStatus(BuildContext context) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('polls')
-          .doc(pollData.id)
-          .update({'isActive': !pollData['isActive']});
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating menu: $e')),
-      );
-    }
-  }
-
   Future<void> _deletePoll(BuildContext context) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
@@ -117,11 +104,7 @@ class MenuPollCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Switch(
-                  value: isActive,
-                  activeColor: theme.colorScheme.secondary,
-                  onChanged: (value) => _togglePollStatus(context),
-                ),
+                // Toggle removed - now available in votes page beside Menu Options
               ],
             ),
             const SizedBox(height: 16),

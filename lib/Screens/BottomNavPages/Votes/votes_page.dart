@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:teton_meal_app/services/auth_service.dart";
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/vote_option.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:teton_meal_app/services/message_stream.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Menus/dialogs/create_poll_dialog.dart';
+import 'package:teton_meal_app/Styles/colors.dart';
 
 class VotesPage extends StatefulWidget {
   const VotesPage({super.key});
@@ -29,6 +31,18 @@ class _VotesPageState extends State<VotesPage>
   bool _isLoading = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+
+  // Helper method to check if current user is admin or planner
+  bool get _isAdminOrPlanner {
+    final userRole = AuthService().currentUser?.role;
+    return userRole == 'Admin' || userRole == 'Planner';
+  }
+
+  // Helper method to check if current user is diner
+  bool get _isDiner {
+    final userRole = AuthService().currentUser?.role;
+    return userRole == 'Diner';
+  }
 
   @override
   void initState() {
@@ -105,7 +119,7 @@ class _VotesPageState extends State<VotesPage>
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 400, 500));
 
-    final rect = Rect.fromLTWH(0, 0, 400, 500);
+    const rect = Rect.fromLTWH(0, 0, 400, 500);
     final gradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -143,7 +157,7 @@ class _VotesPageState extends State<VotesPage>
       ..style = PaintingStyle.stroke;
     canvas.drawRRect(receiptRect, borderPaint);
 
-    final titleStyle = TextStyle(
+    const titleStyle = TextStyle(
       color: Colors.white,
       fontSize: 24,
       fontWeight: FontWeight.bold,
@@ -154,7 +168,7 @@ class _VotesPageState extends State<VotesPage>
       fontSize: 16,
     );
 
-    final headerStyle = TextStyle(
+    const headerStyle = TextStyle(
       color: Colors.white,
       fontSize: 20,
       fontWeight: FontWeight.bold,
@@ -363,28 +377,82 @@ class _VotesPageState extends State<VotesPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Today\'s Lunch Menu'),
-        elevation: 2,
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
+        toolbarHeight: 50.h, // Set custom height using ScreenUtil
+        titleSpacing: 8.w, // Add left padding to title
+        title: Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.h), // Add vertical padding
+          child: Text(
+            'Today\'s Lunch Menu',
+            style: TextStyle(
+              color: AppColors.fTextH1,
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'New Menu',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => const CreatePollDialog(),
-              );
-            },
+        centerTitle: false,
+        elevation: 2,
+        backgroundColor: AppColors.backgroundColor,
+        foregroundColor: AppColors.fTextH1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20.r),
+            bottomRight: Radius.circular(20.r),
           ),
-        ],
+        ),
+        actions: _isAdminOrPlanner
+            ? [
+                Padding(
+                  padding: EdgeInsets.only(right: 16.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const CreatePollDialog(),
+                          );
+                        },
+                        child: Container(
+                          width: 32.w,
+                          height: 32.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fRedBright,
+                            borderRadius: BorderRadius.circular(8.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 2.92.r,
+                                offset: Offset(0, 2.92.h),
+                                spreadRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child:
+                              Icon(Icons.add, color: Colors.white, size: 18.sp),
+                        ),
+                      ),
+                      SizedBox(height: 4.h),
+                      SizedBox(
+                        width: 60.w,
+                        child: Text(
+                          'New Menu',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.fTextH2,
+                            fontSize: 10.sp,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ]
+            : null,
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -400,12 +468,18 @@ class _VotesPageState extends State<VotesPage>
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('polls')
-                .where('isActive', isEqualTo: true)
-                .orderBy('createdAt', descending: true) // Added orderBy
-                .limit(1) // Added limit
-                .snapshots(),
+            stream: _isAdminOrPlanner
+                ? FirebaseFirestore.instance
+                    .collection('polls')
+                    .orderBy('createdAt', descending: true)
+                    .limit(1)
+                    .snapshots()
+                : FirebaseFirestore.instance
+                    .collection('polls')
+                    .where('isActive', isEqualTo: true)
+                    .orderBy('createdAt', descending: true)
+                    .limit(1)
+                    .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 print('Error in StreamBuilder: ${snapshot.error}');
@@ -611,6 +685,41 @@ class PollCard extends StatelessWidget {
     required this.pollData,
   });
 
+  // Helper method to check if current user is admin or planner
+  bool get _isAdminOrPlanner {
+    final userRole = AuthService().currentUser?.role;
+    return userRole == 'Admin' || userRole == 'Planner';
+  }
+
+  Future<void> _togglePollStatus(BuildContext context) async {
+    try {
+      final currentStatus = pollData['isActive'] ?? false;
+      final newStatus = !currentStatus;
+
+      await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(pollData.id)
+          .update({'isActive': newStatus});
+
+      // Show feedback to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(newStatus
+              ? 'Menu is now open for orders'
+              : 'Menu is now closed for orders'),
+          backgroundColor: newStatus ? Colors.green : Colors.orange,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating menu: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -764,21 +873,32 @@ class PollCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(
-                        Icons.restaurant_menu,
-                        color: theme.colorScheme.primary,
-                        size: 20,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.restaurant_menu,
+                            color: theme.colorScheme.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Menu Options',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Menu Options',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
+                      if (_isAdminOrPlanner)
+                        Switch(
+                          value: pollData['isActive'] ?? false,
+                          activeColor: theme.colorScheme.primary,
+                          onChanged: (value) => _togglePollStatus(context),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -807,6 +927,7 @@ class PollCard extends StatelessWidget {
                         pollId: pollData.id,
                         allVotes: votes,
                         endTimeMillis: endTimeMs,
+                        isActive: pollData['isActive'] ?? false,
                       );
                     },
                   ),
