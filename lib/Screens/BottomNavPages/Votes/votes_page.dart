@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -6,9 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:teton_meal_app/services/auth_service.dart";
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/vote_option.dart';
-import 'package:flutter/foundation.dart';
-import 'package:teton_meal_app/services/message_stream.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Menus/dialogs/create_poll_dialog.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 
@@ -17,31 +13,16 @@ class VotesPage extends StatefulWidget {
 
   @override
   State<VotesPage> createState() => _VotesPageState();
-
-  String _formatTime(int? endTimeMillis) {
-    if (endTimeMillis == null) return 'unknown time';
-    final date = DateTime.fromMillisecondsSinceEpoch(endTimeMillis);
-    return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-  }
 }
 
 class _VotesPageState extends State<VotesPage>
     with SingleTickerProviderStateMixin {
-  String _lastMessage = '';
-  bool _isLoading = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  // Helper method to check if current user is admin or planner
   bool get _isAdminOrPlanner {
     final userRole = AuthService().currentUser?.role;
     return userRole == 'Admin' || userRole == 'Planner';
-  }
-
-  // Helper method to check if current user is diner
-  bool get _isDiner {
-    final userRole = AuthService().currentUser?.role;
-    return userRole == 'Diner';
   }
 
   @override
@@ -58,8 +39,6 @@ class _VotesPageState extends State<VotesPage>
       ),
     );
     _animationController.forward();
-
-    _initializeMessageHandling();
   }
 
   @override
@@ -68,319 +47,14 @@ class _VotesPageState extends State<VotesPage>
     super.dispose();
   }
 
-  void _initializeMessageHandling() {
-    messageStreamController.listen((message) {
-      setState(() {
-        if (message.notification != null) {
-          _lastMessage = 'Received a notification message:'
-              '\nTitle=${message.notification?.title},'
-              '\nBody=${message.notification?.body},'
-              '\nData=${message.data}';
-        } else {
-          _lastMessage = 'Received a data message: ${message.data}';
-        }
-      });
-    });
-  }
-
-  Future<QueryDocumentSnapshot?> _getLatestDeactivatedPoll() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('polls')
-          .where('isActive', isEqualTo: false)
-          .orderBy('createdAt', descending: true)
-          .limit(1)
-          .get();
-      if (snapshot.docs.isNotEmpty) {
-        return snapshot.docs.first;
-      }
-    } catch (e) {
-      print("Error fetching deactivated poll: $e");
-    }
-    return null;
-  }
-
-  Future<Uint8List> _generateTokenImage(
-      Map<String, dynamic> pollData, String userId) async {
-    final options = List<String>.from(pollData['options'] ?? []);
-    final votes = pollData['votes'] as Map<String, dynamic>? ?? {};
-    final question = pollData['question'] as String? ?? 'Unknown Poll Question';
-    final date = pollData['date'] as String? ?? 'Unknown Date';
-
-    String selectedOption = "Did not vote";
-    for (String option in votes.keys) {
-      final votersList = votes[option] as List?;
-      if (votersList != null && votersList.contains(userId)) {
-        selectedOption = option;
-        break;
-      }
-    }
-
-    final recorder = PictureRecorder();
-    final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 400, 500));
-
-    const rect = Rect.fromLTWH(0, 0, 400, 500);
-    final gradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [
-        const Color(0xFF1565C0).withOpacity(0.9),
-        const Color(0xFF1976D2).withOpacity(0.8),
-      ],
-    );
-    final paint = Paint()..shader = gradient.createShader(rect);
-    canvas.drawRect(rect, paint);
-
-    final headerPaint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(const Rect.fromLTWH(0, 0, 400, 80), headerPaint);
-
-    final dividerPaint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
-    canvas.drawLine(const Offset(20, 82), const Offset(380, 82), dividerPaint);
-
-    final receiptPaint = Paint()
-      ..color = Colors.white.withOpacity(0.2)
-      ..style = PaintingStyle.fill;
-    final receiptRect = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(20, 100, 360, 350),
-      const Radius.circular(12),
-    );
-    canvas.drawRRect(receiptRect, receiptPaint);
-
-    final borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.5)
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
-    canvas.drawRRect(receiptRect, borderPaint);
-
-    const titleStyle = TextStyle(
-      color: Colors.white,
-      fontSize: 24,
-      fontWeight: FontWeight.bold,
-    );
-
-    final subtitleStyle = TextStyle(
-      color: Colors.white.withOpacity(0.9),
-      fontSize: 16,
-    );
-
-    const headerStyle = TextStyle(
-      color: Colors.white,
-      fontSize: 20,
-      fontWeight: FontWeight.bold,
-    );
-
-    final bodyStyle = TextStyle(
-      color: Colors.white.withOpacity(0.9),
-      fontSize: 18,
-    );
-
-    final detailStyle = TextStyle(
-      color: Colors.white.withOpacity(0.8),
-      fontSize: 16,
-    );
-
-    final appTitleSpan = TextSpan(text: "TETON MEAL APP", style: titleStyle);
-    final appTitlePainter = TextPainter(
-      text: appTitleSpan,
-      textDirection: TextDirection.ltr,
-    );
-    appTitlePainter.layout(maxWidth: 360);
-    appTitlePainter.paint(canvas, const Offset(20, 20));
-
-    final receiptSpan = TextSpan(text: "Lunch Receipt", style: subtitleStyle);
-    final receiptPainter = TextPainter(
-      text: receiptSpan,
-      textDirection: TextDirection.ltr,
-    );
-    receiptPainter.layout(maxWidth: 360);
-    receiptPainter.paint(canvas, const Offset(20, 50));
-
-    final dateSpan = TextSpan(text: "Date: $date", style: detailStyle);
-    final datePainter = TextPainter(
-      text: dateSpan,
-      textDirection: TextDirection.ltr,
-    );
-    datePainter.layout(maxWidth: 360);
-    datePainter.paint(canvas, const Offset(40, 120));
-
-    final menuSpan = TextSpan(text: "Menu:", style: headerStyle);
-    final menuPainter = TextPainter(
-      text: menuSpan,
-      textDirection: TextDirection.ltr,
-    );
-    menuPainter.layout(maxWidth: 360);
-    menuPainter.paint(canvas, const Offset(40, 160));
-
-    final questionSpan = TextSpan(text: question, style: bodyStyle);
-    final questionPainter = TextPainter(
-      text: questionSpan,
-      textDirection: TextDirection.ltr,
-      maxLines: 3,
-      ellipsis: '...',
-    );
-    questionPainter.layout(maxWidth: 320);
-    questionPainter.paint(canvas, const Offset(40, 190));
-
-    canvas.drawLine(
-      const Offset(40, 250),
-      const Offset(360, 250),
-      Paint()..color = Colors.white.withOpacity(0.5),
-    );
-
-    final orderTitleSpan = TextSpan(text: "Your Order:", style: headerStyle);
-    final orderTitlePainter = TextPainter(
-      text: orderTitleSpan,
-      textDirection: TextDirection.ltr,
-    );
-    orderTitlePainter.layout(maxWidth: 360);
-    orderTitlePainter.paint(canvas, const Offset(40, 280));
-
-    final selectedSpan = TextSpan(text: selectedOption, style: bodyStyle);
-    final selectedPainter = TextPainter(
-      text: selectedSpan,
-      textDirection: TextDirection.ltr,
-    );
-    selectedPainter.layout(maxWidth: 320);
-    selectedPainter.paint(canvas, const Offset(40, 320));
-
-    final thanksSpan = TextSpan(
-      text: "Thank you for dining with us!",
-      style: detailStyle.copyWith(fontStyle: FontStyle.italic),
-    );
-    final thanksPainter = TextPainter(
-      text: thanksSpan,
-      textDirection: TextDirection.ltr,
-    );
-    thanksPainter.layout(maxWidth: 320);
-    thanksPainter.paint(canvas, const Offset(40, 380));
-
-    final picture = recorder.endRecording();
-    final img = await picture.toImage(400, 500);
-    final byteData = await img.toByteData(format: ImageByteFormat.png);
-    return byteData!.buffer.asUint8List();
-  }
-
-  void _showTokenDialog(BuildContext context, Uint8List imageData) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.memory(imageData),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue.shade800,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                ),
-                child: const Text('Close', style: TextStyle(fontSize: 16)),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showLoadingToast() {
-    Fluttertoast.showToast(
-      msg: "Loading your lunch receipt...",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      backgroundColor: Colors.blue.withOpacity(0.9),
-      textColor: Colors.white,
-    );
-  }
-
-  Future<void> _generateLunchReceipt() async {
-    setState(() => _isLoading = true);
-
-    try {
-      _showLoadingToast();
-      final pollData = await _getLatestDeactivatedPoll();
-
-      if (pollData != null) {
-        final userId = AuthService().currentUser?.uid;
-        if (userId == null) {
-          Fluttertoast.showToast(
-            msg: "Please sign in to view your lunch receipt",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Theme.of(context).colorScheme.error,
-            textColor: Colors.white,
-          );
-          return;
-        }
-
-        final imageData = await _generateTokenImage(
-            pollData.data() as Map<String, dynamic>, userId);
-
-        Fluttertoast.showToast(
-          msg: "Lunch receipt generated!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-        );
-
-        _showTokenDialog(context, imageData);
-      } else {
-        Fluttertoast.showToast(
-          msg: "No completed lunch orders found",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.orange,
-          textColor: Colors.white,
-        );
-      }
-    } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Error generating receipt: $e",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 50.h, // Set custom height using ScreenUtil
-        titleSpacing: 8.w, // Add left padding to title
+        toolbarHeight: 50.h,
+        titleSpacing: 8.w,
         title: Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.h), // Add vertical padding
+          padding: EdgeInsets.symmetric(vertical: 8.h),
           child: Text(
             'Today\'s Lunch Menu',
             style: TextStyle(
@@ -455,16 +129,7 @@ class _VotesPageState extends State<VotesPage>
             : null,
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              theme.colorScheme.primary.withOpacity(0.1),
-              theme.colorScheme.background,
-            ],
-          ),
-        ),
+        color: AppColors.backgroundColor,
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: StreamBuilder<QuerySnapshot>(
@@ -501,7 +166,6 @@ class _VotesPageState extends State<VotesPage>
           ),
         ),
       ),
-      // Removed floatingReceipt button to prevent overlap with bottom nav
     );
   }
 
@@ -513,7 +177,7 @@ class _VotesPageState extends State<VotesPage>
           CircularProgressIndicator(
             color: Theme.of(context).colorScheme.primary,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16.h),
           Text(
             'Loading today\'s lunch menu...',
             style: TextStyle(
@@ -529,50 +193,50 @@ class _VotesPageState extends State<VotesPage>
   Widget _buildErrorWidget(Object? error) {
     return Center(
       child: Container(
-        padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
+        margin: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+              color: AppColors.shadowColor,
+              blurRadius: 10.r,
+              offset: Offset(0, 5.h),
             ),
           ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
-              color: Colors.red,
-              size: 48,
+              color: AppColors.error,
+              size: 48.sp,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               'Error Loading Menu',
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    color: Colors.red,
+                    color: AppColors.error,
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               'We couldn\'t load the lunch menu. Please try again later.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               'Error: ${error.toString()}',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: Colors.grey,
+                    color: AppColors.tertiaryText,
                   ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             ElevatedButton.icon(
               onPressed: () {
                 setState(() {});
@@ -580,8 +244,8 @@ class _VotesPageState extends State<VotesPage>
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: AppColors.white,
               ),
             ),
           ],
@@ -593,16 +257,16 @@ class _VotesPageState extends State<VotesPage>
   Widget _buildEmptyWidget() {
     return Center(
       child: Container(
-        padding: const EdgeInsets.all(30),
-        margin: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(30.w),
+        margin: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
+              color: AppColors.shadowColor,
+              blurRadius: 15.r,
+              offset: Offset(0, 5.h),
             ),
           ],
         ),
@@ -611,23 +275,23 @@ class _VotesPageState extends State<VotesPage>
           children: [
             Icon(
               Icons.restaurant,
-              color: Colors.grey[400],
-              size: 72,
+              color: AppColors.tertiaryText,
+              size: 72.sp,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             Text(
               'No Active Lunch Menu',
               style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             Text(
               'There are no active lunch polls at the moment. Check back later for today\'s menu.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             ElevatedButton.icon(
               onPressed: () {
                 setState(() {});
@@ -635,14 +299,14 @@ class _VotesPageState extends State<VotesPage>
               icon: const Icon(Icons.refresh),
               label: const Text('Refresh'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 12,
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: AppColors.white,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 32.w,
+                  vertical: 12.h,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(30.r),
                 ),
               ),
             ),
@@ -653,27 +317,169 @@ class _VotesPageState extends State<VotesPage>
   }
 
   Widget _buildPollsList(List<QueryDocumentSnapshot> polls) {
-    return ListView.builder(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      itemCount: polls.length,
-      itemBuilder: (context, index) {
-        try {
-          final poll = polls[index];
-          return PollCard(pollData: poll);
-        } catch (e) {
-          print('Error building poll card: $e');
-          return SizedBox(
-            height: 100,
-            child: Card(
-              child: Center(
-                child: Text('Error loading menu item: $e'),
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
+            itemCount: polls.length,
+            itemBuilder: (context, index) {
+              try {
+                final poll = polls[index];
+                return PollCard(pollData: poll);
+              } catch (e) {
+                print('Error building poll card: $e');
+                return SizedBox(
+                  height: 100.h,
+                  child: Card(
+                    child: Center(
+                      child: Text('Error loading menu item: $e'),
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+        if (polls.isNotEmpty) _buildBottomSection(polls.first),
+      ],
+    );
+  }
+
+  Widget _buildBottomSection(QueryDocumentSnapshot pollData) {
+    final data = pollData.data() as Map<String, dynamic>;
+    final int? endTimeMs = data['endTimeMillis'];
+    final DateTime? endTime = endTimeMs != null
+        ? DateTime.fromMillisecondsSinceEpoch(endTimeMs)
+        : null;
+    final String formattedEndTime = endTime != null
+        ? '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')} AM'
+        : '10:00 AM';
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 150.h),
+      height: 50.h,
+      width: 345.w,
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowColor,
+            blurRadius: 10.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
+      ),
+      child: GestureDetector(
+        onTap: _isAdminOrPlanner
+            ? () => _showTimePickerDialog(context, endTime, pollData.id)
+            : null,
+        child: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 10.w),
+              child: Container(
+                width: 36.w,
+                height: 36.h,
+                decoration: BoxDecoration(
+                  color: AppColors.fNameBoxPink,
+                  borderRadius: BorderRadius.circular(18.r),
+                ),
+                child: Icon(
+                  Icons.access_time,
+                  color: AppColors.fRedBright,
+                  size: 20.sp,
+                ),
               ),
             ),
-          );
-        }
-      },
+            SizedBox(width: 14.w),
+            Expanded(
+              child: GestureDetector(
+                onTap: _isAdminOrPlanner
+                    ? () => _showTimePickerDialog(context, endTime, pollData.id)
+                    : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'End Time',
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primaryText,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      formattedEndTime,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.secondaryText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (_isAdminOrPlanner)
+              Padding(
+                padding: EdgeInsets.only(right: 8.w),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppColors.tertiaryText,
+                  size: 20.sp,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
+  }
+
+  Future<void> _showTimePickerDialog(
+      BuildContext context, DateTime? currentEndTime, String pollId) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: currentEndTime != null
+          ? TimeOfDay.fromDateTime(currentEndTime)
+          : TimeOfDay.now(),
+    );
+
+    if (picked != null) {
+      final now = DateTime.now();
+      final newEndTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        picked.hour,
+        picked.minute,
+      );
+
+      try {
+        await FirebaseFirestore.instance
+            .collection('polls')
+            .doc(pollId)
+            .update({'endTimeMillis': newEndTime.millisecondsSinceEpoch});
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('End time updated to ${picked.format(context)}'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating end time: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -685,7 +491,6 @@ class PollCard extends StatelessWidget {
     required this.pollData,
   });
 
-  // Helper method to check if current user is admin or planner
   bool get _isAdminOrPlanner {
     final userRole = AuthService().currentUser?.role;
     return userRole == 'Admin' || userRole == 'Planner';
@@ -701,247 +506,172 @@ class PollCard extends StatelessWidget {
           .doc(pollData.id)
           .update({'isActive': newStatus});
 
-      // Show feedback to user
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(newStatus
               ? 'Menu is now open for orders'
               : 'Menu is now closed for orders'),
-          backgroundColor: newStatus ? Colors.green : Colors.orange,
+          backgroundColor: newStatus ? AppColors.success : AppColors.warning,
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error updating menu: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
         ),
       );
     }
   }
 
+  String _formatDate(String dateString) {
+    try {
+      final parts = dateString.split('/');
+      if (parts.length == 3) {
+        final day = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+        final year = int.parse(parts[2]);
+
+        final monthNames = [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December'
+        ];
+
+        String dayWithSuffix = _getDayWithSuffix(day);
+        String monthName = monthNames[month - 1];
+
+        return '$dayWithSuffix $monthName, $year';
+      }
+    } catch (e) {}
+    return dateString;
+  }
+
+  String _getDayWithSuffix(int day) {
+    if (day >= 11 && day <= 13) {
+      return '${day}th';
+    }
+    switch (day % 10) {
+      case 1:
+        return '${day}st';
+      case 2:
+        return '${day}nd';
+      case 3:
+        return '${day}rd';
+      default:
+        return '${day}th';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final data = pollData.data() as Map<String, dynamic>;
 
-    final String question = data['question'] ?? 'No Question';
     final String date = data['date'] ?? 'No Date';
+
+    final String formattedDate = _formatDate(date);
     final int? endTimeMs = data['endTimeMillis'];
     final List<String> options = List<String>.from(data['options'] ?? []);
     final Map<String, dynamic> votes = data['votes'] ?? {};
 
-    final DateTime? endTime = endTimeMs != null
-        ? DateTime.fromMillisecondsSinceEpoch(endTimeMs)
-        : null;
-
-    final String formattedEndTime = endTime != null
-        ? '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}'
-        : 'Unknown';
-
-    final now = DateTime.now();
-    final bool isPollActive = endTime != null && endTime.isAfter(now);
-    final difference =
-        endTime != null ? endTime.difference(now) : const Duration(minutes: 0);
-    final hoursRemaining = difference.inHours;
-    final minutesRemaining = difference.inMinutes % 60;
-    final String timeRemainingText = isPollActive
-        ? 'Closes in ${hoursRemaining > 0 ? '$hoursRemaining hr ' : ''}${minutesRemaining} min'
-        : 'Ordering closed';
-
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
+      margin: EdgeInsets.only(bottom: 16.h),
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        question,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isPollActive
-                            ? Colors.white.withOpacity(0.2)
-                            : Colors.red.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isPollActive ? Icons.timer : Icons.timer_off,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            timeRemainingText,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 16,
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      date,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Icon(
-                      Icons.access_time,
-                      size: 16,
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Until $formattedEndTime',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Container(
-            height: 6,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withOpacity(0.1),
-                  Colors.transparent,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.restaurant_menu,
-                            color: theme.colorScheme.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Menu Options',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (_isAdminOrPlanner)
-                        Switch(
-                          value: pollData['isActive'] ?? false,
-                          activeColor: theme.colorScheme.primary,
-                          onChanged: (value) => _togglePollStatus(context),
-                        ),
-                    ],
+                Text(
+                  formattedDate,
+                  style: TextStyle(
+                    color: AppColors.secondaryColor,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
-                if (options.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'No options available',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontStyle: FontStyle.italic,
+                if (_isAdminOrPlanner)
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.shadowColor,
+                          blurRadius: 15.r,
+                          offset: Offset(2.w, 2.h),
+                          spreadRadius: 0,
                         ),
-                      ),
+                      ],
                     ),
-                  )
-                else
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: options.length,
-                    itemBuilder: (context, index) {
-                      return VoteOption(
-                        option: options[index],
-                        pollId: pollData.id,
-                        allVotes: votes,
-                        endTimeMillis: endTimeMs,
-                        isActive: pollData['isActive'] ?? false,
-                      );
-                    },
+                    child: Switch(
+                      value: pollData['isActive'] ?? false,
+                      activeColor: AppColors.white,
+                      activeTrackColor: AppColors.primaryText,
+                      inactiveThumbColor: AppColors.white,
+                      inactiveTrackColor: AppColors.tertiaryText,
+                      onChanged: (value) => _togglePollStatus(context),
+                    ),
                   ),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
+          if (options.isEmpty)
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Text(
+                  'No options available',
+                  style: TextStyle(
+                    color: AppColors.tertiaryText,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ),
+            )
+          else
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: options.length,
+              itemBuilder: (context, index) {
+                return VoteOption(
+                  option: options[index],
+                  pollId: pollData.id,
+                  allVotes: votes,
+                  endTimeMillis: endTimeMs,
+                  isActive: pollData['isActive'] ?? false,
+                );
+              },
+            ),
+          Container(
+            margin: EdgeInsets.all(0),
+            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: AppColors.cardBackground,
+              borderRadius: BorderRadius.circular(12.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.shadowColor,
+                  blurRadius: 8.r,
+                  offset: Offset(0, 2.h),
+                ),
+              ],
             ),
             child: _buildTotalVotesRow(votes),
           ),
@@ -957,39 +687,28 @@ class PollCard extends StatelessWidget {
     }
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            Icon(
-              Icons.people,
-              size: 18,
-              color: Colors.grey[700],
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Total Orders:',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
-            ),
-          ],
+        Icon(
+          Icons.visibility_outlined,
+          size: 20.sp,
+          color: AppColors.tertiaryText,
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.blue.shade700,
-            borderRadius: BorderRadius.circular(16),
+        SizedBox(width: 8.w),
+        Text(
+          'Total Orders',
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w500,
+            color: AppColors.secondaryText,
           ),
-          child: Text(
-            totalVotes.toString(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
+        ),
+        const Spacer(),
+        Text(
+          totalVotes.toString(),
+          style: TextStyle(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w700,
+            color: AppColors.fRedBright,
           ),
         ),
       ],

@@ -104,7 +104,6 @@ class MenuPollCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Toggle removed - now available in votes page beside Menu Options
               ],
             ),
             const SizedBox(height: 16),

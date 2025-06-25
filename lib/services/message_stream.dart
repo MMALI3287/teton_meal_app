@@ -2,7 +2,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter/foundation.dart';
 
-
 final _messageStreamController = BehaviorSubject<RemoteMessage>();
 
 void setupFirebaseMessaging() {
@@ -18,5 +17,5 @@ void setupFirebaseMessaging() {
   });
 }
 
-
-BehaviorSubject<RemoteMessage> get messageStreamController => _messageStreamController;
+BehaviorSubject<RemoteMessage> get messageStreamController =>
+    _messageStreamController;

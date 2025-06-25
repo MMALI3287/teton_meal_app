@@ -31,7 +31,8 @@ class EditPollDialogState extends State<EditPollDialog> {
   void initState() {
     super.initState();
 
-    _questionController = TextEditingController(text: widget.pollData['question']);
+    _questionController =
+        TextEditingController(text: widget.pollData['question']);
 
     final options = widget.pollData['options'] as List;
     _optionControllers = List.generate(

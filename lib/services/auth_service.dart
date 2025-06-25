@@ -70,7 +70,6 @@ class AuthService {
   final _uuid = Uuid();
   SharedPreferences? _prefs;
 
-  
   factory AuthService() {
     return _instance;
   }
@@ -101,16 +100,12 @@ class AuthService {
     }
   }
 
-  
   UserModel? get currentUser => _authStateController.valueOrNull;
 
-  
   Stream<UserModel?> get authStateChanges => _authStateController.stream;
 
-  
   Future<UserModel?> signIn(String email, String password) async {
     try {
-      
       final querySnapshot = await _firestore
           .collection('users')
           .where('email', isEqualTo: email)
@@ -124,30 +119,24 @@ class AuthService {
       final userDoc = querySnapshot.docs.first;
       final userData = userDoc.data();
 
-      
       if (userData['password'] != password) {
         throw Exception('Wrong password provided for that user.');
       }
 
-      
       final user = UserModel.fromMap(userData, userDoc.id);
-      
-      
+
       await _prefs!.setString('user_id', user.uid);
-      
-      
+
       _authStateController.add(user);
-      
+
       return user;
     } catch (e) {
       rethrow;
     }
   }
 
-  
   Future<UserModel> register(String email, String password, String role) async {
     try {
-      
       final querySnapshot = await _firestore
           .collection('users')
           .where('email', isEqualTo: email)
@@ -155,13 +144,12 @@ class AuthService {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        throw Exception('The email address is already in use by another account.');
+        throw Exception(
+            'The email address is already in use by another account.');
       }
 
-      
       final userId = _uuid.v4();
-      
-      
+
       final userData = {
         'email': email,
         'password': password,
@@ -169,23 +157,20 @@ class AuthService {
         'createdAt': FieldValue.serverTimestamp(),
       };
 
-      
       await _firestore.collection('users').doc(userId).set(userData);
-      
-      
+
       final user = UserModel(
         uid: userId,
         email: email,
         role: role,
       );
-      
+
       return user;
     } catch (e) {
       rethrow;
     }
   }
 
-  
   Future<void> updateUserProfile({
     required String uid,
     String? displayName,
@@ -196,32 +181,32 @@ class AuthService {
   }) async {
     try {
       final updates = <String, dynamic>{};
-      
+
       if (displayName != null) {
         updates['displayName'] = displayName;
       }
-      
+
       if (email != null) {
         updates['email'] = email;
       }
-      
+
       if (password != null) {
         updates['password'] = password;
       }
-      
+
       if (fcmToken != null) {
         updates['fcm_token'] = fcmToken;
       }
-      
+
       if (notificationsEnabled != null) {
         updates['notifications_enabled'] = notificationsEnabled;
       }
-      
+
       if (updates.isNotEmpty) {
         await _firestore.collection('users').doc(uid).update(updates);
-        
-        
-        if (_authStateController.hasValue && _authStateController.value?.uid == uid) {
+
+        if (_authStateController.hasValue &&
+            _authStateController.value?.uid == uid) {
           final updatedUser = _authStateController.value!.copyWith(
             displayName: displayName,
             email: email,
@@ -270,13 +255,11 @@ class AuthService {
     }
   }
 
-  
   Future<void> signOut() async {
     await _prefs!.remove('user_id');
     _authStateController.add(null);
   }
 
-  
   Future<UserModel?> getUserById(String uid) async {
     try {
       final docSnapshot = await _firestore.collection('users').doc(uid).get();
@@ -289,7 +272,6 @@ class AuthService {
     }
   }
 
-  
   void dispose() {
     _authStateController.close();
   }

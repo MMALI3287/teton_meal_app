@@ -183,7 +183,6 @@ class _LoginPageState extends State<LoginPage>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                // Remember me checkbox
                                 Row(
                                   children: [
                                     SizedBox(
@@ -222,9 +221,7 @@ class _LoginPageState extends State<LoginPage>
                                 Row(
                                   children: [
                                     GestureDetector(
-                                      onTap: () {
-                                        // Handle forgot password
-                                      },
+                                      onTap: () {},
                                       child: Text(
                                         'Forgot password?',
                                         style: TextStyle(
@@ -237,7 +234,7 @@ class _LoginPageState extends State<LoginPage>
                                     ),
                                     SizedBox(width: 8.w),
                                   ],
-                                ), // Forgot password link
+                                ),
                               ],
                             ),
                             SizedBox(height: 104.h),
@@ -358,9 +355,7 @@ class _LoginPageState extends State<LoginPage>
           style: TextStyle(fontSize: 14, color: Colors.grey[800]),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[400]), // Icon moved to the right side
+            hintStyle: TextStyle(fontSize: 14, color: Colors.grey[400]),
             suffixIcon: hint == 'Password'
                 ? suffixIcon
                 : Container(

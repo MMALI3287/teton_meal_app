@@ -1,4 +1,3 @@
-// filepath: c:\Users\erfan\Downloads\teton_meal_app\lib\Screens\BottomNavPages\Menus\menu_page_new.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -218,7 +217,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
         final currentCategory = '$currentYear-$currentMonth';
 
         return ListView(
-          padding: EdgeInsets.only(bottom: 80.h), // Added bottom padding
+          padding: EdgeInsets.only(bottom: 80.h),
           children: categorizedPolls.entries.map((yearEntry) {
             return ExpansionTile(
               title: Text(yearEntry.key),
@@ -369,7 +368,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.only(bottom: 80.h), // Added bottom padding
+      padding: EdgeInsets.only(bottom: 80.h),
       itemCount: polls.length,
       itemBuilder: (context, index) {
         return MenuPollCard(pollData: polls[index]);
