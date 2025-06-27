@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/Screens/Authentications/login.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Account/account.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Account/users_page.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 
@@ -201,7 +202,12 @@ class _SettingsPageState extends State<SettingsPage> {
           icon: Icons.people_outline,
           title: 'Users',
           onTap: () {
-            // Handle users navigation
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const UsersPage(),
+              ),
+            );
           },
         ),
         _buildSectionItem(

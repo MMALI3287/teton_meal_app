@@ -343,14 +343,6 @@ class EditPollDialogState extends State<EditPollDialog> {
                       color: AppColors.primaryText,
                     ),
                   ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    'Tap to change date',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: AppColors.secondaryText,
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -653,7 +645,7 @@ class EditPollDialogState extends State<EditPollDialog> {
       onTap: _selectTime,
       child: Container(
         width: double.infinity,
-        height: 64.h,
+        height: 70.h,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
@@ -740,7 +732,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                   'Cancel',
                   style: TextStyle(
                     color: AppColors.secondaryText,
-                    fontSize: 16.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -794,8 +786,8 @@ class EditPollDialogState extends State<EditPollDialog> {
                           Text(
                             'Save Changes',
                             style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w500,
                               letterSpacing: 0.3,
                             ),
                           ),

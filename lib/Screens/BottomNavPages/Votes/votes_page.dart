@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,6 +19,11 @@ class _VotesPageState extends State<VotesPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+
+  // Vote optimization: cache and debouncing
+  Timer? _voteTimer;
+  Map<String, String?> _pendingVotes = {}; // pollId -> optionVoted
+  final Duration _votingDelay = const Duration(milliseconds: 300);
 
   bool get _isAdminOrPlanner {
     final userRole = AuthService().currentUser?.role;
@@ -43,6 +49,7 @@ class _VotesPageState extends State<VotesPage>
   @override
   void dispose() {
     _animationController.dispose();
+    _voteTimer?.cancel();
     super.dispose();
   }
 
@@ -338,8 +345,6 @@ class _VotesPageState extends State<VotesPage>
           SizedBox(height: 8.h),
           _buildMainCard(pollData, formattedDate, options, votes),
           SizedBox(height: 16.h),
-          _buildTotalOrdersCard(votes),
-          SizedBox(height: 16.h),
           _buildIllustration(),
           SizedBox(height: 16.h),
           _buildEndTimeCard(endTimeMs, pollData.id),
@@ -406,7 +411,7 @@ class _VotesPageState extends State<VotesPage>
                 ),
               ),
             )
-          else
+          else ...[
             ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
@@ -427,6 +432,15 @@ class _VotesPageState extends State<VotesPage>
                 );
               },
             ),
+            // Add separator before Total Orders
+            Container(
+              height: 1.h,
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+            ),
+          ],
+          // Total Orders section inside main card (always show)
+          _buildTotalOrdersSection(votes),
           SizedBox(height: 16.h),
         ],
       ),
@@ -461,193 +475,209 @@ class _VotesPageState extends State<VotesPage>
       'Chicken Khichuri': 'assets/images/chicken.png',
     };
 
-    print(
-        'Vote option - Option: $option, isActive: $isActive, hasUserVoted: $hasUserVoted, currentUser: ${currentUser?.uid}');
-
-    return GestureDetector(
-      onTap: isActive && currentUser != null
-          ? () {
-              print('Vote option tapped: $option');
-              _voteForOption(option, pollId);
-            }
-          : null,
-      child: Container(
-        padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: isActive ? Colors.transparent : Colors.grey.withOpacity(0.1),
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                // Vote icon (plus or checkmark) - matching Figma design
-                Container(
-                  width: 16.w,
-                  height: 16.h,
-                  child: hasUserVoted
-                      ? Icon(
-                          Icons.check_circle,
-                          color: const Color(0xFF383A3F), // F_Text_H1
-                          size: 16.sp,
-                        )
-                      : Icon(
-                          Icons.add_circle_outline,
-                          color: isActive
-                              ? const Color(0xFF7A869A) // F_Icon& Label_Text
-                              : Colors.grey,
-                          size: 16.sp,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isActive && currentUser != null
+            ? () => _voteForOption(option, pollId)
+            : null,
+        borderRadius: BorderRadius.circular(12.r),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: hasUserVoted
+                ? const Color(0xFFF0F8FF)
+                : (isActive
+                    ? Colors.transparent
+                    : Colors.grey.withOpacity(0.1)),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  // Vote icon with smooth animation
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: Container(
+                      key: ValueKey(hasUserVoted),
+                      width: 16.w,
+                      height: 16.h,
+                      child: hasUserVoted
+                          ? Icon(
+                              Icons.check_circle,
+                              color: const Color(0xFF4CAF50),
+                              size: 16.sp,
+                            )
+                          : Icon(
+                              Icons.add_circle_outline,
+                              color: isActive
+                                  ? const Color(0xFF7A869A)
+                                  : Colors.grey,
+                              size: 16.sp,
+                            ),
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  // Food image
+                  Container(
+                    width: 38.w,
+                    height: 38.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFFFF),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          blurRadius: 4.r,
+                          offset: Offset(0, 4.h),
                         ),
-                ),
-                SizedBox(width: 12.w),
-                // Food image - using specific images or fallback
-                Container(
-                  width: 38.w,
-                  height: 38.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFFFFF), // F_White
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 4.r,
-                        offset: Offset(0, 4.h),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: foodImages.containsKey(option)
+                          ? Image.asset(
+                              foodImages[option]!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  _buildFoodIcon(option),
+                            )
+                          : _buildFoodIcon(option),
+                    ),
                   ),
-                  child: ClipOval(
-                    child: foodImages.containsKey(option)
-                        ? Image.asset(
-                            foodImages[option]!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                _buildFoodIcon(option),
-                          )
-                        : _buildFoodIcon(option),
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                // Option name and vote count in the exact Figma layout
-                Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          option,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: isActive
-                                ? const Color(0xFF585F6A) // F_Text_H2
-                                : Colors.grey,
-                            letterSpacing: -0.2,
+                  SizedBox(width: 12.w),
+                  // Option name and vote count
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            option,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              color: isActive
+                                  ? const Color(0xFF585F6A)
+                                  : Colors.grey,
+                              letterSpacing: -0.2,
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 8.w, vertical: 2.h),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        child: Text(
-                          '${optionVotes.length} order',
-                          style: TextStyle(
-                            fontSize: 10.sp,
-                            fontWeight: FontWeight.w500,
-                            color:
-                                const Color(0xFF7A869A), // F_Icon& Label_Text
-                            letterSpacing: -0.24,
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.w, vertical: 2.h),
+                          decoration: BoxDecoration(
+                            color: hasUserVoted
+                                ? const Color(0xFFE8F5E8)
+                                : const Color(0xFFF4F5F7),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Text(
+                            '${optionVotes.length} order${optionVotes.length == 1 ? '' : 's'}',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w500,
+                              color: hasUserVoted
+                                  ? const Color(0xFF4CAF50)
+                                  : const Color(0xFF7A869A),
+                              letterSpacing: -0.24,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            if (!isActive)
-              Padding(
-                padding: EdgeInsets.only(top: 8.h),
-                child: Text(
-                  'Poll is closed',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.red,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+                ],
               ),
-            if (currentUser == null)
-              Padding(
-                padding: EdgeInsets.only(top: 8.h),
-                child: Text(
-                  'Please log in to vote',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.orange,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            SizedBox(height: 16.h),
-            // Progress bar and percentage - exact Figma positioning
-            Row(
-              children: [
-                SizedBox(width: 28.w), // Indent to align with text
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Container(
-                        height: 3.h,
-                        width: 283.w, // Fixed width from Figma
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                      Container(
-                        height: 3.h,
-                        width: (percentage / 100) *
-                            283.w, // Fixed width from Figma
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF7686), // F_Red_2
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                SizedBox(
-                  width: 20.w,
+              if (!isActive)
+                Padding(
+                  padding: EdgeInsets.only(top: 8.h),
                   child: Text(
-                    '${percentage.toStringAsFixed(0)}%',
+                    'Poll is closed',
                     style: TextStyle(
-                      fontSize: 8.sp,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFFEF9F27), // F_Yellow
-                      letterSpacing: -0.24,
+                      fontSize: 12.sp,
+                      color: Colors.red,
+                      fontStyle: FontStyle.italic,
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
+              if (currentUser == null)
+                Padding(
+                  padding: EdgeInsets.only(top: 8.h),
+                  child: Text(
+                    'Please log in to vote',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.orange,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              SizedBox(height: 16.h),
+              // Animated progress bar
+              Row(
+                children: [
+                  SizedBox(width: 28.w),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 3.h,
+                          width: 283.w,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF4F5F7),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 500),
+                          height: 3.h,
+                          width: (percentage / 100) * 283.w,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF7686),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 12.w),
+                  SizedBox(
+                    width: 20.w,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Text(
+                        '${percentage.toStringAsFixed(0)}%',
+                        key: ValueKey(percentage),
+                        style: TextStyle(
+                          fontSize: 8.sp,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFFEF9F27),
+                          letterSpacing: -0.24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTotalOrdersCard(Map<String, dynamic> votes) {
+  Widget _buildTotalOrdersSection(Map<String, dynamic> votes) {
     int totalVotes = 0;
     for (var entry in votes.entries) {
       totalVotes += (entry.value as List?)?.length ?? 0;
     }
 
     return Container(
-      width: 307.w,
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF), // F_White
         borderRadius: BorderRadius.circular(12.r),
@@ -655,7 +685,7 @@ class _VotesPageState extends State<VotesPage>
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 4.r,
-            offset: Offset(0, 4.h),
+            offset: Offset(0, 2.h),
           ),
         ],
       ),
@@ -742,7 +772,7 @@ class _VotesPageState extends State<VotesPage>
 
     return Container(
       width: 345.w,
-      height: 47.h,
+      height: 50.h,
       decoration: BoxDecoration(
         color: const Color(0xFFFFFFFF), // F_White
         borderRadius: BorderRadius.circular(15.r),
@@ -965,89 +995,110 @@ class _VotesPageState extends State<VotesPage>
     );
   }
 
+  // Optimized fast voting implementation
   Future<void> _voteForOption(String option, String pollId) async {
     final currentUser = AuthService().currentUser;
     if (currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please log in to vote'),
-          backgroundColor: Color(0xFFFF3951), // F_Red_Bright
+          backgroundColor: Color(0xFFFF3951),
+          duration: Duration(seconds: 1),
         ),
       );
       return;
     }
 
-    print('Attempting to vote for: $option by user: ${currentUser.uid}');
+    // Check if there's a pending vote for this pollId
+    if (_pendingVotes.containsKey(pollId)) {
+      // If the pending vote is the same as the new vote, cancel the operation
+      if (_pendingVotes[pollId] == option) return;
+      // Otherwise, remove the pending vote (user is changing their vote)
+      _pendingVotes.remove(pollId);
+    }
 
-    try {
-      final pollRef =
-          FirebaseFirestore.instance.collection('polls').doc(pollId);
+    // Add or update the pending vote
+    _pendingVotes[pollId] = option;
 
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        final pollSnapshot = await transaction.get(pollRef);
+    // Cancel the previous timer if it exists
+    _voteTimer?.cancel();
 
-        if (!pollSnapshot.exists) {
-          throw Exception('Poll not found');
-        }
+    // Start a new timer
+    _voteTimer = Timer(_votingDelay, () async {
+      try {
+        // Use direct field update with FieldValue operations for speed
+        final pollRef =
+            FirebaseFirestore.instance.collection('polls').doc(pollId);
 
-        final data = pollSnapshot.data() as Map<String, dynamic>;
-        print('Poll data: $data');
+        // Get current poll data once
+        final pollDoc = await pollRef.get();
+        if (!pollDoc.exists) return;
 
-        // Initialize votes structure if it doesn't exist
-        Map<String, dynamic> currentVotes =
-            Map<String, dynamic>.from(data['votes'] ?? {});
+        final data = pollDoc.data() as Map<String, dynamic>;
+        final allOptions = List<String>.from(data['options'] ?? []);
+        final currentVotes = Map<String, dynamic>.from(data['votes'] ?? {});
 
-        // Get all available options from the poll
-        final List<String> allOptions =
-            List<String>.from(data['options'] ?? []);
-
-        // Initialize empty vote arrays for all options if they don't exist
+        // Find user's current vote
+        String? currentUserVote;
         for (String optionKey in allOptions) {
-          if (!currentVotes.containsKey(optionKey)) {
-            currentVotes[optionKey] = <String>[];
+          final voters = List<String>.from(currentVotes[optionKey] ?? []);
+          if (voters.contains(currentUser.uid)) {
+            currentUserVote = optionKey;
+            break;
           }
         }
 
-        print('Current votes before update: $currentVotes');
+        // Prepare batch updates for atomic operation
+        final batch = FirebaseFirestore.instance.batch();
+        final updates = <String, dynamic>{};
 
-        // Remove user's previous vote from all options
-        for (String optionKey in currentVotes.keys) {
-          final List<String> voters =
-              List<String>.from(currentVotes[optionKey] ?? []);
-          voters.remove(currentUser.uid);
-          currentVotes[optionKey] = voters;
+        // Remove from previous option if exists
+        if (currentUserVote != null && currentUserVote != option) {
+          final prevVoters =
+              List<String>.from(currentVotes[currentUserVote] ?? []);
+          prevVoters.remove(currentUser.uid);
+          updates['votes.$currentUserVote'] = prevVoters;
         }
 
-        // Add user's vote to the selected option
-        final List<String> optionVoters =
-            List<String>.from(currentVotes[option] ?? []);
-        if (!optionVoters.contains(currentUser.uid)) {
-          optionVoters.add(currentUser.uid);
-          currentVotes[option] = optionVoters;
+        // Add to new option (or toggle off if same option)
+        if (currentUserVote != option) {
+          final newVoters = List<String>.from(currentVotes[option] ?? []);
+          if (!newVoters.contains(currentUser.uid)) {
+            newVoters.add(currentUser.uid);
+          }
+          updates['votes.$option'] = newVoters;
         }
 
-        print('Current votes after update: $currentVotes');
+        // Apply updates if any changes needed
+        if (updates.isNotEmpty) {
+          batch.update(pollRef, updates);
+          await batch.commit();
 
-        // Update the document with the new votes
-        transaction.update(pollRef, {'votes': currentVotes});
-      });
-
-      print('Vote successfully cast for $option');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Voted for $option'),
-          backgroundColor: const Color(0xFF4CAF50), // Success green
-        ),
-      );
-    } catch (e) {
-      print('Error voting: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error voting: $e'),
-          backgroundColor: const Color(0xFFFF3951), // F_Red_Bright
-        ),
-      );
-    }
+          // Quick success feedback
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(currentUserVote == option
+                  ? 'Vote removed'
+                  : 'Voted for $option'),
+              backgroundColor: const Color(0xFF4CAF50),
+              duration: const Duration(milliseconds: 800),
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to vote. Please try again.'),
+            backgroundColor: const Color(0xFFFF3951),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      } finally {
+        // Remove the pollId from pending votes after the operation
+        _pendingVotes.remove(pollId);
+      }
+    });
   }
 
   // ...existing methods...
