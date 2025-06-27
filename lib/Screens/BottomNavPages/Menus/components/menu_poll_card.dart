@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:teton_meal_app/Styles/colors.dart';
 import '../pages/poll_votes_page.dart';
 import '../dialogs/edit_poll_dialog.dart';
 
@@ -12,18 +14,44 @@ class MenuPollCard extends StatelessWidget {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: const Text(
-            'Are you sure you want to delete this menu? This action cannot be undone.'),
+        backgroundColor: AppColors.cardBackground,
+        title: Text(
+          'Confirm Delete',
+          style: TextStyle(
+            color: AppColors.primaryText,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to delete this menu? This action cannot be undone.',
+          style: TextStyle(
+            color: AppColors.secondaryText,
+            fontSize: 14.sp,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.secondaryText,
+                fontSize: 14.sp,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: Text(
+              'Delete',
+              style: TextStyle(
+                color: AppColors.error,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),
@@ -37,117 +65,200 @@ class MenuPollCard extends StatelessWidget {
           .doc(pollData.id)
           .delete();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Menu deleted successfully')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Menu deleted successfully',
+              style: TextStyle(color: AppColors.white),
+            ),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting menu: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error deleting menu: $e',
+              style: TextStyle(color: AppColors.white),
+            ),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  String _formatDate(String dateString) {
+    try {
+      final parts = dateString.split('/');
+      if (parts.length == 3) {
+        final day = int.parse(parts[0]);
+        final month = int.parse(parts[1]);
+        final year = int.parse(parts[2]);
+
+        final monthNames = [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December'
+        ];
+
+        String dayWithSuffix = _getDayWithSuffix(day);
+        String monthName = monthNames[month - 1];
+
+        return '$dayWithSuffix $monthName, $year';
+      }
+    } catch (e) {}
+    return dateString;
+  }
+
+  String _getDayWithSuffix(int day) {
+    if (day >= 11 && day <= 13) {
+      return '${day}th';
+    }
+    switch (day % 10) {
+      case 1:
+        return '${day}st';
+      case 2:
+        return '${day}nd';
+      case 3:
+        return '${day}rd';
+      default:
+        return '${day}th';
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isActive = pollData['isActive'] ?? false;
-    final theme = Theme.of(context);
+    final data = pollData.data() as Map<String, dynamic>;
+    final String date = data['date'] ?? 'No Date';
+    final List<String> options = List<String>.from(data['options'] ?? []);
+    final Map<String, dynamic> votes = data['votes'] ?? {};
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: isActive
-              ? theme.colorScheme.secondary.withOpacity(0.3)
-              : Colors.grey.withOpacity(0.2),
-          width: isActive ? 1 : 0.5,
+    int totalVotes = 0;
+    for (var entry in votes.entries) {
+      totalVotes += (entry.value as List?)?.length ?? 0;
+    }
+
+    return Container(
+      width: 348.01.w,
+      margin: EdgeInsets.only(bottom: 7.89.h),
+      padding: EdgeInsets.symmetric(horizontal: 15.77.w, vertical: 7.89.h),
+      decoration: ShapeDecoration(
+        color: AppColors.cardBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14.79.r),
         ),
+        shadows: [
+          BoxShadow(
+            color: AppColors.shadowColor,
+            blurRadius: 3.94.r,
+            offset: Offset(0, 3.94.h),
+            spreadRadius: 0,
+          )
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header section with date and total orders
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: 7.89.h),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _formatDate(date),
+                      style: TextStyle(
+                        color: AppColors.secondaryColor,
+                        fontSize: 11.83.sp,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: -0.35,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 7.89.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Total Orders',
+                      style: TextStyle(
+                        color: AppColors.secondaryText,
+                        fontSize: 11.83.sp,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w700,
+                        height: 2,
+                        letterSpacing: -0.28,
+                      ),
+                    ),
+                    Text(
+                      totalVotes.toString(),
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: AppColors.fRed2,
+                        fontSize: 15.77.sp,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w500,
+                        height: 1.50,
+                        letterSpacing: -0.28,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // Divider
+          Container(
+            width: double.infinity,
+            height: 0.99.h,
+            decoration: BoxDecoration(
+              color: AppColors.divider,
+            ),
+          ),
+          // Menu options with order counts
+          ...options.map(
+              (option) => _buildOrderItem(option, votes[option]?.length ?? 0)),
+          // Action buttons
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(7.89.w),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: isActive
-                        ? theme.colorScheme.secondary.withOpacity(0.1)
-                        : Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 16,
-                        color: isActive
-                            ? theme.colorScheme.secondary
-                            : Colors.grey,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        pollData['date'],
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isActive
-                              ? theme.colorScheme.secondary
-                              : Colors.grey[700],
-                        ),
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(8.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.shadowColor,
+                        blurRadius: 2.r,
+                        offset: Offset(0, 1.h),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              pollData['question'],
-              style: theme.textTheme.titleMedium!.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Divider(height: 24),
-            ...pollData['options']
-                .map<Widget>(
-                  (option) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            option,
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
-            const SizedBox(height: 16),
-            const Divider(height: 8),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton.icon(
+                  child: TextButton.icon(
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -159,28 +270,43 @@ class MenuPollCard extends StatelessWidget {
                     },
                     icon: Icon(
                       Icons.visibility_outlined,
-                      color: theme.colorScheme.primary,
-                      size: 20,
+                      color: AppColors.fBlue,
+                      size: 12.sp,
                     ),
                     label: Text(
-                      'View Orders',
+                      'View',
                       style: TextStyle(
-                        color: theme.colorScheme.primary,
+                        color: AppColors.fBlue,
+                        fontSize: 9.86.sp,
+                        fontFamily: 'DM Sans',
                         fontWeight: FontWeight.w500,
+                        height: 2,
+                        letterSpacing: -0.24,
                       ),
                     ),
                     style: TextButton.styleFrom(
-                      backgroundColor:
-                          theme.colorScheme.primary.withOpacity(0.1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      minimumSize: Size(0, 32.h),
                     ),
                   ),
-                  isActive
-                      ? TextButton.icon(
+                ),
+                isActive
+                    ? Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.divider,
+                          borderRadius: BorderRadius.circular(8.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.shadowColor,
+                              blurRadius: 2.r,
+                              offset: Offset(0, 1.h),
+                            ),
+                          ],
+                        ),
+                        child: TextButton.icon(
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -190,54 +316,151 @@ class MenuPollCard extends StatelessWidget {
                           },
                           icon: Icon(
                             Icons.edit_outlined,
-                            color: theme.colorScheme.secondary,
-                            size: 20,
+                            color: AppColors.secondaryColor,
+                            size: 12.sp,
                           ),
                           label: Text(
                             'Edit',
                             style: TextStyle(
-                              color: theme.colorScheme.secondary,
+                              color: AppColors.secondaryColor,
+                              fontSize: 9.86.sp,
+                              fontFamily: 'DM Sans',
                               fontWeight: FontWeight.w500,
+                              height: 2,
+                              letterSpacing: -0.24,
                             ),
                           ),
                           style: TextButton.styleFrom(
-                            backgroundColor:
-                                theme.colorScheme.secondary.withOpacity(0.1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                          ),
-                        )
-                      : TextButton.icon(
-                          onPressed: () => _deletePoll(context),
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
-                            size: 20,
-                          ),
-                          label: const Text(
-                            'Delete',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.red.withOpacity(0.1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8.w, vertical: 4.h),
+                            minimumSize: Size(0, 32.h),
                           ),
                         ),
-                ],
-              ),
+                      )
+                    : Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.divider,
+                          borderRadius: BorderRadius.circular(8.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.shadowColor,
+                              blurRadius: 2.r,
+                              offset: Offset(0, 1.h),
+                            ),
+                          ],
+                        ),
+                        child: TextButton.icon(
+                          onPressed: () => _deletePoll(context),
+                          icon: Icon(
+                            Icons.delete_outline,
+                            color: AppColors.primaryColor,
+                            size: 12.sp,
+                          ),
+                          label: Text(
+                            'Delete',
+                            style: TextStyle(
+                              color: AppColors.primaryColor,
+                              fontSize: 9.86.sp,
+                              fontFamily: 'DM Sans',
+                              fontWeight: FontWeight.w500,
+                              height: 2,
+                              letterSpacing: -0.24,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8.w, vertical: 4.h),
+                            minimumSize: Size(0, 32.h),
+                          ),
+                        ),
+                      ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderItem(String option, int orderCount) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(top: 15.77.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 3.94.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 3.94.w,
+                  height: 3.94.h,
+                  decoration: const ShapeDecoration(
+                    color: AppColors.primaryText,
+                    shape: OvalBorder(),
+                  ),
+                ),
+                SizedBox(width: 11.83.w),
+                Expanded(
+                  child: Text(
+                    option,
+                    style: TextStyle(
+                      color: AppColors.secondaryText,
+                      fontSize: 13.80.sp,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w500,
+                      height: 1.43,
+                      letterSpacing: -0.20,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 11.83.w),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(12.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.shadowColor,
+                        blurRadius: 2.r,
+                        offset: Offset(0, 1.h),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    '$orderCount order${orderCount != 1 ? 's' : ''}',
+                    style: TextStyle(
+                      color: AppColors.tertiaryText,
+                      fontSize: 9.86.sp,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w500,
+                      height: 2,
+                      letterSpacing: -0.24,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 11.83.h),
+          Container(
+            width: double.infinity,
+            height: 0.99.h,
+            decoration: BoxDecoration(
+              color: AppColors.divider,
+            ),
+          ),
+        ],
       ),
     );
   }

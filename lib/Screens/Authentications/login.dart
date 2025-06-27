@@ -74,28 +74,28 @@ class _LoginPageState extends State<LoginPage>
                           height: 113.11.h,
                           width: 110.03.w,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Color(0xFFFF6B81),
-                                Color(0xFFFF4E6A),
+                                AppColors.fRed2,
+                                AppColors.fRed2,
                               ],
                             ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
+                                color: AppColors.shadowColor,
+                                blurRadius: 10.r,
+                                offset: Offset(0, 5.h),
                                 spreadRadius: 0,
                               ),
                             ],
                           ),
                           child: Icon(
                             Icons.restaurant_menu,
-                            color: Colors.white,
-                            size: 70.0.h,
+                            color: AppColors.white,
+                            size: 70.sp,
                           ),
                         ),
                       ),
@@ -162,8 +162,8 @@ class _LoginPageState extends State<LoginPage>
                                         ? Icons.visibility_off
                                         : Icons.visibility,
                                     key: ValueKey(_isPasswordVisible),
-                                    color: Colors.grey[400],
-                                    size: 20,
+                                    color: AppColors.tertiaryText,
+                                    size: 20.sp,
                                   ),
                                 ),
                                 onPressed: () {
@@ -202,7 +202,7 @@ class _LoginPageState extends State<LoginPage>
                                             AppColors.fIconAndLabelText,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(3),
+                                              BorderRadius.circular(3.r),
                                         ),
                                       ),
                                     ),
@@ -254,12 +254,13 @@ class _LoginPageState extends State<LoginPage>
                                 width: 300.w,
                                 height: 50.h,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(20.r),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Color(0xFFFF4E6A).withOpacity(0.2),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
+                                      color: AppColors.primaryColor
+                                          .withOpacity(0.2),
+                                      blurRadius: 10.r,
+                                      offset: Offset(0, 4.h),
                                       spreadRadius: 0,
                                     ),
                                   ],
@@ -267,26 +268,26 @@ class _LoginPageState extends State<LoginPage>
                                 child: ElevatedButton(
                                   onPressed: _isLoading ? null : _handleLogin,
                                   style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Color(0xFFFF3951),
+                                    foregroundColor: AppColors.white,
+                                    backgroundColor: AppColors.primaryColor,
                                     disabledBackgroundColor:
-                                        Color(0xFFFF3951).withOpacity(0.7),
+                                        AppColors.disabledButton,
                                     elevation: 0,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12),
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 12.h),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(12.r),
                                     ),
                                   ),
                                   child: _isLoading
                                       ? SizedBox(
-                                          height: 20,
-                                          width: 20,
+                                          height: 20.h,
+                                          width: 20.w,
                                           child: CircularProgressIndicator(
                                             valueColor:
                                                 AlwaysStoppedAnimation<Color>(
-                                                    Colors.white),
-                                            strokeWidth: 2.5,
+                                                    AppColors.white),
+                                            strokeWidth: 2.5.w,
                                           ),
                                         )
                                       : Text(
@@ -294,7 +295,7 @@ class _LoginPageState extends State<LoginPage>
                                           style: TextStyle(
                                             fontSize: 20.sp,
                                             fontFamily: 'DMSans',
-                                            color: Colors.white,
+                                            color: AppColors.white,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
@@ -337,13 +338,13 @@ class _LoginPageState extends State<LoginPage>
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.03),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              color: AppColors.shadowColor,
+              blurRadius: 4.r,
+              offset: Offset(0, 2.h),
               spreadRadius: 0,
             ),
           ],
@@ -352,39 +353,40 @@ class _LoginPageState extends State<LoginPage>
           controller: controller,
           obscureText: obscure,
           validator: validator,
-          style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+          style: TextStyle(fontSize: 14.sp, color: AppColors.primaryText),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(fontSize: 14, color: Colors.grey[400]),
+            hintStyle:
+                TextStyle(fontSize: 14.sp, color: AppColors.tertiaryText),
             suffixIcon: hint == 'Password'
                 ? suffixIcon
                 : Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
                     child: Icon(
                       icon,
-                      color: Colors.grey[400],
-                      size: 20,
+                      color: AppColors.tertiaryText,
+                      size: 20.sp,
                     ),
                   ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide(
-                color: Colors.grey.withOpacity(0.2),
-                width: 1.0,
+                color: AppColors.inputBorderColor,
+                width: 1.w,
               ),
             ),
             contentPadding:
                 EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
-            fillColor: Colors.white,
+            fillColor: AppColors.white,
             filled: true,
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide(
-                color: Colors.grey.withOpacity(0.3),
-                width: 1.0,
+                color: AppColors.inputBorderColor,
+                width: 1.w,
               ),
             ),
-            errorStyle: TextStyle(
+            errorStyle: const TextStyle(
               color: AppColors.primaryColor,
               fontWeight: FontWeight.w500,
             ),
@@ -438,8 +440,8 @@ class _LoginPageState extends State<LoginPage>
         msg: "Welcome to Teton Meal App!",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.green,
-        textColor: Colors.white,
+        backgroundColor: AppColors.success,
+        textColor: AppColors.white,
       );
     } catch (e) {
       setState(() {
@@ -450,8 +452,8 @@ class _LoginPageState extends State<LoginPage>
         msg: "Unable to sign in: ${e.toString()}",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
+        backgroundColor: AppColors.error,
+        textColor: AppColors.white,
       );
     }
   }
