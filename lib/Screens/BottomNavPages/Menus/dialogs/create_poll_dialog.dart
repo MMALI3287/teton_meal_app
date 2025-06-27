@@ -93,7 +93,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
       await FirebaseFirestore.instance.collection('polls').add({
         'question': _questionController.text,
         'options': finalOptions,
-        'votes': {},
+        'votes': Map.fromIterables(finalOptions, finalOptions.map((_) => <String>[])),
         'isActive': true,
         'createdAt': FieldValue.serverTimestamp(),
         'createdBy': {

@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/votes_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Menus/menu_page.dart';
-import 'package:teton_meal_app/Screens/BottomNavPages/Account/accounts_page.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Account/settings_page.dart';
 import 'package:teton_meal_app/Screens/Authentications/register.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -68,18 +68,18 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
         const VotesPage(),
         const MenusPage(),
         const Register(),
-        const AccountsPage(),
+        const SettingsPage(),
       ];
     } else if (_userRole == 'Planner') {
       return [
         const VotesPage(),
         const MenusPage(),
-        const AccountsPage(),
+        const SettingsPage(),
       ];
     } else {
       return [
         const VotesPage(),
-        const AccountsPage(),
+        const SettingsPage(),
       ];
     }
   }

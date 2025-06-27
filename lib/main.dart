@@ -10,6 +10,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
+import 'package:teton_meal_app/services/menu_item_service.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -63,6 +64,9 @@ Future<void> main() async {
 
     await setupFirebaseMessaging();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // Initialize default menu items
+    await MenuItemService.initializeDefaultItems();
 
     runApp(const MyApp());
   } catch (e) {

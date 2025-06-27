@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:teton_meal_app/services/auth_service.dart";
-import 'package:teton_meal_app/Screens/BottomNavPages/Votes/vote_option.dart';
-import 'package:teton_meal_app/Screens/BottomNavPages/Menus/dialogs/create_poll_dialog.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Menus/pages/create_new_menu_page.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 
 class VotesPage extends StatefulWidget {
@@ -50,121 +49,127 @@ class _VotesPageState extends State<VotesPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 50.h,
-        titleSpacing: 8.w,
-        title: Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
-          child: Text(
-            'Today\'s Lunch Menu',
-            style: TextStyle(
-              color: AppColors.fTextH1,
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-        centerTitle: false,
-        elevation: 2,
-        backgroundColor: AppColors.backgroundColor,
-        foregroundColor: AppColors.fTextH1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20.r),
-            bottomRight: Radius.circular(20.r),
-          ),
-        ),
-        actions: _isAdminOrPlanner
-            ? [
-                Padding(
-                  padding: EdgeInsets.only(right: 16.w),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const CreatePollDialog(),
-                          );
-                        },
-                        child: Container(
-                          width: 32.w,
-                          height: 32.h,
-                          decoration: BoxDecoration(
-                            color: AppColors.fRedBright,
-                            borderRadius: BorderRadius.circular(8.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 2.92.r,
-                                offset: Offset(0, 2.92.h),
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child:
-                              Icon(Icons.add, color: Colors.white, size: 18.sp),
-                        ),
-                      ),
-                      SizedBox(height: 4.h),
-                      SizedBox(
-                        width: 60.w,
-                        child: Text(
-                          'New Menu',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.fTextH2,
-                            fontSize: 10.sp,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ]
-            : null,
-      ),
-      body: Container(
-        color: AppColors.backgroundColor,
+      backgroundColor: const Color(0xFFF9F9F9), // F_WhiteBackground
+      body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
-          child: StreamBuilder<QuerySnapshot>(
-            stream: _isAdminOrPlanner
-                ? FirebaseFirestore.instance
-                    .collection('polls')
-                    .orderBy('createdAt', descending: true)
-                    .limit(1)
-                    .snapshots()
-                : FirebaseFirestore.instance
-                    .collection('polls')
-                    .where('isActive', isEqualTo: true)
-                    .orderBy('createdAt', descending: true)
-                    .limit(1)
-                    .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                print('Error in StreamBuilder: ${snapshot.error}');
-                return _buildErrorWidget(snapshot.error);
-              }
+          child: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _isAdminOrPlanner
+                      ? FirebaseFirestore.instance
+                          .collection('polls')
+                          .orderBy('createdAt', descending: true)
+                          .limit(1)
+                          .snapshots()
+                      : FirebaseFirestore.instance
+                          .collection('polls')
+                          .where('isActive', isEqualTo: true)
+                          .orderBy('createdAt', descending: true)
+                          .limit(1)
+                          .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      print('Error in StreamBuilder: ${snapshot.error}');
+                      print(
+                          'Query: ${_isAdminOrPlanner ? "Admin/Planner - Latest poll" : "Diner - Active polls only"}');
+                      return _buildErrorWidget(snapshot.error);
+                    }
 
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return _buildLoadingWidget();
-              }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return _buildLoadingWidget();
+                    }
 
-              final polls = snapshot.data?.docs ?? [];
+                    final polls = snapshot.data?.docs ?? [];
+                    print(
+                        'Loaded ${polls.length} polls for ${_isAdminOrPlanner ? "Admin/Planner" : "Diner"}');
 
-              if (polls.isEmpty) {
-                return _buildEmptyWidget();
-              }
+                    if (polls.isEmpty) {
+                      return _buildEmptyWidget();
+                    }
 
-              return _buildPollsList(polls);
-            },
+                    // Debug: Print poll info
+                    if (polls.isNotEmpty) {
+                      final pollData =
+                          polls.first.data() as Map<String, dynamic>;
+                      print(
+                          'Active poll - Date: ${pollData['date']}, Options: ${pollData['options']}, Active: ${pollData['isActive']}');
+                    }
+
+                    return _buildPollContent(polls.first);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              'Today\'s Lunch Menu',
+              style: TextStyle(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF383A3F), // F_Text_H1
+                letterSpacing: -0.12,
+              ),
+            ),
+          ),
+          if (_isAdminOrPlanner)
+            Column(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CreateNewMenuPage(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 32.w,
+                    height: 32.h,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF3951), // F_Red_Bright
+                      borderRadius: BorderRadius.circular(8.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 2.92.r,
+                          offset: Offset(0, 2.92.h),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 18.sp,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  'New Menu',
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    color: const Color(0xFF585F6A), // F_Text_H2
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }
@@ -287,7 +292,9 @@ class _VotesPageState extends State<VotesPage>
             ),
             SizedBox(height: 16.h),
             Text(
-              'There are no active lunch polls at the moment. Check back later for today\'s menu.',
+              _isAdminOrPlanner
+                  ? 'No polls found. Create a new menu to get started.'
+                  : 'There are no active lunch polls at the moment. Check back later for today\'s menu.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
@@ -316,187 +323,508 @@ class _VotesPageState extends State<VotesPage>
     );
   }
 
-  Widget _buildPollsList(List<QueryDocumentSnapshot> polls) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
-            itemCount: polls.length,
-            itemBuilder: (context, index) {
-              try {
-                final poll = polls[index];
-                return PollCard(pollData: poll);
-              } catch (e) {
-                print('Error building poll card: $e');
-                return SizedBox(
-                  height: 100.h,
-                  child: Card(
-                    child: Center(
-                      child: Text('Error loading menu item: $e'),
-                    ),
-                  ),
-                );
-              }
-            },
-          ),
-        ),
-        if (polls.isNotEmpty) _buildBottomSection(polls.first),
-      ],
+  Widget _buildPollContent(QueryDocumentSnapshot pollData) {
+    final data = pollData.data() as Map<String, dynamic>;
+    final String date = data['date'] ?? 'No Date';
+    final String formattedDate = _formatDate(date);
+    final List<String> options = List<String>.from(data['options'] ?? []);
+    final Map<String, dynamic> votes = data['votes'] ?? {};
+    final int? endTimeMs = data['endTimeMillis'];
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        children: [
+          SizedBox(height: 8.h),
+          _buildMainCard(pollData, formattedDate, options, votes),
+          SizedBox(height: 16.h),
+          _buildTotalOrdersCard(votes),
+          SizedBox(height: 16.h),
+          _buildIllustration(),
+          SizedBox(height: 16.h),
+          _buildEndTimeCard(endTimeMs, pollData.id),
+          SizedBox(height: 100.h), // Space for bottom navigation
+        ],
+      ),
     );
   }
 
-  Widget _buildBottomSection(QueryDocumentSnapshot pollData) {
-    final data = pollData.data() as Map<String, dynamic>;
-    final int? endTimeMs = data['endTimeMillis'];
-    final DateTime? endTime = endTimeMs != null
-        ? DateTime.fromMillisecondsSinceEpoch(endTimeMs)
-        : null;
-    final String formattedEndTime = endTime != null
-        ? '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')} AM'
-        : '10:00 AM';
-
+  Widget _buildMainCard(QueryDocumentSnapshot pollData, String formattedDate,
+      List<String> options, Map<String, dynamic> votes) {
     return Container(
-      margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 150.h),
-      height: 50.h,
-      width: 345.w,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(12.r),
+        color: const Color(0xFFFFFFFF), // F_White
+        borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowColor,
-            blurRadius: 10.r,
-            offset: Offset(0, 2.h),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4.r,
+            offset: Offset(0, 4.h),
           ),
         ],
       ),
-      child: GestureDetector(
-        onTap: _isAdminOrPlanner
-            ? () => _showTimePickerDialog(context, endTime, pollData.id)
-            : null,
-        child: Row(
+      child: Column(
+        children: [
+          // Header with date and toggle
+          Container(
+            padding: EdgeInsets.all(16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  formattedDate,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: const Color(0xFFEF9F27), // F_Yellow
+                    letterSpacing: -0.36,
+                  ),
+                ),
+                if (_isAdminOrPlanner)
+                  Switch(
+                    value: pollData['isActive'] ?? false,
+                    activeColor: const Color(0xFF383A3F), // F_Text_H1
+                    inactiveThumbColor: const Color(0xFFFFFFFF), // F_White
+                    inactiveTrackColor:
+                        const Color(0xFF7A869A), // F_Icon& Label_Text
+                    onChanged: (value) => _togglePollStatus(pollData),
+                  ),
+              ],
+            ),
+          ),
+          // Options list
+          if (options.isEmpty)
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Text(
+                  'No options available',
+                  style: TextStyle(
+                    color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: options.length,
+              separatorBuilder: (context, index) => Container(
+                height: 1.h,
+                margin: EdgeInsets.symmetric(horizontal: 16.w),
+                color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+              ),
+              itemBuilder: (context, index) {
+                return _buildVoteOption(
+                  options[index],
+                  pollData.id,
+                  votes,
+                  pollData['endTimeMillis'],
+                  pollData['isActive'] ?? false,
+                  index,
+                );
+              },
+            ),
+          SizedBox(height: 16.h),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVoteOption(
+      String option,
+      String pollId,
+      Map<String, dynamic> allVotes,
+      int? endTimeMillis,
+      bool isActive,
+      int index) {
+    final currentUser = AuthService().currentUser;
+    final List<String> optionVotes = List<String>.from(allVotes[option] ?? []);
+    final bool hasUserVoted =
+        currentUser != null && optionVotes.contains(currentUser.uid);
+
+    // Calculate total votes for percentage
+    int totalVotes = 0;
+    for (var entry in allVotes.entries) {
+      totalVotes += (entry.value as List?)?.length ?? 0;
+    }
+
+    final double percentage =
+        totalVotes > 0 ? (optionVotes.length / totalVotes) * 100 : 0;
+
+    // Food images mapping
+    const Map<String, String> foodImages = {
+      'Egg Khichuri': 'assets/images/egg.png',
+      'Beef & Rice': 'assets/images/beef.png',
+      'Chicken Khichuri': 'assets/images/chicken.png',
+    };
+
+    print(
+        'Vote option - Option: $option, isActive: $isActive, hasUserVoted: $hasUserVoted, currentUser: ${currentUser?.uid}');
+
+    return GestureDetector(
+      onTap: isActive && currentUser != null
+          ? () {
+              print('Vote option tapped: $option');
+              _voteForOption(option, pollId);
+            }
+          : null,
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.transparent : Colors.grey.withOpacity(0.1),
+        ),
+        child: Column(
           children: [
-            Padding(
-              padding: EdgeInsets.only(left: 10.w),
-              child: Container(
-                width: 36.w,
-                height: 36.h,
-                decoration: BoxDecoration(
-                  color: AppColors.fNameBoxPink,
-                  borderRadius: BorderRadius.circular(18.r),
+            Row(
+              children: [
+                // Vote icon (plus or checkmark) - matching Figma design
+                Container(
+                  width: 16.w,
+                  height: 16.h,
+                  child: hasUserVoted
+                      ? Icon(
+                          Icons.check_circle,
+                          color: const Color(0xFF383A3F), // F_Text_H1
+                          size: 16.sp,
+                        )
+                      : Icon(
+                          Icons.add_circle_outline,
+                          color: isActive
+                              ? const Color(0xFF7A869A) // F_Icon& Label_Text
+                              : Colors.grey,
+                          size: 16.sp,
+                        ),
                 ),
-                child: Icon(
-                  Icons.access_time,
-                  color: AppColors.fRedBright,
-                  size: 20.sp,
-                ),
-              ),
-            ),
-            SizedBox(width: 14.w),
-            Expanded(
-              child: GestureDetector(
-                onTap: _isAdminOrPlanner
-                    ? () => _showTimePickerDialog(context, endTime, pollData.id)
-                    : null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'End Time',
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.primaryText,
+                SizedBox(width: 12.w),
+                // Food image - using specific images or fallback
+                Container(
+                  width: 38.w,
+                  height: 38.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFFFF), // F_White
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        blurRadius: 4.r,
+                        offset: Offset(0, 4.h),
                       ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      formattedEndTime,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.secondaryText,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: foodImages.containsKey(option)
+                        ? Image.asset(
+                            foodImages[option]!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildFoodIcon(option),
+                          )
+                        : _buildFoodIcon(option),
+                  ),
                 ),
-              ),
+                SizedBox(width: 12.w),
+                // Option name and vote count in the exact Figma layout
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          option,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: isActive
+                                ? const Color(0xFF585F6A) // F_Text_H2
+                                : Colors.grey,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 8.w, vertical: 2.h),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Text(
+                          '${optionVotes.length} order',
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w500,
+                            color:
+                                const Color(0xFF7A869A), // F_Icon& Label_Text
+                            letterSpacing: -0.24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            if (_isAdminOrPlanner)
+            if (!isActive)
               Padding(
-                padding: EdgeInsets.only(right: 8.w),
-                child: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: AppColors.tertiaryText,
-                  size: 20.sp,
+                padding: EdgeInsets.only(top: 8.h),
+                child: Text(
+                  'Poll is closed',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.red,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
+            if (currentUser == null)
+              Padding(
+                padding: EdgeInsets.only(top: 8.h),
+                child: Text(
+                  'Please log in to vote',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.orange,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            SizedBox(height: 16.h),
+            // Progress bar and percentage - exact Figma positioning
+            Row(
+              children: [
+                SizedBox(width: 28.w), // Indent to align with text
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 3.h,
+                        width: 283.w, // Fixed width from Figma
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                      Container(
+                        height: 3.h,
+                        width: (percentage / 100) *
+                            283.w, // Fixed width from Figma
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF7686), // F_Red_2
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 12.w),
+                SizedBox(
+                  width: 20.w,
+                  child: Text(
+                    '${percentage.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFFEF9F27), // F_Yellow
+                      letterSpacing: -0.24,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _showTimePickerDialog(
-      BuildContext context, DateTime? currentEndTime, String pollId) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: currentEndTime != null
-          ? TimeOfDay.fromDateTime(currentEndTime)
-          : TimeOfDay.now(),
-    );
-
-    if (picked != null) {
-      final now = DateTime.now();
-      final newEndTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        picked.hour,
-        picked.minute,
-      );
-
-      try {
-        await FirebaseFirestore.instance
-            .collection('polls')
-            .doc(pollId)
-            .update({'endTimeMillis': newEndTime.millisecondsSinceEpoch});
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('End time updated to ${picked.format(context)}'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating end time: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+  Widget _buildTotalOrdersCard(Map<String, dynamic> votes) {
+    int totalVotes = 0;
+    for (var entry in votes.entries) {
+      totalVotes += (entry.value as List?)?.length ?? 0;
     }
+
+    return Container(
+      width: 307.w,
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF), // F_White
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4.r,
+            offset: Offset(0, 4.h),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 18.w,
+            height: 12.h,
+            child: Icon(
+              Icons.visibility_outlined,
+              size: 12.sp,
+              color: const Color(0xFF7A869A), // F_Icon& Label_Text
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Text(
+            'Total Orders',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF585F6A), // F_Text_H2
+              letterSpacing: -0.28,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            totalVotes.toString(),
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFFFF7686), // F_Red_2
+              letterSpacing: -0.28,
+            ),
+          ),
+        ],
+      ),
+    );
   }
-}
 
-class PollCard extends StatelessWidget {
-  final QueryDocumentSnapshot pollData;
-
-  const PollCard({
-    super.key,
-    required this.pollData,
-  });
-
-  bool get _isAdminOrPlanner {
-    final userRole = AuthService().currentUser?.role;
-    return userRole == 'Admin' || userRole == 'Planner';
+  Widget _buildIllustration() {
+    return Container(
+      height: 158.h,
+      width: 341.w,
+      child: Center(
+        child: Container(
+          height: 118.h,
+          width: 177.w,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12.r),
+            child: Image.asset(
+              'assets/images/man_confused_lunch.png',
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.restaurant_menu,
+                    size: 60.sp,
+                    color: const Color(0xFF7A869A)
+                        .withOpacity(0.5), // F_Icon& Label_Text with opacity
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
-  Future<void> _togglePollStatus(BuildContext context) async {
+  Widget _buildEndTimeCard(int? endTimeMs, String pollId) {
+    final DateTime? endTime = endTimeMs != null
+        ? DateTime.fromMillisecondsSinceEpoch(endTimeMs)
+        : null;
+    final String formattedEndTime = endTime != null
+        ? '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')} ${endTime.hour < 12 ? 'AM' : 'PM'}'
+        : '10:00 AM';
+
+    return Container(
+      width: 345.w,
+      height: 47.h,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF), // F_White
+        borderRadius: BorderRadius.circular(15.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4.r,
+            offset: Offset(0, 4.h),
+          ),
+        ],
+      ),
+      child: GestureDetector(
+        onTap: _isAdminOrPlanner
+            ? () => _showTimePickerDialog(context, endTime, pollId)
+            : null,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+          child: Row(
+            children: [
+              Container(
+                width: 29.w,
+                height: 36.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0F0), // Light red background
+                  borderRadius: BorderRadius.circular(8.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 4.r,
+                      offset: Offset(0, 4.h),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.access_time,
+                    color: const Color(0xFFFF3951), // F_Red_Bright
+                    size: 16.sp,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'End Time',
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    Text(
+                      formattedEndTime,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF383A3F), // F_Text_H1
+                        letterSpacing: -0.24,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_isAdminOrPlanner)
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                  size: 14.sp,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _togglePollStatus(QueryDocumentSnapshot pollData) async {
     try {
       final currentStatus = pollData['isActive'] ?? false;
       final newStatus = !currentStatus;
@@ -511,14 +839,16 @@ class PollCard extends StatelessWidget {
           content: Text(newStatus
               ? 'Menu is now open for orders'
               : 'Menu is now closed for orders'),
-          backgroundColor: newStatus ? AppColors.success : AppColors.warning,
+          backgroundColor: newStatus
+              ? const Color(0xFF4CAF50)
+              : const Color(0xFFEF9F27), // Success green or warning yellow
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error updating menu: $e'),
-          backgroundColor: AppColors.error,
+          backgroundColor: const Color(0xFFFF3951), // F_Red_Bright
         ),
       );
     }
@@ -572,146 +902,153 @@ class PollCard extends StatelessWidget {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final data = pollData.data() as Map<String, dynamic>;
-
-    final String date = data['date'] ?? 'No Date';
-
-    final String formattedDate = _formatDate(date);
-    final int? endTimeMs = data['endTimeMillis'];
-    final List<String> options = List<String>.from(data['options'] ?? []);
-    final Map<String, dynamic> votes = data['votes'] ?? {};
-
-    return Card(
-      margin: EdgeInsets.only(bottom: 16.h),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: EdgeInsets.all(16.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  formattedDate,
-                  style: TextStyle(
-                    color: AppColors.secondaryColor,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                if (_isAdminOrPlanner)
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.r),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.shadowColor,
-                          blurRadius: 15.r,
-                          offset: Offset(2.w, 2.h),
-                          spreadRadius: 0,
-                        ),
-                      ],
-                    ),
-                    child: Switch(
-                      value: pollData['isActive'] ?? false,
-                      activeColor: AppColors.white,
-                      activeTrackColor: AppColors.primaryText,
-                      inactiveThumbColor: AppColors.white,
-                      inactiveTrackColor: AppColors.tertiaryText,
-                      onChanged: (value) => _togglePollStatus(context),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          if (options.isEmpty)
-            Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Text(
-                  'No options available',
-                  style: TextStyle(
-                    color: AppColors.tertiaryText,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            )
-          else
-            ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: options.length,
-              itemBuilder: (context, index) {
-                return VoteOption(
-                  option: options[index],
-                  pollId: pollData.id,
-                  allVotes: votes,
-                  endTimeMillis: endTimeMs,
-                  isActive: pollData['isActive'] ?? false,
-                );
-              },
-            ),
-          Container(
-            margin: EdgeInsets.all(0),
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
-            decoration: BoxDecoration(
-              color: AppColors.cardBackground,
-              borderRadius: BorderRadius.circular(12.r),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.shadowColor,
-                  blurRadius: 8.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
-            ),
-            child: _buildTotalVotesRow(votes),
-          ),
-        ],
-      ),
+  Future<void> _showTimePickerDialog(
+      BuildContext context, DateTime? currentEndTime, String pollId) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: currentEndTime != null
+          ? TimeOfDay.fromDateTime(currentEndTime)
+          : TimeOfDay.now(),
     );
+
+    if (picked != null) {
+      final now = DateTime.now();
+      final newEndTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        picked.hour,
+        picked.minute,
+      );
+
+      try {
+        await FirebaseFirestore.instance
+            .collection('polls')
+            .doc(pollId)
+            .update({'endTimeMillis': newEndTime.millisecondsSinceEpoch});
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('End time updated to ${picked.format(context)}'),
+            backgroundColor: const Color(0xFF4CAF50), // Success green
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating end time: $e'),
+            backgroundColor: const Color(0xFFFF3951), // F_Red_Bright
+          ),
+        );
+      }
+    }
   }
 
-  Widget _buildTotalVotesRow(Map<String, dynamic> votes) {
-    int totalVotes = 0;
-    for (var entry in votes.entries) {
-      totalVotes += (entry.value as List?)?.length ?? 0;
+  Widget _buildFoodIcon(String option) {
+    // Map food names to appropriate icons
+    IconData iconData = Icons.restaurant;
+    if (option.toLowerCase().contains('egg')) {
+      iconData = Icons.egg_outlined;
+    } else if (option.toLowerCase().contains('beef') ||
+        option.toLowerCase().contains('meat')) {
+      iconData = Icons.dining_outlined;
+    } else if (option.toLowerCase().contains('chicken')) {
+      iconData = Icons.set_meal_outlined;
     }
 
-    return Row(
-      children: [
-        Icon(
-          Icons.visibility_outlined,
-          size: 20.sp,
-          color: AppColors.tertiaryText,
-        ),
-        SizedBox(width: 8.w),
-        Text(
-          'Total Orders',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-            color: AppColors.secondaryText,
-          ),
-        ),
-        const Spacer(),
-        Text(
-          totalVotes.toString(),
-          style: TextStyle(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w700,
-            color: AppColors.fRedBright,
-          ),
-        ),
-      ],
+    return Center(
+      child: Icon(
+        iconData,
+        color: const Color(0xFF7A869A), // F_Icon& Label_Text
+        size: 20.sp,
+      ),
     );
   }
+
+  Future<void> _voteForOption(String option, String pollId) async {
+    final currentUser = AuthService().currentUser;
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please log in to vote'),
+          backgroundColor: Color(0xFFFF3951), // F_Red_Bright
+        ),
+      );
+      return;
+    }
+
+    print('Attempting to vote for: $option by user: ${currentUser.uid}');
+
+    try {
+      final pollRef =
+          FirebaseFirestore.instance.collection('polls').doc(pollId);
+
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        final pollSnapshot = await transaction.get(pollRef);
+
+        if (!pollSnapshot.exists) {
+          throw Exception('Poll not found');
+        }
+
+        final data = pollSnapshot.data() as Map<String, dynamic>;
+        print('Poll data: $data');
+
+        // Initialize votes structure if it doesn't exist
+        Map<String, dynamic> currentVotes =
+            Map<String, dynamic>.from(data['votes'] ?? {});
+
+        // Get all available options from the poll
+        final List<String> allOptions =
+            List<String>.from(data['options'] ?? []);
+
+        // Initialize empty vote arrays for all options if they don't exist
+        for (String optionKey in allOptions) {
+          if (!currentVotes.containsKey(optionKey)) {
+            currentVotes[optionKey] = <String>[];
+          }
+        }
+
+        print('Current votes before update: $currentVotes');
+
+        // Remove user's previous vote from all options
+        for (String optionKey in currentVotes.keys) {
+          final List<String> voters =
+              List<String>.from(currentVotes[optionKey] ?? []);
+          voters.remove(currentUser.uid);
+          currentVotes[optionKey] = voters;
+        }
+
+        // Add user's vote to the selected option
+        final List<String> optionVoters =
+            List<String>.from(currentVotes[option] ?? []);
+        if (!optionVoters.contains(currentUser.uid)) {
+          optionVoters.add(currentUser.uid);
+          currentVotes[option] = optionVoters;
+        }
+
+        print('Current votes after update: $currentVotes');
+
+        // Update the document with the new votes
+        transaction.update(pollRef, {'votes': currentVotes});
+      });
+
+      print('Vote successfully cast for $option');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Voted for $option'),
+          backgroundColor: const Color(0xFF4CAF50), // Success green
+        ),
+      );
+    } catch (e) {
+      print('Error voting: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error voting: $e'),
+          backgroundColor: const Color(0xFFFF3951), // F_Red_Bright
+        ),
+      );
+    }
+  }
+
+  // ...existing methods...
 }

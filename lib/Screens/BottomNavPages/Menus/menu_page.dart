@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
+import 'package:teton_meal_app/services/auth_service.dart';
 import 'components/menu_poll_card.dart';
 import 'pages/polls_by_date_page.dart';
+import 'pages/create_new_menu_page.dart';
 
 class MenusPage extends StatefulWidget {
   const MenusPage({super.key});
@@ -14,6 +16,11 @@ class MenusPage extends StatefulWidget {
 
 class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
   late AnimationController _fabAnimationController;
+
+  bool get _isAdminOrPlanner {
+    final userRole = AuthService().currentUser?.role;
+    return userRole == 'Admin' || userRole == 'Planner';
+  }
 
   @override
   void initState() {
@@ -50,6 +57,28 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
           ],
         ),
       ),
+      floatingActionButton: _isAdminOrPlanner
+          ? ScaleTransition(
+              scale: _fabAnimationController,
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateNewMenuPage(),
+                    ),
+                  );
+                },
+                backgroundColor: AppColors.primaryColor,
+                foregroundColor: AppColors.white,
+                elevation: 4,
+                child: Icon(
+                  Icons.add,
+                  size: 24.sp,
+                ),
+              ),
+            )
+          : null,
     );
   }
 

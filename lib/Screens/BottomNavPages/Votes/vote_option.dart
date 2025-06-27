@@ -56,8 +56,9 @@ class _VoteOptionState extends State<VoteOption>
   }
 
   bool isUserSelectedOption(String userId) {
-    return widget.allVotes[widget.option] != null &&
-        (widget.allVotes[widget.option] as List).contains(userId);
+    // Use proper field access for Firebase
+    final votes = widget.allVotes[widget.option];
+    return votes != null && (votes as List).contains(userId);
   }
 
   String _getFoodEmoji(String foodName) {
@@ -174,6 +175,9 @@ class _VoteOptionState extends State<VoteOption>
       final userId = user.uid;
       final hasVotedThisOption = isUserSelectedOption(userId);
 
+      print(
+          'Voting attempt - User: $userId, Option: ${widget.option}, HasVoted: $hasVotedThisOption');
+
       String? previousOption;
       for (var entry in widget.allVotes.entries) {
         if (entry.key != widget.option &&
@@ -183,27 +187,68 @@ class _VoteOptionState extends State<VoteOption>
         }
       }
 
-      final pollRef =
-          FirebaseFirestore.instance.collection('polls').doc(widget.pollId);
-      final batch = FirebaseFirestore.instance.batch();
-
-      if (hasVotedThisOption) {
-        batch.update(pollRef, {
-          'votes.${widget.option}': FieldValue.arrayRemove([userId])
-        });
-      } else {
-        if (previousOption != null) {
-          batch.update(pollRef, {
-            'votes.$previousOption': FieldValue.arrayRemove([userId])
-          });
-        }
-
-        batch.update(pollRef, {
-          'votes.${widget.option}': FieldValue.arrayUnion([userId])
-        });
+      if (previousOption != null) {
+        print('User had previously voted for: $previousOption');
       }
 
-      await batch.commit();
+      final pollRef =
+          FirebaseFirestore.instance.collection('polls').doc(widget.pollId);
+
+      // Get current poll data to update votes properly
+      final pollDoc = await pollRef.get();
+      if (!pollDoc.exists) {
+        print('Poll document not found: ${widget.pollId}');
+        throw Exception('Poll not found');
+      }
+
+      final pollData = pollDoc.data() as Map<String, dynamic>;
+      final currentVotes = Map<String, dynamic>.from(pollData['votes'] ?? {});
+
+      print('Current votes before update: $currentVotes');
+
+      if (hasVotedThisOption) {
+        // Remove user from this option
+        if (currentVotes.containsKey(widget.option)) {
+          final optionVotes =
+              List<String>.from(currentVotes[widget.option] ?? []);
+          optionVotes.remove(userId);
+          if (optionVotes.isEmpty) {
+            currentVotes.remove(widget.option);
+          } else {
+            currentVotes[widget.option] = optionVotes;
+          }
+        }
+      } else {
+        // Remove user from previous option if exists
+        if (previousOption != null &&
+            currentVotes.containsKey(previousOption)) {
+          final prevOptionVotes =
+              List<String>.from(currentVotes[previousOption] ?? []);
+          prevOptionVotes.remove(userId);
+          if (prevOptionVotes.isEmpty) {
+            currentVotes.remove(previousOption);
+          } else {
+            currentVotes[previousOption] = prevOptionVotes;
+          }
+        }
+
+        // Add user to current option
+        if (!currentVotes.containsKey(widget.option)) {
+          currentVotes[widget.option] = [userId];
+        } else {
+          final optionVotes =
+              List<String>.from(currentVotes[widget.option] ?? []);
+          if (!optionVotes.contains(userId)) {
+            optionVotes.add(userId);
+            currentVotes[widget.option] = optionVotes;
+          }
+        }
+      }
+
+      // Update the entire votes field
+      await pollRef.update({'votes': currentVotes});
+
+      print('Votes updated successfully: $currentVotes');
 
       if (mounted) {
         final theme = Theme.of(context);
@@ -275,6 +320,10 @@ class _VoteOptionState extends State<VoteOption>
         (widget.endTimeMillis == null ||
             DateTime.now().millisecondsSinceEpoch <= widget.endTimeMillis!);
 
+    // Debug info
+    print(
+        'VoteOption build - Option: ${widget.option}, IsActive: ${widget.isActive}, CanVote: $canVote, EndTime: ${widget.endTimeMillis}, CurrentTime: ${DateTime.now().millisecondsSinceEpoch}');
+
     final voteCount = (widget.allVotes[widget.option] as List?)?.length ?? 0;
 
     int totalVotes = 0;
@@ -303,7 +352,13 @@ class _VoteOptionState extends State<VoteOption>
           ),
         ),
         child: InkWell(
-          onTap: (_isProcessing || !canVote) ? null : _handleVote,
+          onTap: (_isProcessing || !canVote)
+              ? null
+              : () {
+                  print(
+                      'Vote option tapped! Option: ${widget.option}, CanVote: $canVote, IsProcessing: $_isProcessing');
+                  _handleVote();
+                },
           splashColor:
               canVote ? theme.colorScheme.primary.withOpacity(0.1) : null,
           highlightColor:
