@@ -174,7 +174,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(
+            return const Center(
               child: Text(
                 'Something went wrong',
                 style: TextStyle(color: AppColors.error),
@@ -183,7 +183,7 @@ class _MenusPageState extends State<MenusPage> with TickerProviderStateMixin {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(
                 color: AppColors.primaryColor,
               ),

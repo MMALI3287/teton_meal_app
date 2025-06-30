@@ -54,29 +54,31 @@ class EndTimeSelectorComponent extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'End Time',
                   style: TextStyle(
                     color: AppColors.secondaryText,
-                    fontSize: 12.sp,
+                    fontSize: 11.sp,
                     fontWeight: FontWeight.w400,
                     letterSpacing: 0.1,
+                    height: 1.2,
                   ),
                 ),
-                SizedBox(height: 2.h),
+                SizedBox(height: 1.h),
                 Text(
                   selectedTime.format(context),
                   style: TextStyle(
                     color: AppColors.primaryText,
-                    fontSize: 16.sp,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.2,
+                    height: 1.2,
                   ),
                 ),
               ],
-            ),
-            const Spacer(),
+            ),            const Spacer(),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(

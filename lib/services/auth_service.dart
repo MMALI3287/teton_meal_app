@@ -67,7 +67,7 @@ class AuthService {
   static final AuthService _instance = AuthService._internal();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _authStateController = BehaviorSubject<UserModel?>();
-  final _uuid = Uuid();
+  static const _uuid = Uuid();
   SharedPreferences? _prefs;
 
   factory AuthService() {

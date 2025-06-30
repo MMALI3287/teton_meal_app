@@ -399,7 +399,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                     border: InputBorder.none,
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                    suffixIcon: Icon(
+                    suffixIcon: const Icon(
                       Icons.arrow_drop_down,
                       color: AppColors.tertiaryText,
                     ),
@@ -590,7 +590,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                     Container(
                       width: 6.w,
                       height: 6.h,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.saveGreen,
                         shape: BoxShape.circle,
                       ),
@@ -771,7 +771,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                     ? SizedBox(
                         width: 20.w,
                         height: 20.h,
-                        child: CircularProgressIndicator(
+                        child: const CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             AppColors.white,

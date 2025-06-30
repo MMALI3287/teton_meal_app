@@ -33,8 +33,8 @@ class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Scaffold(
-        backgroundColor: const Color(0xFFF9F9F9), // F_WhiteBackground
+      return const Scaffold(
+        backgroundColor: Color(0xFFF9F9F9), // F_WhiteBackground
         body: Center(
           child: CircularProgressIndicator(
             color: AppColors.primaryColor,
@@ -353,7 +353,7 @@ class _AccountPageState extends State<AccountPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(color: AppColors.tertiaryText),
               ),

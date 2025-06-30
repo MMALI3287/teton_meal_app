@@ -94,7 +94,7 @@ Located in: `lib/Screens/BottomNavPages/Menus/pages/`
 
 ### Navigation Flow
 
-```
+```text
 Entry Point → Create New Menu Page
                 ↓ (Add Item button)
             Select Item Page

@@ -93,7 +93,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
       await FirebaseFirestore.instance.collection('polls').add({
         'question': _questionController.text,
         'options': finalOptions,
-        'votes': Map.fromIterables(finalOptions, finalOptions.map((_) => <String>[])),
+        'votes': Map.fromIterables(
+            finalOptions, finalOptions.map((_) => <String>[])),
         'isActive': true,
         'createdAt': FieldValue.serverTimestamp(),
         'createdBy': {
@@ -438,7 +439,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                         color: theme.colorScheme.primary.withOpacity(0.2)),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: Row(
                       children: [
                         Icon(Icons.access_time,
@@ -448,13 +449,15 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                           'End Time:',
                           style: theme.textTheme.titleSmall!.copyWith(
                             fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.primary,
+                            fontSize: 12,
                           ),
                         ),
                         const Spacer(),
                         TextButton.icon(
                           onPressed: () => _selectTime(context),
                           icon: Icon(Icons.access_time_filled,
-                              size: 16, color: theme.colorScheme.primary),
+                              size: 18, color: theme.colorScheme.primary),
                           label: Text(
                             _selectedTime.format(context),
                             style: TextStyle(

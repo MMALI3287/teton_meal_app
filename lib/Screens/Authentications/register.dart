@@ -60,7 +60,7 @@ class _RegisterState extends State<Register> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
+                  const Text(
                     'Add User',
                     style: TextStyle(
                       fontSize: 24,
@@ -89,7 +89,7 @@ class _RegisterState extends State<Register> {
                     ),
                   ],
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.camera_alt,
                   color: AppColors.fIconAndLabelText,
                   size: 32,
@@ -145,7 +145,8 @@ class _RegisterState extends State<Register> {
                             if (value!.isEmpty) {
                               return "Email cannot be empty";
                             }
-                            if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
+                            if (!RegExp(
+                                    "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]")
                                 .hasMatch(value)) {
                               return "Please enter a valid email";
                             }
@@ -174,7 +175,9 @@ class _RegisterState extends State<Register> {
                           obscureText: _isObscure,
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _isObscure ? Icons.visibility_off : Icons.visibility,
+                              _isObscure
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                               color: AppColors.fIconAndLabelText,
                               size: 18,
                             ),
@@ -204,7 +207,9 @@ class _RegisterState extends State<Register> {
                           obscureText: _isObscure2,
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _isObscure2 ? Icons.visibility_off : Icons.visibility,
+                              _isObscure2
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                               color: AppColors.fIconAndLabelText,
                               size: 18,
                             ),
@@ -215,7 +220,8 @@ class _RegisterState extends State<Register> {
                             },
                           ),
                           validator: (value) {
-                            if (confirmpassController.text != passwordController.text) {
+                            if (confirmpassController.text !=
+                                passwordController.text) {
                               return "Passwords do not match";
                             }
                             return null;
@@ -241,7 +247,7 @@ class _RegisterState extends State<Register> {
                                 borderRadius: BorderRadius.circular(3),
                               ),
                               child: _agreedToTerms
-                                  ? Icon(
+                                  ? const Icon(
                                       Icons.check,
                                       size: 8,
                                       color: AppColors.fRedBright,
@@ -257,24 +263,28 @@ class _RegisterState extends State<Register> {
                                   });
                                 },
                                 child: RichText(
-                                  text: TextSpan(
+                                  text: const TextSpan(
                                     style: TextStyle(
                                       fontSize: 9,
                                       color: AppColors.fTextH1,
                                       fontFamily: 'Mulish',
                                     ),
                                     children: [
-                                      const TextSpan(text: 'By checking the box you agree to our '),
+                                      TextSpan(
+                                          text:
+                                              'By checking the box you agree to our '),
                                       TextSpan(
                                         text: 'Terms',
-                                        style: TextStyle(color: AppColors.fRed2),
+                                        style:
+                                            TextStyle(color: AppColors.fRed2),
                                       ),
-                                      const TextSpan(text: ' and '),
+                                      TextSpan(text: ' and '),
                                       TextSpan(
                                         text: 'Conditions',
-                                        style: TextStyle(color: AppColors.fRed2),
+                                        style:
+                                            TextStyle(color: AppColors.fRed2),
                                       ),
-                                      const TextSpan(text: '.'),
+                                      TextSpan(text: '.'),
                                     ],
                                   ),
                                 ),
@@ -303,7 +313,8 @@ class _RegisterState extends State<Register> {
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
                               onTap: () {
-                                signUp(emailController.text, passwordController.text, role);
+                                signUp(emailController.text,
+                                    passwordController.text, role);
                               },
                               child: Center(
                                 child: showProgress
@@ -311,11 +322,13 @@ class _RegisterState extends State<Register> {
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
                                           strokeWidth: 2,
                                         ),
                                       )
-                                    : Text(
+                                    : const Text(
                                         'Register',
                                         style: TextStyle(
                                           fontSize: 16,
@@ -353,7 +366,7 @@ class _RegisterState extends State<Register> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 9,
             fontWeight: FontWeight.w600,
             color: AppColors.fTextH1,
@@ -377,7 +390,7 @@ class _RegisterState extends State<Register> {
             controller: controller,
             obscureText: obscureText,
             validator: validator,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: AppColors.fTextH1,
               fontFamily: 'Mulish',
@@ -403,21 +416,21 @@ class _RegisterState extends State<Register> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.fRedBright,
                   width: 1,
                 ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.fRed2,
                   width: 1,
                 ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.fRed2,
                   width: 1,
                 ),
@@ -428,7 +441,7 @@ class _RegisterState extends State<Register> {
                 horizontal: 16,
                 vertical: 12,
               ),
-              hintStyle: TextStyle(
+              hintStyle: const TextStyle(
                 fontSize: 14,
                 color: AppColors.fIconAndLabelText,
                 fontFamily: 'Mulish',
@@ -444,7 +457,7 @@ class _RegisterState extends State<Register> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Account Type :',
           style: TextStyle(
             fontSize: 9,
@@ -468,7 +481,7 @@ class _RegisterState extends State<Register> {
           ),
           child: DropdownButtonFormField<String>(
             value: _currentItemSelected,
-            icon: Icon(
+            icon: const Icon(
               Icons.keyboard_arrow_down,
               color: AppColors.fIconAndLabelText,
               size: 20,
@@ -477,7 +490,7 @@ class _RegisterState extends State<Register> {
               prefixIcon: Container(
                 width: 40,
                 padding: const EdgeInsets.all(12),
-                child: Icon(
+                child: const Icon(
                   Icons.account_circle_outlined,
                   color: AppColors.fIconAndLabelText,
                   size: 18,
@@ -493,7 +506,7 @@ class _RegisterState extends State<Register> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.fRedBright,
                   width: 1,
                 ),
@@ -505,7 +518,7 @@ class _RegisterState extends State<Register> {
                 vertical: 12,
               ),
             ),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: AppColors.fTextH1,
               fontFamily: 'Mulish',
@@ -516,7 +529,7 @@ class _RegisterState extends State<Register> {
                 value: dropDownStringItem,
                 child: Text(
                   dropDownStringItem,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.fTextH1,
                     fontFamily: 'Mulish',

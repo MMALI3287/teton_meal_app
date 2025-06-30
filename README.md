@@ -20,7 +20,7 @@ Teton Meal App is a comprehensive meal management application designed for organ
 - [Technologies Used](#-technologies-used)
 - [Prerequisites](#-prerequisites)
 - [Installation](#-installation)
-- [Project Structure](#-project-structure)
+- [Project Structure](#️-project-structure)
 - [User Roles](#-user-roles)
 - [Development and Testing](#-development-and-testing)
 - [Supported Platforms](#-supported-platforms)
@@ -33,17 +33,20 @@ Teton Meal App is a comprehensive meal management application designed for organ
 ## ✨ Features
 
 ### For All Users
+
 - **Authentication System**: Secure login and account management
 - **Voting System**: Vote on daily lunch menu options
 - **Profile Management**: Update personal information and notification preferences
 - **Lunch Receipts**: Generate and share lunch receipts
 
 ### For Planners
+
 - **Menu Management**: Create and manage lunch menus
 - **Calendar View**: Organize meals in a calendar format
 - **Grid View**: Alternative view for meal planning
 
 ### For Administrators
+
 - **User Management**: Register and manage employee accounts
 - **Role Assignment**: Assign roles (Diner, Planner, Admin)
 - **System Oversight**: Monitor and manage the entire meal system
@@ -65,6 +68,7 @@ Teton Meal App is a comprehensive meal management application designed for organ
 ## 📋 Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - [Flutter](https://flutter.dev/docs/get-started/install) (version 3.0.0 or higher)
 - [Dart](https://dart.dev/get-dart) (SDK version compatible with Flutter)
 - [Git](https://git-scm.com/downloads)
@@ -73,12 +77,14 @@ Before you begin, ensure you have the following installed:
 ## 🚀 Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/MMALI3287/teton_meal_app.git
    cd teton_meal_app
    ```
 
 2. **Install dependencies**
+
    ```bash
    flutter pub get
    ```
@@ -91,13 +97,14 @@ Before you begin, ensure you have the following installed:
      3. Update the `firebase_options.dart` file
 
 4. **Run the application**
+
    ```bash
    flutter run
    ```
 
 ## 🏗️ Project Structure
 
-```
+```text
 teton_meal_app/
 ├── lib/
 │   ├── Screens/                 # UI screens
@@ -148,16 +155,19 @@ The app supports three user roles, each with different permissions:
 ## 🧪 Development and Testing
 
 ### Running Tests
+
 ```bash
 flutter test
 ```
 
 ### Code Analysis
+
 ```bash
 flutter analyze
 ```
 
 ### Building for Production
+
 ```bash
 flutter build apk --release  # For Android
 flutter build ios --release  # For iOS

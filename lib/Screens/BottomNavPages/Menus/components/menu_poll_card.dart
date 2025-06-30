@@ -67,7 +67,7 @@ class MenuPollCard extends StatelessWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
               'Menu deleted successfully',
               style: TextStyle(color: AppColors.white),
@@ -82,7 +82,7 @@ class MenuPollCard extends StatelessWidget {
           SnackBar(
             content: Text(
               'Error deleting menu: $e',
-              style: TextStyle(color: AppColors.white),
+              style: const TextStyle(color: AppColors.white),
             ),
             backgroundColor: AppColors.error,
           ),
@@ -232,7 +232,7 @@ class MenuPollCard extends StatelessWidget {
           Container(
             width: double.infinity,
             height: 0.99.h,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.divider,
             ),
           ),
@@ -456,7 +456,7 @@ class MenuPollCard extends StatelessWidget {
           Container(
             width: double.infinity,
             height: 0.99.h,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.divider,
             ),
           ),

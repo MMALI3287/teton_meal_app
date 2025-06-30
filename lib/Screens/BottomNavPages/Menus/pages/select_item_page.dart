@@ -94,7 +94,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
             _buildHeader(),
             SizedBox(height: 24.h),
             if (_isLoading)
-              Expanded(
+              const Expanded(
                 child: Center(
                   child: CircularProgressIndicator(
                     color: AppColors.primaryColor,
@@ -335,7 +335,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
             child: OutlinedButton(
               onPressed: _addNewItem,
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppColors.primaryColor),
+                side: const BorderSide(color: AppColors.primaryColor),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),

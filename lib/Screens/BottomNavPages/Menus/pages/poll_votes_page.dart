@@ -61,7 +61,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
     final query = _searchQuery.toLowerCase();
 
     if (userData != null) {
-      final name = (userData['name'] ?? '').toString().toLowerCase();
+      final name = (userData['displayName'] ?? userData['name'] ?? '').toString().toLowerCase();
       final email = (userData['email'] ?? '').toString().toLowerCase();
 
       return name.contains(query) ||
@@ -71,7 +71,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
 
     return userId.toLowerCase().contains(query);
   }
-
   String _formatDate(String dateString) {
     try {
       final parts = dateString.split('/');
@@ -214,7 +213,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
             ],
           ),
         ),
-        body: Center(
+        body: const Center(
           child: CircularProgressIndicator(
             color: AppColors.primaryColor,
           ),
@@ -355,7 +354,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
                   blurRadius: 8,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
@@ -384,6 +383,10 @@ class _PollVotesPageState extends State<PollVotesPage> {
                         fontWeight: FontWeight.w400,
                       ),
                       border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      focusedErrorBorder: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                       isDense: true,
                     ),
@@ -392,8 +395,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                       fontSize: 14.sp,
                       fontFamily: 'Inter',
                     ),
-                  ),
-                ),
+                  ),                ),
               ],
             ),
           ),
@@ -435,7 +437,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -488,7 +490,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
                             blurRadius: 4,
-                            offset: Offset(0, 2),
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
@@ -571,8 +573,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
               future: _getUserData(userId),
               builder: (context, snapshot) {
                 final userData = snapshot.data;
-                final userName = userData?['name'] ?? 'Unknown User';
-
+                final userName = userData?['displayName'] ?? userData?['name'] ?? 'Unknown User';
                 // Filter based on search
                 if (!_matchesSearch(userData, userId)) {
                   return const SizedBox.shrink();

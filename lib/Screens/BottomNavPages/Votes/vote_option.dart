@@ -398,7 +398,7 @@ class _VoteOptionState extends State<VoteOption>
                         Container(
                           width: 40.w,
                           height: 40.h,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppColors.divider,
                             shape: BoxShape.circle,
                           ),

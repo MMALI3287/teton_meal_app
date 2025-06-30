@@ -276,7 +276,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                   ? SizedBox(
                       width: 20.w,
                       height: 20.h,
-                      child: CircularProgressIndicator(
+                      child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           AppColors.white,

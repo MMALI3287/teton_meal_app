@@ -294,7 +294,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                     Container(
                       width: 6.w,
                       height: 6.h,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.saveGreen,
                         shape: BoxShape.circle,
                       ),
@@ -412,7 +412,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                     ? SizedBox(
                         width: 20.w,
                         height: 20.h,
-                        child: CircularProgressIndicator(
+                        child: const CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             AppColors.white,

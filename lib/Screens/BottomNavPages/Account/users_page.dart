@@ -99,7 +99,7 @@ class _UsersPageState extends State<UsersPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
+                  const Expanded(
                     child: Text(
                       'Users',
                       style: TextStyle(
@@ -146,7 +146,7 @@ class _UsersPageState extends State<UsersPage> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
+                        const Text(
                           'Add New',
                           style: TextStyle(
                             fontSize: 12,
@@ -167,7 +167,7 @@ class _UsersPageState extends State<UsersPage> {
                       child: CircularProgressIndicator(),
                     )
                   : _users.isEmpty
-                      ? Center(
+                      ? const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -176,7 +176,7 @@ class _UsersPageState extends State<UsersPage> {
                                 size: 64,
                                 color: AppColors.fIconAndLabelText,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
                               Text(
                                 'No users found',
                                 style: TextStyle(
@@ -185,7 +185,7 @@ class _UsersPageState extends State<UsersPage> {
                                   color: AppColors.fTextH1,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8),
                               Text(
                                 'Tap "Add New" to create the first user',
                                 style: TextStyle(
@@ -243,7 +243,7 @@ class _UsersPageState extends State<UsersPage> {
                 width: 1,
               ),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.person_outline,
               color: AppColors.fIconAndLabelText,
               size: 24,
@@ -259,7 +259,7 @@ class _UsersPageState extends State<UsersPage> {
                   user.displayName?.isNotEmpty == true
                       ? user.displayName!
                       : user.email.split('@').first,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppColors.fTextH1,
@@ -269,7 +269,7 @@ class _UsersPageState extends State<UsersPage> {
                 const SizedBox(height: 2),
                 Text(
                   user.email,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.fIconAndLabelText,
                     fontFamily: 'Mulish',

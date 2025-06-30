@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,7 +20,7 @@ class _VotesPageState extends State<VotesPage>
 
   // Vote optimization: cache and debouncing
   Timer? _voteTimer;
-  Map<String, String?> _pendingVotes = {}; // pollId -> optionVoted
+  final Map<String, String?> _pendingVotes = {}; // pollId -> optionVoted
   final Duration _votingDelay = const Duration(milliseconds: 300);
 
   bool get _isAdminOrPlanner {
@@ -402,10 +400,10 @@ class _VotesPageState extends State<VotesPage>
             Center(
               child: Padding(
                 padding: EdgeInsets.all(16.w),
-                child: Text(
+                child: const Text(
                   'No options available',
                   style: TextStyle(
-                    color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                    color: Color(0xFF7A869A), // F_Icon& Label_Text
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -1088,10 +1086,10 @@ class _VotesPageState extends State<VotesPage>
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Failed to vote. Please try again.'),
-            backgroundColor: const Color(0xFFFF3951),
-            duration: const Duration(seconds: 1),
+          const SnackBar(
+            content: Text('Failed to vote. Please try again.'),
+            backgroundColor: Color(0xFFFF3951),
+            duration: Duration(seconds: 1),
           ),
         );
       } finally {
