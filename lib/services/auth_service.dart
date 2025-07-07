@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class UserModel {
   final String uid;
@@ -121,6 +119,13 @@ class AuthService {
 
       if (userData['password'] != password) {
         throw Exception('Wrong password provided for that user.');
+      }
+
+      // Check if user is verified - only allow login if isVerified is explicitly true
+      final isVerified = userData['isVerified'];
+      if (isVerified != true) {
+        throw Exception(
+            'Your account is pending verification. Please contact the authority for verification.');
       }
 
       final user = UserModel.fromMap(userData, userDoc.id);
@@ -247,11 +252,7 @@ class AuthService {
         }
       });
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Failed to setup notifications: ${e.toString()}",
-        backgroundColor: Colors.orange,
-        textColor: Colors.white,
-      );
+      print("Failed to setup notifications: ${e.toString()}");
     }
   }
 

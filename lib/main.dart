@@ -8,9 +8,10 @@ import 'package:teton_meal_app/services/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:teton_meal_app/widgets/custom_exception_dialog.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/services/menu_item_service.dart';
+import 'package:teton_meal_app/services/notification_service.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -65,16 +66,16 @@ Future<void> main() async {
     await setupFirebaseMessaging();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+    // Initialize local notifications
+    await NotificationService().initialize();
+    await NotificationService().requestPermissions();
+
     // Initialize default menu items
     await MenuItemService.initializeDefaultItems();
 
     runApp(const MyApp());
   } catch (e) {
-    Fluttertoast.showToast(
-      msg: "Failed to initialize app: ${e.toString()}",
-      backgroundColor: Colors.red,
-      textColor: Colors.white,
-    );
+    print("Failed to initialize app: ${e.toString()}");
   }
 }
 
@@ -110,11 +111,7 @@ Future<void> setupFirebaseMessaging() async {
       }
     });
   } catch (e) {
-    Fluttertoast.showToast(
-      msg: "Failed to setup notifications: ${e.toString()}",
-      backgroundColor: Colors.orange,
-      textColor: Colors.white,
-    );
+    print("Failed to setup notifications: ${e.toString()}");
   }
 }
 
@@ -250,10 +247,15 @@ class AuthCheck extends StatelessWidget {
               userRole == 'Diner') {
             return const Navbar();
           } else {
-            Fluttertoast.showToast(
-              msg: "Invalid user role. Please contact support.",
-              backgroundColor: Colors.red,
-            );
+            // Show error dialog for invalid user role
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              CustomExceptionDialog.showError(
+                context: context,
+                title: 'Access Denied',
+                message:
+                    'Invalid user role. Please contact support for assistance.',
+              );
+            });
             return const LoginPage();
           }
         } else {

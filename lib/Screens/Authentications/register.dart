@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../../widgets/custom_exception_dialog.dart';
 import '../../Styles/colors.dart';
 import '../../services/auth_service.dart';
 
@@ -552,11 +552,10 @@ class _RegisterState extends State<Register> {
   void signUp(String email, String password, String role) async {
     if (_formkey.currentState!.validate()) {
       if (!_agreedToTerms) {
-        Fluttertoast.showToast(
-          msg: "Please agree to terms and conditions",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.orange,
+        CustomExceptionDialog.showWarning(
+          context: context,
+          title: "Agreement Required",
+          message: "Please agree to terms and conditions",
         );
         return;
       }
@@ -565,23 +564,15 @@ class _RegisterState extends State<Register> {
         showProgress = true;
       });
       try {
-        Fluttertoast.showToast(
-          msg: "Creating employee account...",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.blue,
-        );
-
         await _authService.register(email, password, role);
 
         // TODO: Save additional user data (name, department) to Firestore
         // This would typically be done in the AuthService or here after registration
 
-        Fluttertoast.showToast(
-          msg: "Employee account created successfully",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.green,
+        CustomExceptionDialog.showSuccess(
+          context: context,
+          title: "Success",
+          message: "Employee account created successfully",
         );
 
         setState(() {
@@ -600,11 +591,10 @@ class _RegisterState extends State<Register> {
           _agreedToTerms = false;
         });
       } catch (e) {
-        Fluttertoast.showToast(
-          msg: "Registration failed: ${e.toString()}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
+        CustomExceptionDialog.showError(
+          context: context,
+          title: "Registration Failed",
+          message: "Registration failed: ${e.toString()}",
         );
 
         setState(() {
@@ -612,11 +602,10 @@ class _RegisterState extends State<Register> {
         });
       }
     } else {
-      Fluttertoast.showToast(
-        msg: "Please fill all fields correctly",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.orange,
+      CustomExceptionDialog.showWarning(
+        context: context,
+        title: "Validation Error",
+        message: "Please fill all fields correctly",
       );
     }
   }

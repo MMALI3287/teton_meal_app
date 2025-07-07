@@ -150,6 +150,59 @@
 - Check console for any Firebase-related errors
 - All operations should handle errors gracefully
 
+### 9. Custom Dialog System Testing
+
+**Error Dialogs:**
+
+1. Try logging in with invalid credentials
+2. Verify custom error dialog appears (not toast)
+3. Check dialog styling matches app design
+4. Test "OK" button functionality
+
+**Warning Dialogs:**
+
+1. Try registering without agreeing to terms
+2. Verify custom warning dialog appears
+3. Check orange/warning color scheme
+4. Test dialog dismissal
+
+**Success Dialogs:**
+
+1. Successfully register a new user
+2. Verify custom success dialog appears
+3. Check green/success color scheme
+4. Test "OK" button functionality
+
+**Delete Confirmation Dialogs:**
+
+1. Try to delete a reminder
+2. Verify custom delete dialog appears
+3. Test "Cancel" and "Delete" buttons
+4. Confirm destructive action styling
+
+### 10. Reminder System Testing
+
+**Add Reminder:**
+
+1. Navigate to Settings → Reminders
+2. Tap "Add Reminder" button
+3. Test time picker functionality
+4. Test repeat option selection
+5. Save reminder and verify it appears in list
+
+**Notification Testing:**
+
+1. Set a reminder for 1-2 minutes in the future
+2. Wait for notification to appear
+3. Test notification tap behavior
+4. Verify notification permissions are properly requested
+
+**Reminder Management:**
+
+1. Test enable/disable toggle functionality
+2. Test reminder deletion with confirmation dialog
+3. Verify changes persist after app restart
+
 ## Expected UI/UX
 
 - All pages should match Figma design specifications

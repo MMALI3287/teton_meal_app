@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
+import '../../../../widgets/custom_delete_dialog.dart';
 import '../pages/poll_votes_page.dart';
 import '../dialogs/edit_poll_dialog.dart';
 
@@ -11,84 +12,49 @@ class MenuPollCard extends StatelessWidget {
   const MenuPollCard({super.key, required this.pollData});
 
   Future<void> _deletePoll(BuildContext context) async {
-    final shouldDelete = await showDialog<bool>(
+    final data = pollData.data() as Map<String, dynamic>;
+    final String pollDate = data['date'] ?? 'Unknown Date';
+
+    showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.cardBackground,
-        title: Text(
-          'Confirm Delete',
-          style: TextStyle(
-            color: AppColors.primaryText,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to delete this menu? This action cannot be undone.',
-          style: TextStyle(
-            color: AppColors.secondaryText,
-            fontSize: 14.sp,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: AppColors.secondaryText,
-                fontSize: 14.sp,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: Text(
-              'Delete',
-              style: TextStyle(
-                color: AppColors.error,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
+      builder: (context) => CustomDeleteDialog(
+        title: 'Delete Menu Poll',
+        message: 'Are you sure you want to delete the menu poll for ',
+        itemName: pollDate,
+        onDelete: () async {
+          try {
+            await FirebaseFirestore.instance
+                .collection('polls')
+                .doc(pollData.id)
+                .delete();
+
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Menu deleted successfully',
+                    style: TextStyle(color: AppColors.white),
+                  ),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+            }
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Error deleting menu: $e',
+                    style: const TextStyle(color: AppColors.white),
+                  ),
+                  backgroundColor: AppColors.error,
+                ),
+              );
+            }
+          }
+        },
       ),
     );
-
-    if (shouldDelete != true) return;
-
-    try {
-      await FirebaseFirestore.instance
-          .collection('polls')
-          .doc(pollData.id)
-          .delete();
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Menu deleted successfully',
-              style: TextStyle(color: AppColors.white),
-            ),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Error deleting menu: $e',
-              style: const TextStyle(color: AppColors.white),
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
   }
 
   String _formatDate(String dateString) {

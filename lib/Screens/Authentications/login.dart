@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:teton_meal_app/Screens/Navbar.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../widgets/custom_exception_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -431,24 +431,22 @@ class _LoginPageState extends State<LoginPage>
         );
       }
 
-      Fluttertoast.showToast(
-        msg: "Welcome to Teton Meal App!",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppColors.success,
-        textColor: AppColors.white,
+      CustomExceptionDialog.showSuccess(
+        context: context,
+        title: 'Welcome!',
+        message: 'Welcome to Teton Meal App!',
       );
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
 
-      Fluttertoast.showToast(
-        msg: "Unable to sign in: ${e.toString()}",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppColors.error,
-        textColor: AppColors.white,
+      CustomExceptionDialog.showError(
+        context: context,
+        title: 'Sign In Failed',
+        message: e.toString().contains('unverified')
+            ? 'Your account is pending verification. Please contact the administrator for approval.'
+            : 'Unable to sign in. Please check your credentials and try again.',
       );
     }
   }

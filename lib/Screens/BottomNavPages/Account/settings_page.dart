@@ -3,6 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/Screens/Authentications/login.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Account/account.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Account/users_page.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Account/about_page.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Account/terms_conditions_page.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Account/privacy_policy_page.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Account/reminders_page.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 
@@ -214,7 +218,12 @@ class _SettingsPageState extends State<SettingsPage> {
           icon: Icons.access_time,
           title: 'Reminder',
           onTap: () {
-            // Handle reminder navigation
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RemindersPage(),
+              ),
+            );
           },
         ),
       ],
@@ -230,14 +239,24 @@ class _SettingsPageState extends State<SettingsPage> {
           icon: Icons.privacy_tip_outlined,
           title: 'Privacy Policy',
           onTap: () {
-            // Handle privacy policy navigation
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PrivacyPolicyPage(),
+              ),
+            );
           },
         ),
         _buildSectionItem(
           icon: Icons.description_outlined,
           title: 'Terms & Condition',
           onTap: () {
-            // Handle terms navigation
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TermsConditionsPage(),
+              ),
+            );
           },
         ),
       ],
@@ -253,7 +272,12 @@ class _SettingsPageState extends State<SettingsPage> {
           icon: Icons.info_outline,
           title: 'About Us',
           onTap: () {
-            // Handle about us navigation
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AboutPage(),
+              ),
+            );
           },
         ),
       ],

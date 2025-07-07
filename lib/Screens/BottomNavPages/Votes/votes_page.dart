@@ -908,7 +908,11 @@ class _VotesPageState extends State<VotesPage>
   // Auto-disable toggle when time expires
   void _autoDisableToggleIfTimeUp(
       QueryDocumentSnapshot pollData, bool isTimeUp, bool isManuallyActive) {
-    // Don't auto-disable if admin has manually overridden this poll
+    // Don't auto-disable if:
+    // 1. Admin has manually overridden this poll
+    // 2. Poll was already auto-disabled
+    // 3. Time is not up
+    // 4. Poll is already inactive
     if (isTimeUp &&
         isManuallyActive &&
         !_autoDisabledPolls.contains(pollData.id) &&
@@ -917,8 +921,15 @@ class _VotesPageState extends State<VotesPage>
       _autoDisabledPolls.add(pollData.id);
 
       // Schedule the toggle to be disabled after the current build cycle
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _disablePollToggle(pollData.id);
+      // Add a small delay to prevent interference with manual toggles
+      Future.delayed(const Duration(milliseconds: 100), () {
+        // Double-check that admin hasn't manually overridden in the meantime
+        if (!_adminOverriddenPolls.contains(pollData.id)) {
+          _disablePollToggle(pollData.id);
+        } else {
+          // Remove from auto-disabled since admin has taken control
+          _autoDisabledPolls.remove(pollData.id);
+        }
       });
     }
   }
@@ -938,25 +949,27 @@ class _VotesPageState extends State<VotesPage>
   Future<void> _togglePollStatus(
       QueryDocumentSnapshot pollData, bool newStatus) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('polls')
-          .doc(pollData.id)
-          .update({'isActive': newStatus});
-
-      // Clear auto-disabled tracking when admin manually toggles
+      // Clear auto-disabled tracking immediately when admin manually toggles
       _autoDisabledPolls.remove(pollData.id);
 
-      // If admin is enabling after time expiry, mark as overridden
+      // Check if admin is enabling after time expiry
       final int? endTimeMs = pollData['endTimeMillis'];
       final bool isTimeUp = endTimeMs != null &&
           DateTime.now().millisecondsSinceEpoch > endTimeMs;
 
+      // If admin is enabling after time expiry, mark as overridden immediately
       if (newStatus && isTimeUp) {
         _adminOverriddenPolls.add(pollData.id);
       } else if (!newStatus) {
         // If admin is disabling, remove from override tracking
         _adminOverriddenPolls.remove(pollData.id);
       }
+
+      // Update the database
+      await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(pollData.id)
+          .update({'isActive': newStatus});
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

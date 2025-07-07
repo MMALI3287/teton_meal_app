@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../Styles/colors.dart';
 import '../../../../services/menu_item_service.dart';
+import '../../../../widgets/custom_delete_dialog.dart';
 import '../models/menu_item.dart';
 import 'add_new_item_page.dart';
 
@@ -265,50 +266,39 @@ class _SelectItemPageState extends State<SelectItemPage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () async {
-                        final confirm = await showDialog<bool>(
+                      onPressed: () {
+                        showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Delete Item'),
-                            content: const Text(
-                              'Are you sure you want to delete this item?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Delete'),
-                              ),
-                            ],
+                          builder: (context) => CustomDeleteDialog(
+                            title: 'Delete Menu Item',
+                            message: 'Are you sure you want to delete ',
+                            itemName: item.name,
+                            onDelete: () async {
+                              try {
+                                final success =
+                                    await MenuItemService.deleteMenuItem(
+                                        item.id);
+                                if (success) {
+                                  setState(() {
+                                    _availableItems.remove(item);
+                                    _selectedItems.remove(item);
+                                  });
+                                } else {
+                                  throw Exception('Failed to delete item');
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error deleting item: $e'),
+                                      backgroundColor: AppColors.error,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
                           ),
                         );
-
-                        if (confirm == true) {
-                          try {
-                            final success =
-                                await MenuItemService.deleteMenuItem(item.id);
-                            if (success) {
-                              setState(() {
-                                _availableItems.remove(item);
-                                _selectedItems.remove(item);
-                              });
-                            } else {
-                              throw Exception('Failed to delete item');
-                            }
-                          } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Error deleting item: $e'),
-                                  backgroundColor: AppColors.error,
-                                ),
-                              );
-                            }
-                          }
-                        }
                       },
                       icon: Icon(
                         Icons.delete_outline,

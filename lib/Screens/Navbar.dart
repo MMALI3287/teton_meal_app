@@ -4,9 +4,9 @@ import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Votes/votes_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Menus/menu_page.dart';
 import 'package:teton_meal_app/Screens/BottomNavPages/Account/settings_page.dart';
-import 'package:teton_meal_app/Screens/Authentications/register.dart';
+import 'package:teton_meal_app/Screens/BottomNavPages/Account/user_requests_page.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../widgets/custom_exception_dialog.dart';
 
 class Navbar extends StatefulWidget {
   const Navbar({super.key});
@@ -53,11 +53,13 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
         });
       }
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: "Failed to fetch user role: ${e.toString()}",
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
+      if (mounted) {
+        CustomExceptionDialog.showError(
+          context: context,
+          title: "Error",
+          message: "Failed to fetch user role: ${e.toString()}",
+        );
+      }
       setState(() => _isLoading = false);
     }
   }
@@ -67,7 +69,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
       return [
         const VotesPage(),
         const MenusPage(),
-        const Register(),
+        const UserRequestsPage(),
         const SettingsPage(),
       ];
     } else if (_userRole == 'Planner') {
@@ -102,8 +104,8 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
         NavItemData(
           icon: Icons.people_rounded,
           activeIcon: Icons.people,
-          label: 'User',
-          tooltip: 'User management',
+          label: 'Requests',
+          tooltip: 'User requests management',
         ),
         NavItemData(
           icon: Icons.settings_rounded,

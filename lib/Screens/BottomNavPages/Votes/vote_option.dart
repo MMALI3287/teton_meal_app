@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:teton_meal_app/services/auth_service.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import '../../../../widgets/custom_exception_dialog.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 
 class VoteOption extends StatefulWidget {
@@ -94,47 +94,47 @@ class _VoteOptionState extends State<VoteOption>
           .get();
 
       if (!pollDoc.exists) {
-        Fluttertoast.showToast(
-            msg: "Menu not found",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            backgroundColor: AppColors.error,
-            textColor: AppColors.white,
-            fontSize: 16.sp);
+        if (mounted) {
+          CustomExceptionDialog.showError(
+            context: context,
+            title: "Error",
+            message: "Menu not found",
+          );
+        }
         return;
       }
 
       final latestIsActive = pollDoc.data()?['isActive'] ?? false;
 
       if (!latestIsActive) {
-        Fluttertoast.showToast(
-            msg: "This menu is no longer accepting orders",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            backgroundColor: AppColors.warning,
-            textColor: AppColors.white,
-            fontSize: 16.sp);
+        if (mounted) {
+          CustomExceptionDialog.showWarning(
+            context: context,
+            title: "Menu Closed",
+            message: "This menu is no longer accepting orders",
+          );
+        }
         return;
       }
     } catch (e) {
-      Fluttertoast.showToast(
-          msg: "Error checking menu status",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: AppColors.error,
-          textColor: AppColors.white,
-          fontSize: 16.sp);
+      if (mounted) {
+        CustomExceptionDialog.showError(
+          context: context,
+          title: "Error",
+          message: "Error checking menu status",
+        );
+      }
       return;
     }
 
     if (!widget.isActive) {
-      Fluttertoast.showToast(
-          msg: "This menu is no longer accepting orders",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: AppColors.warning,
-          textColor: AppColors.white,
-          fontSize: 16.sp);
+      if (mounted) {
+        CustomExceptionDialog.showWarning(
+          context: context,
+          title: "Menu Closed",
+          message: "This menu is no longer accepting orders",
+        );
+      }
       return;
     }
 

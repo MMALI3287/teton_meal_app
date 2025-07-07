@@ -37,6 +37,8 @@ Teton Meal App is a comprehensive meal management application designed for organ
 - **Authentication System**: Secure login and account management
 - **Voting System**: Vote on daily lunch menu options
 - **Profile Management**: Update personal information and notification preferences
+- **Reminder System**: Set up custom meal reminders with local notifications
+- **Beautiful UI Dialogs**: Custom-designed error, warning, and success dialogs
 - **Lunch Receipts**: Generate and share lunch receipts
 
 ### For Planners
@@ -62,7 +64,8 @@ Teton Meal App is a comprehensive meal management application designed for organ
 - **State Management**: Provider
 - **Charts & Visualization**: fl_chart
 - **Calendar**: table_calendar
-- **Notifications**: firebase_messaging, fluttertoast
+- **Notifications**: firebase_messaging, flutter_local_notifications
+- **UI Components**: Custom dialogs and widgets
 - **Cross-Platform**: Android, iOS, Web, macOS, Windows, Linux
 
 ## 📋 Prerequisites
@@ -109,7 +112,7 @@ teton_meal_app/
 ├── lib/
 │   ├── Screens/                 # UI screens
 │   │   ├── BottomNavPages/      # Bottom navigation pages
-│   │   │   ├── Account/         # Account management
+│   │   │   ├── Account/         # Account management & reminders
 │   │   │   ├── Menus/           # Menu management
 │   │   │   └── Votes/           # Voting system
 │   │   ├── login.dart           # Login screen
@@ -118,7 +121,14 @@ teton_meal_app/
 │   ├── Styles/                  # App styling
 │   │   └── colors.dart          # Color definitions
 │   ├── services/                # Business logic services
-│   │   └── auth_service.dart    # Authentication service
+│   │   ├── auth_service.dart    # Authentication service
+│   │   ├── notification_service.dart # Local notification service
+│   │   └── reminder_service.dart     # Reminder management service
+│   ├── models/                  # Data models
+│   │   └── reminder_model.dart  # Reminder data structure
+│   ├── widgets/                 # Reusable UI components
+│   │   ├── custom_delete_dialog.dart     # Custom delete confirmation dialog
+│   │   └── custom_exception_dialog.dart  # Custom error/warning/success dialogs
 │   ├── firebase_options.dart    # Firebase configuration
 │   └── main.dart                # App entry point
 ├── android/                     # Android-specific code
