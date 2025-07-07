@@ -22,8 +22,17 @@ class _VotesPageState extends State<VotesPage>
   Timer? _voteTimer;
   final Map<String, String?> _pendingVotes = {}; // pollId -> optionVoted
   final Duration _votingDelay = const Duration(milliseconds: 300);
+  final Set<String> _autoDisabledPolls =
+      {}; // Track polls that have been auto-disabled
+  final Set<String> _adminOverriddenPolls =
+      {}; // Track polls manually overridden by admin
 
   bool get _isAdminOrPlanner {
+    final userRole = AuthService().currentUser?.role;
+    return userRole == 'Admin' || userRole == 'Planner';
+  }
+
+  bool get _canControlToggle {
     final userRole = AuthService().currentUser?.role;
     return userRole == 'Admin' || userRole == 'Planner';
   }
@@ -354,6 +363,20 @@ class _VotesPageState extends State<VotesPage>
 
   Widget _buildMainCard(QueryDocumentSnapshot pollData, String formattedDate,
       List<String> options, Map<String, dynamic> votes) {
+    final int? endTimeMs = pollData['endTimeMillis'];
+    final bool isTimeUp =
+        endTimeMs != null && DateTime.now().millisecondsSinceEpoch > endTimeMs;
+    final bool isManuallyActive = pollData['isActive'] ?? false;
+
+    // Auto-disable toggle when time is up
+    _autoDisableToggleIfTimeUp(pollData, isTimeUp, isManuallyActive);
+
+    // For voting: only allow if manually active AND time not up, OR if admin manually enabled after time up
+    final bool effectiveActiveState =
+        isManuallyActive && (!isTimeUp || _isAdminOrPlanner);
+    // For UI display: show time up message only if time is up AND toggle is off
+    final bool showTimeUpMessage = isTimeUp && !isManuallyActive;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -372,25 +395,55 @@ class _VotesPageState extends State<VotesPage>
           // Header with date and toggle
           Container(
             padding: EdgeInsets.all(16.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
-                Text(
-                  formattedDate,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: const Color(0xFFEF9F27), // F_Yellow
-                    letterSpacing: -0.36,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      formattedDate,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: const Color(0xFFEF9F27), // F_Yellow
+                        letterSpacing: -0.36,
+                      ),
+                    ),
+                    // Only show toggle for Admin and Planner users
+                    if (_canControlToggle)
+                      Switch(
+                        value:
+                            isManuallyActive, // Show the actual database state, not effective state
+                        activeColor: const Color(0xFF383A3F), // F_Text_H1
+                        inactiveThumbColor: const Color(0xFFFFFFFF), // F_White
+                        inactiveTrackColor:
+                            const Color(0xFF7A869A), // F_Icon& Label_Text
+                        onChanged: (value) => _togglePollStatus(
+                            pollData, value), // Pass the new value
+                      ),
+                  ],
                 ),
-                if (_isAdminOrPlanner)
-                  Switch(
-                    value: pollData['isActive'] ?? false,
-                    activeColor: const Color(0xFF383A3F), // F_Text_H1
-                    inactiveThumbColor: const Color(0xFFFFFFFF), // F_White
-                    inactiveTrackColor:
-                        const Color(0xFF7A869A), // F_Icon& Label_Text
-                    onChanged: (value) => _togglePollStatus(pollData),
+                // Time up indicator - show only when time has passed AND toggle is off
+                if (showTimeUpMessage)
+                  Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.access_time_filled,
+                          color: const Color(0xFFFF3951), // F_Red_Bright
+                          size: 14.sp,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          'Voting time has ended',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: const Color(0xFFFF3951), // F_Red_Bright
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
               ],
             ),
@@ -425,7 +478,7 @@ class _VotesPageState extends State<VotesPage>
                   pollData.id,
                   votes,
                   pollData['endTimeMillis'],
-                  pollData['isActive'] ?? false,
+                  effectiveActiveState, // Use effective state instead of direct isActive
                   index,
                 );
               },
@@ -852,33 +905,80 @@ class _VotesPageState extends State<VotesPage>
     );
   }
 
-  Future<void> _togglePollStatus(QueryDocumentSnapshot pollData) async {
-    try {
-      final currentStatus = pollData['isActive'] ?? false;
-      final newStatus = !currentStatus;
+  // Auto-disable toggle when time expires
+  void _autoDisableToggleIfTimeUp(
+      QueryDocumentSnapshot pollData, bool isTimeUp, bool isManuallyActive) {
+    // Don't auto-disable if admin has manually overridden this poll
+    if (isTimeUp &&
+        isManuallyActive &&
+        !_autoDisabledPolls.contains(pollData.id) &&
+        !_adminOverriddenPolls.contains(pollData.id)) {
+      // Mark as auto-disabled to prevent multiple calls
+      _autoDisabledPolls.add(pollData.id);
 
+      // Schedule the toggle to be disabled after the current build cycle
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _disablePollToggle(pollData.id);
+      });
+    }
+  }
+
+  Future<void> _disablePollToggle(String pollId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(pollId)
+          .update({'isActive': false});
+    } catch (e) {
+      // Remove from auto-disabled set on error so it can be retried
+      _autoDisabledPolls.remove(pollId);
+    }
+  }
+
+  Future<void> _togglePollStatus(
+      QueryDocumentSnapshot pollData, bool newStatus) async {
+    try {
       await FirebaseFirestore.instance
           .collection('polls')
           .doc(pollData.id)
           .update({'isActive': newStatus});
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(newStatus
-              ? 'Menu is now open for orders'
-              : 'Menu is now closed for orders'),
-          backgroundColor: newStatus
-              ? const Color(0xFF4CAF50)
-              : const Color(0xFFEF9F27), // Success green or warning yellow
-        ),
-      );
+      // Clear auto-disabled tracking when admin manually toggles
+      _autoDisabledPolls.remove(pollData.id);
+
+      // If admin is enabling after time expiry, mark as overridden
+      final int? endTimeMs = pollData['endTimeMillis'];
+      final bool isTimeUp = endTimeMs != null &&
+          DateTime.now().millisecondsSinceEpoch > endTimeMs;
+
+      if (newStatus && isTimeUp) {
+        _adminOverriddenPolls.add(pollData.id);
+      } else if (!newStatus) {
+        // If admin is disabling, remove from override tracking
+        _adminOverriddenPolls.remove(pollData.id);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(newStatus
+                ? 'Menu is now open for orders'
+                : 'Menu is now closed for orders'),
+            backgroundColor: newStatus
+                ? const Color(0xFF4CAF50)
+                : const Color(0xFFEF9F27), // Success green or warning yellow
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating menu: $e'),
-          backgroundColor: const Color(0xFFFF3951), // F_Red_Bright
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating menu: $e'),
+            backgroundColor: const Color(0xFFFF3951), // F_Red_Bright
+          ),
+        );
+      }
     }
   }
 

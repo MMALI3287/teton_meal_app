@@ -73,7 +73,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
       final user = AuthService().currentUser;
       if (user == null) return;
 
-      String creatorName = user.displayName ?? user.email ?? user.uid;
+      String creatorName = user.displayName ?? user.email;
 
       final now = DateTime.now();
       final endTime = DateTime(now.year, now.month, now.day, _selectedTime.hour,

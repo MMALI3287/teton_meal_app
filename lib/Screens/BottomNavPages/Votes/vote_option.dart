@@ -138,20 +138,6 @@ class _VoteOptionState extends State<VoteOption>
       return;
     }
 
-    if (widget.endTimeMillis != null) {
-      final now = DateTime.now().millisecondsSinceEpoch;
-      if (now > widget.endTimeMillis!) {
-        Fluttertoast.showToast(
-            msg: "The time to place orders has ended",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.CENTER,
-            backgroundColor: AppColors.error,
-            textColor: AppColors.white,
-            fontSize: 16.sp);
-        return;
-      }
-    }
-
     final user = AuthService().currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -316,9 +302,9 @@ class _VoteOptionState extends State<VoteOption>
     final theme = Theme.of(context);
     final user = AuthService().currentUser;
     final bool isSelected = user != null && isUserSelectedOption(user.uid);
-    final bool canVote = widget.isActive &&
-        (widget.endTimeMillis == null ||
-            DateTime.now().millisecondsSinceEpoch <= widget.endTimeMillis!);
+
+    // Simple: just use the active state passed from parent (already handles time logic)
+    final bool canVote = widget.isActive;
 
     // Debug info
     print(

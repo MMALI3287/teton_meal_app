@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../Styles/colors.dart';
 import '../../../../services/menu_item_service.dart';
-import '../models/menu_item.dart';
 
 class AddNewItemPage extends StatefulWidget {
   const AddNewItemPage({super.key});

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../../Styles/colors.dart';
 import '../../../../services/menu_item_service.dart';
 import '../models/menu_item.dart';
+import '../pages/select_item_page.dart';
 
 class EditPollDialog extends StatefulWidget {
   final QueryDocumentSnapshot pollData;
@@ -21,8 +22,6 @@ class EditPollDialogState extends State<EditPollDialog> {
   List<MenuItem> _selectedItems = [];
   List<MenuItem> _availableItems = [];
   bool _isLoading = false;
-  String _newItemName = '';
-  String _newItemSubItem = '';
 
   @override
   void initState() {
@@ -119,18 +118,22 @@ class EditPollDialogState extends State<EditPollDialog> {
   }
 
   void _addNewItem() {
-    if (_newItemName.isNotEmpty) {
-      final newItem = MenuItem(
-        id: '',
-        name: _newItemName,
-        subItem: _newItemSubItem.isNotEmpty ? _newItemSubItem : null,
-        createdAt: DateTime.now(),
-      );
+    _selectItems();
+  }
 
+  Future<void> _selectItems() async {
+    final selectedItems = await Navigator.push<List<MenuItem>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SelectItemPage(
+          initialSelectedItems: _selectedItems,
+        ),
+      ),
+    );
+
+    if (selectedItems != null) {
       setState(() {
-        _selectedItems.add(newItem);
-        _newItemName = '';
-        _newItemSubItem = '';
+        _selectedItems = selectedItems;
       });
     }
   }
@@ -139,15 +142,6 @@ class EditPollDialogState extends State<EditPollDialog> {
     setState(() {
       _selectedItems.removeAt(index);
     });
-  }
-
-  void _addFromList(MenuItem item) {
-    if (!_selectedItems.any((selected) =>
-        selected.name == item.name && selected.subItem == item.subItem)) {
-      setState(() {
-        _selectedItems.add(item);
-      });
-    }
   }
 
   Future<void> _updatePoll() async {
@@ -220,26 +214,26 @@ class EditPollDialogState extends State<EditPollDialog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.fWhiteBackground,
       body: Container(
         width: 393.w,
         height: 805.h,
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
         child: Column(
           children: [
             _buildHeader(),
-            SizedBox(height: 24.h),
+            SizedBox(height: 32.h),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildDateSelector(),
-                    SizedBox(height: 20.h),
-                    _buildAddItemSection(),
-                    SizedBox(height: 20.h),
-                    _buildSelectedItemsList(),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 24.h),
+                    _buildItemsList(),
+                    SizedBox(height: 16.h),
+                    _buildAddItemButton(),
+                    SizedBox(height: 24.h),
                     _buildEndTimeSelector(),
                     SizedBox(height: 40.h),
                     _buildActionButtons(),
@@ -257,36 +251,30 @@ class EditPollDialogState extends State<EditPollDialog> {
     return Container(
       width: double.infinity,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 32.w,
-              height: 32.h,
-              decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(
-                Icons.close,
-                color: AppColors.white,
-                size: 18.sp,
-              ),
+          Container(
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              color: AppColors.fIconAndLabelText.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Icon(
+              Icons.edit,
+              color: AppColors.fIconAndLabelText,
+              size: 20.sp,
             ),
           ),
-          Expanded(
-            child: Center(
-              child: Text(
-                'Edit Menu',
-                style: TextStyle(
-                  color: AppColors.primaryText,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+          SizedBox(width: 12.w),
+          Text(
+            'Edit Menu',
+            style: TextStyle(
+              color: AppColors.fTextH1,
+              fontSize: 24.sp,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Mulish',
             ),
           ),
-          SizedBox(width: 32.w), // Balance the close button
         ],
       ),
     );
@@ -297,15 +285,13 @@ class EditPollDialogState extends State<EditPollDialog> {
       onTap: _selectDate,
       child: Container(
         width: double.infinity,
-        height: 64.h,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: AppColors.fWhite,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppColors.inputBorderColor, width: 1),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor.withOpacity(0.1),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),
@@ -314,42 +300,33 @@ class EditPollDialogState extends State<EditPollDialog> {
         child: Row(
           children: [
             Container(
-              width: 40.w,
-              height: 40.h,
+              padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
-                color: AppColors.fLineaAndLabelBox,
+                color: AppColors.fIconAndLabelText.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(
-                  color: AppColors.inputBorderColor.withOpacity(0.5),
-                ),
               ),
               child: Icon(
                 Icons.calendar_today_outlined,
                 color: AppColors.fIconAndLabelText,
-                size: 20.sp,
+                size: 18.sp,
               ),
             ),
-            SizedBox(width: 14.w),
+            SizedBox(width: 16.w),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    DateFormat('dd/MM/yyyy EEEE').format(_selectedDate),
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primaryText,
-                    ),
-                  ),
-                ],
+              child: Text(
+                DateFormat('dd/M/yyyy EEEE').format(_selectedDate),
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.fTextH1,
+                  fontFamily: 'Mulish',
+                ),
               ),
             ),
             Icon(
               Icons.edit,
-              color: AppColors.tertiaryText,
-              size: 16.sp,
+              color: AppColors.fIconAndLabelText,
+              size: 18.sp,
             ),
           ],
         ),
@@ -357,447 +334,303 @@ class EditPollDialogState extends State<EditPollDialog> {
     );
   }
 
-  Widget _buildAddItemSection() {
+  Widget _buildItemsList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Item Name Input
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.inputBorderColor, width: 1),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Item Name',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.primaryText,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundColor,
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: AppColors.inputBorderColor),
-                ),
-                child: TextField(
-                  onChanged: (value) => _newItemName = value,
-                  decoration: InputDecoration(
-                    hintText: 'Type here to add new item',
-                    hintStyle: TextStyle(
-                      color: AppColors.tertiaryText,
-                      fontSize: 14.sp,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                    suffixIcon: const Icon(
-                      Icons.arrow_drop_down,
-                      color: AppColors.tertiaryText,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 12.h),
-        // Add Item Button
-        Container(
-          width: double.infinity,
-          height: 48.h,
-          child: ElevatedButton.icon(
-            onPressed: _newItemName.isNotEmpty ? _addNewItem : null,
-            icon: Icon(Icons.add, size: 18.sp),
-            label: Text(
-              'Add Item',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              foregroundColor: AppColors.white,
-              disabledBackgroundColor: AppColors.disabledButton,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 16.h),
-        // Sub Item Input
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.inputBorderColor, width: 1),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Sub Item',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.primaryText,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundColor,
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: AppColors.inputBorderColor),
-                ),
-                child: TextField(
-                  onChanged: (value) => _newItemSubItem = value,
-                  decoration: InputDecoration(
-                    hintText: 'Optional',
-                    hintStyle: TextStyle(
-                      color: AppColors.tertiaryText,
-                      fontSize: 14.sp,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 16.h),
-        // Add from list section
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.inputBorderColor, width: 1),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Add from list',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.primaryText,
-                ),
-              ),
-              SizedBox(height: 8.h),
-              DropdownButtonFormField<MenuItem>(
-                decoration: InputDecoration(
-                  hintText: 'Fish',
-                  hintStyle: TextStyle(
-                    color: AppColors.tertiaryText,
-                    fontSize: 14.sp,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                    borderSide: BorderSide(color: AppColors.inputBorderColor),
-                  ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                ),
-                items: _availableItems.map((item) {
-                  return DropdownMenuItem<MenuItem>(
-                    value: item,
-                    child: Text(item.toString()),
-                  );
-                }).toList(),
-                onChanged: (MenuItem? item) {
-                  if (item != null) {
-                    _addFromList(item);
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
+        // Generate item entries dynamically based on selected items
+        for (int i = 0; i < _selectedItems.length; i++) _buildItemEntry(i),
       ],
     );
   }
 
-  Widget _buildSelectedItemsList() {
-    if (_selectedItems.isEmpty) {
-      return Container();
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              Icons.check_circle_outline,
-              color: AppColors.saveGreen,
-              size: 16.sp,
-            ),
-            SizedBox(width: 8.w),
-            Text(
-              'Selected Items (${_selectedItems.length})',
-              style: TextStyle(
-                color: AppColors.primaryText,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12.h),
-        Container(
-          constraints: BoxConstraints(maxHeight: 140.h),
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            borderRadius: BorderRadius.circular(12.r),
-            border:
-                Border.all(color: AppColors.inputBorderColor.withOpacity(0.5)),
-          ),
-          child: ListView.separated(
-            shrinkWrap: true,
-            padding: EdgeInsets.all(12.w),
-            itemCount: _selectedItems.length,
-            separatorBuilder: (context, index) => SizedBox(height: 8.h),
-            itemBuilder: (context, index) {
-              final item = _selectedItems[index];
-              return Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: AppColors.saveGreen.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(
-                    color: AppColors.saveGreen.withOpacity(0.3),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 6.w,
-                      height: 6.h,
-                      decoration: const BoxDecoration(
-                        color: AppColors.saveGreen,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.name,
-                            style: TextStyle(
-                              color: AppColors.primaryText,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          if (item.subItem != null && item.subItem!.isNotEmpty)
-                            Padding(
-                              padding: EdgeInsets.only(top: 2.h),
-                              child: Text(
-                                'With ${item.subItem}',
-                                style: TextStyle(
-                                  color: AppColors.secondaryText,
-                                  fontSize: 12.sp,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => _removeItem(index),
-                      child: Icon(
-                        Icons.close,
-                        color: AppColors.error,
-                        size: 16.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEndTimeSelector() {
-    return GestureDetector(
-      onTap: _selectTime,
-      child: Container(
-        width: double.infinity,
-        height: 70.h,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        decoration: BoxDecoration(
-          color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppColors.inputBorderColor, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadowColor.withOpacity(0.1),
-              blurRadius: 4.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40.w,
-              height: 40.h,
-              decoration: BoxDecoration(
-                color: AppColors.fNameBoxPink,
-                borderRadius: BorderRadius.circular(18.r),
-              ),
-              child: Icon(
-                Icons.access_time,
-                color: AppColors.fRedBright,
-                size: 20.sp,
-              ),
-            ),
-            SizedBox(width: 14.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'End Time',
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primaryText,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    _selectedTime.format(context),
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.secondaryText,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.keyboard_arrow_down,
-              color: AppColors.tertiaryText,
-              size: 20.sp,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
+  Widget _buildItemEntry(int index) {
+    final item = _selectedItems[index];
     return Container(
-      padding: EdgeInsets.only(top: 16.h),
-      child: Row(
+      margin: EdgeInsets.only(bottom: 16.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Container(
-              height: 52.h,
-              child: OutlinedButton(
-                onPressed: _isLoading ? null : () => Navigator.pop(context),
-                style: OutlinedButton.styleFrom(
-                  side:
-                      BorderSide(color: AppColors.inputBorderColor, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                ),
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(
-                    color: AppColors.secondaryText,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
+          Text(
+            'Item Name ${index + 1}',
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: AppColors.fTextH1,
+              fontFamily: 'Mulish',
             ),
           ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Container(
-              height: 52.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-                boxShadow: _selectedItems.isNotEmpty && !_isLoading
-                    ? [
-                        BoxShadow(
-                          color: AppColors.primaryColor.withOpacity(0.3),
-                          blurRadius: 8.r,
-                          offset: Offset(0, 4.h),
-                        ),
-                      ]
-                    : [],
-              ),
-              child: ElevatedButton(
-                onPressed:
-                    _isLoading || _selectedItems.isEmpty ? null : _updatePoll,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.saveGreen,
-                  foregroundColor: AppColors.white,
-                  disabledBackgroundColor: AppColors.disabledButton,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
+          SizedBox(height: 8.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.circular(12.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4.r,
+                  offset: Offset(0, 2.h),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.fIconAndLabelText.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(
+                    Icons.restaurant_menu,
+                    color: AppColors.fIconAndLabelText,
+                    size: 16.sp,
                   ),
                 ),
-                child: _isLoading
-                    ? SizedBox(
-                        width: 20.w,
-                        height: 20.h,
-                        child: const CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.white,
-                          ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<MenuItem>(
+                      value: _availableItems.any((availableItem) =>
+                              availableItem.name == item.name &&
+                              availableItem.subItem == item.subItem)
+                          ? _availableItems.firstWhere((availableItem) =>
+                              availableItem.name == item.name &&
+                              availableItem.subItem == item.subItem)
+                          : null,
+                      hint: Text(
+                        item.subItem != null
+                            ? '${item.name} (With ${item.subItem})'
+                            : item.name,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: AppColors.fTextH1,
+                          fontFamily: 'Mulish',
                         ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.save, size: 18.sp),
-                          SizedBox(width: 8.w),
-                          Text(
-                            'Save Changes',
+                      ),
+                      icon: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: AppColors.fIconAndLabelText,
+                        size: 20.sp,
+                      ),
+                      items: _availableItems.map((MenuItem menuItem) {
+                        return DropdownMenuItem<MenuItem>(
+                          value: menuItem,
+                          child: Text(
+                            menuItem.subItem != null
+                                ? '${menuItem.name} (With ${menuItem.subItem})'
+                                : menuItem.name,
                             style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.3,
+                              fontSize: 14.sp,
+                              color: AppColors.fTextH1,
+                              fontFamily: 'Mulish',
                             ),
                           ),
-                        ],
-                      ),
-              ),
+                        );
+                      }).toList(),
+                      onChanged: (MenuItem? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedItems[index] = newValue;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                GestureDetector(
+                  onTap: () => _removeItem(index),
+                  child: Container(
+                    padding: EdgeInsets.all(6.w),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: AppColors.fRed2,
+                      size: 18.sp,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAddItemButton() {
+    return Container(
+      width: double.infinity,
+      height: 48.h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.secondaryColor.withOpacity(0.3),
+            blurRadius: 8.r,
+            offset: Offset(0, 4.h),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: _addNewItem,
+        icon: Container(
+          width: 24.w,
+          height: 24.h,
+          decoration: BoxDecoration(
+            color: AppColors.white.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(
+            Icons.add,
+            color: AppColors.white,
+            size: 16.sp,
+          ),
+        ),
+        label: Text(
+          'Add Item',
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: AppColors.white,
+            fontFamily: 'Mulish',
+            letterSpacing: 0.3,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.secondaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          elevation: 0,
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEndTimeSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'End Time',
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            color: AppColors.fTextH1,
+            fontFamily: 'Mulish',
+          ),
+        ),
+        SizedBox(height: 8.h),
+        GestureDetector(
+          onTap: _selectTime,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.circular(12.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4.r,
+                  offset: Offset(0, 2.h),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.fNameBoxPink,
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Icon(
+                    Icons.access_time,
+                    color: AppColors.fRedBright,
+                    size: 18.sp,
+                  ),
+                ),
+                SizedBox(width: 16.w),
+                Expanded(
+                  child: Text(
+                    _selectedTime.format(context),
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.fTextH1,
+                      fontFamily: 'Mulish',
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppColors.fIconAndLabelText,
+                  size: 20.sp,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextButton(
+            onPressed: _isLoading ? null : () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.fIconAndLabelText,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Mulish',
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16.w),
+        Expanded(
+          flex: 2,
+          child: Container(
+            height: 48.h,
+            child: ElevatedButton.icon(
+              onPressed:
+                  _isLoading || _selectedItems.isEmpty ? null : _updatePoll,
+              icon: Icon(
+                Icons.save,
+                size: 18.sp,
+                color: AppColors.fWhite,
+              ),
+              label: Text(
+                'Save Changes',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.fWhite,
+                  fontFamily: 'Mulish',
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.saveGreen,
+                disabledBackgroundColor:
+                    AppColors.fIconAndLabelText.withOpacity(0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
