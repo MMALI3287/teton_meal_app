@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Splash Screen**
+  - `lib/Screens/splash_screen.dart`
+  - Initial splash screen displayed on app launch
+
+- **Authentication UI Enhancements**
+  - Updated login and registration flows (`login.dart`, `register.dart`, `user_register.dart`)
+
+- **Menu & Voting UI Updates**
+  - Improved create new menu page (`create_new_menu_page.dart`)
+  - Enhanced voting page (`votes_page.dart`)
+
 ## [1.2.0] - 2025-01-07
 
 ### Added
@@ -55,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `flutter_local_notifications: ^17.2.3`
   - Reduced dependency on `fluttertoast` package
   - Disabled `firebase_analytics` to resolve build conflicts
+
+- Updated app entry logic in `main.dart` to include splash screen routing
 
 ### Fixed
 

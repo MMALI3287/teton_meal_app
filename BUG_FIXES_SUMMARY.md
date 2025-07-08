@@ -212,7 +212,7 @@ MenuItemService
 
 ### Navigation Flow Verified
 
-```
+```text
 Entry Points → Create New Menu → Add Item → Select Items → Add New Item
      ✅              ✅              ✅           ✅            ✅
 ```
