@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/Screens/navbar.dart';
 import 'package:teton_meal_app/Screens/Authentications/login.dart';
+import 'package:teton_meal_app/Screens/splash_screen.dart';
 import 'package:teton_meal_app/services/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -12,6 +13,7 @@ import 'package:teton_meal_app/widgets/custom_exception_dialog.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/services/menu_item_service.dart';
 import 'package:teton_meal_app/services/notification_service.dart';
+import 'package:teton_meal_app/services/reminder_service.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -70,8 +72,27 @@ Future<void> main() async {
     await NotificationService().initialize();
     await NotificationService().requestPermissions();
 
+    // Check and request exact alarm permissions for Android 12+
+    final hasExactAlarmPermission =
+        await NotificationService().checkExactAlarmPermission();
+    if (!hasExactAlarmPermission) {
+      await NotificationService().requestExactAlarmPermission();
+    }
+
     // Initialize default menu items
     await MenuItemService.initializeDefaultItems();
+
+    // Reschedule any existing active reminders after app startup
+    try {
+      await ReminderService().rescheduleAllActiveReminders();
+      if (kDebugMode) {
+        print('Active reminders rescheduled');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error rescheduling reminders: $e');
+      }
+    }
 
     runApp(const MyApp());
   } catch (e) {
@@ -221,7 +242,7 @@ class _MyAppState extends State<MyApp> {
           home: child,
         );
       },
-      child: const AuthCheck(),
+      child: SplashScreen(nextScreen: const AuthCheck()),
     );
   }
 }

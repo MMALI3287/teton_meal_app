@@ -31,6 +31,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   flutter_local_notifications: ^19.3.0
   timezone: ^0.10.1
+  google_fonts: ^6.1.0
 
 dev_dependencies:
   flutter_test:

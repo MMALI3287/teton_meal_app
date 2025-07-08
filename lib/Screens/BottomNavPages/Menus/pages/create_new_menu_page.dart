@@ -61,6 +61,11 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
         throw Exception('User not authenticated');
       }
 
+      // Validate user ID is not empty
+      if (user.uid.isEmpty) {
+        throw Exception('User ID is invalid');
+      }
+
       final String creatorName = user.displayName ?? user.email;
       final String formattedDate =
           DateFormat('dd/MM/yy - EEEE').format(_selectedDate);
@@ -107,7 +112,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
           'isActive': true,
           'createdAt': FieldValue.serverTimestamp(),
           'createdBy': {
-            'uid': user.uid,
+            'uid': user.uid, // This should now be validated to not be empty
             'name': creatorName,
           },
           'date': today,

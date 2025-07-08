@@ -4,6 +4,7 @@ import 'package:teton_meal_app/Styles/colors.dart';
 import 'package:teton_meal_app/services/auth_service.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../widgets/custom_exception_dialog.dart';
+import 'user_register.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -297,6 +298,40 @@ class _LoginPageState extends State<LoginPage>
                                 ),
                               ),
                             ),
+                            SizedBox(height: 20.h),
+                            // Registration link
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Don't have an account? ",
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    fontFamily: 'DMSans',
+                                    color: AppColors.tertiaryText,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const UserRegister(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    "Register here",
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontFamily: 'DMSans',
+                                      color: AppColors.primaryColor,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -441,12 +476,27 @@ class _LoginPageState extends State<LoginPage>
         _isLoading = false;
       });
 
+      String title = 'Sign In Failed';
+      String message = '';
+
+      final errorMessage = e.toString();
+      if (errorMessage.contains('user-not-found')) {
+        title = 'User Not Found';
+        message = 'No account found with this email address. Please check your email or register for a new account.';
+      } else if (errorMessage.contains('incorrect-credentials')) {
+        title = 'Incorrect Password';
+        message = 'The password you entered is incorrect. Please try again.';
+      } else if (errorMessage.contains('account-not-verified')) {
+        title = 'Account Not Verified';
+        message = 'Please contact the administrator to activate your account.';
+      } else {
+        message = 'Unable to sign in. Please try again later.';
+      }
+
       CustomExceptionDialog.showError(
         context: context,
-        title: 'Sign In Failed',
-        message: e.toString().contains('unverified')
-            ? 'Your account is pending verification. Please contact the administrator for approval.'
-            : 'Unable to sign in. Please check your credentials and try again.',
+        title: title,
+        message: message,
       );
     }
   }

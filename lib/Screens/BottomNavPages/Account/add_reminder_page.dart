@@ -3,9 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import '../../../Styles/colors.dart';
 import '../../../services/reminder_service.dart';
+import '../../../models/reminder_model.dart';
 
 class AddReminderPage extends StatefulWidget {
-  const AddReminderPage({super.key});
+  final ReminderModel? reminder; // For editing existing reminder
+  
+  const AddReminderPage({super.key, this.reminder});
 
   @override
   State<AddReminderPage> createState() => _AddReminderPageState();
@@ -23,6 +26,26 @@ class _AddReminderPageState extends State<AddReminderPage> {
   bool _isLoading = false;
 
   final List<String> _repeatOptions = ['daily', 'weekly', 'monthly'];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeForEditing();
+  }
+
+  void _initializeForEditing() {
+    if (widget.reminder != null) {
+      final reminder = widget.reminder!;
+      _nameController.text = reminder.name;
+      _detailsController.text = reminder.details ?? '';
+      _selectedDate = reminder.dateTime;
+      _selectedTime = TimeOfDay.fromDateTime(reminder.dateTime);
+      _isRepeating = reminder.isRepeating;
+      _repeatType = reminder.repeatType ?? 'daily';
+    }
+  }
+
+  bool get _isEditMode => widget.reminder != null;
 
   @override
   void dispose() {
@@ -104,21 +127,42 @@ class _AddReminderPageState extends State<AddReminderPage> {
         _selectedTime.minute,
       );
 
-      await _reminderService.createReminder(
-        name: _nameController.text.trim(),
-        details: _detailsController.text.trim().isEmpty
-            ? null
-            : _detailsController.text.trim(),
-        dateTime: reminderDateTime,
-        isRepeating: _isRepeating,
-        repeatType: _isRepeating ? _repeatType : null,
-      );
+      if (_isEditMode) {
+        // Update existing reminder
+        final updatedReminder = ReminderModel(
+          id: widget.reminder!.id,
+          name: _nameController.text.trim(),
+          details: _detailsController.text.trim().isEmpty
+              ? null
+              : _detailsController.text.trim(),
+          dateTime: reminderDateTime,
+          isActive: widget.reminder!.isActive,
+          isRepeating: _isRepeating,
+          repeatType: _isRepeating ? _repeatType : null,
+          userId: widget.reminder!.userId,
+          createdAt: widget.reminder!.createdAt,
+          updatedAt: DateTime.now(),
+        );
+        
+        await _reminderService.updateReminder(updatedReminder);
+      } else {
+        // Create new reminder
+        await _reminderService.createReminder(
+          name: _nameController.text.trim(),
+          details: _detailsController.text.trim().isEmpty
+              ? null
+              : _detailsController.text.trim(),
+          dateTime: reminderDateTime,
+          isRepeating: _isRepeating,
+          repeatType: _isRepeating ? _repeatType : null,
+        );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Reminder created successfully',
+              _isEditMode ? 'Reminder updated successfully' : 'Reminder created successfully',
               style: TextStyle(
                 color: AppColors.fWhite,
                 fontFamily: 'Mulish',
@@ -210,7 +254,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
           SizedBox(width: 16.w),
           Expanded(
             child: Text(
-              'Add New Reminder',
+              _isEditMode ? 'Edit Reminder' : 'Add New Reminder',
               style: TextStyle(
                 fontSize: 24.sp,
                 fontWeight: FontWeight.w700,
@@ -589,7 +633,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
                 ),
               )
             : Text(
-                'Set',
+                _isEditMode ? 'Update' : 'Set',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,

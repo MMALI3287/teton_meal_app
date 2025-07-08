@@ -8,6 +8,7 @@ class UserModel {
   final String uid;
   final String email;
   final String? displayName;
+  final String? department;
   final String role;
   final String? fcmToken;
   final bool? notificationsEnabled;
@@ -16,6 +17,7 @@ class UserModel {
     required this.uid,
     required this.email,
     this.displayName,
+    this.department,
     required this.role,
     this.fcmToken,
     this.notificationsEnabled = true,
@@ -26,6 +28,7 @@ class UserModel {
       uid: id,
       email: map['email'] ?? '',
       displayName: map['displayName'],
+      department: map['department'],
       role: map['role'] ?? 'Diner',
       fcmToken: map['fcm_token'],
       notificationsEnabled: map['notifications_enabled'] ?? true,
@@ -36,6 +39,7 @@ class UserModel {
     return {
       'email': email,
       'displayName': displayName,
+      'department': department,
       'role': role,
       'fcm_token': fcmToken,
       'notifications_enabled': notificationsEnabled,
@@ -46,6 +50,7 @@ class UserModel {
     String? uid,
     String? email,
     String? displayName,
+    String? department,
     String? role,
     String? fcmToken,
     bool? notificationsEnabled,
@@ -54,6 +59,7 @@ class UserModel {
       uid: uid ?? this.uid,
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
+      department: department ?? this.department,
       role: role ?? this.role,
       fcmToken: fcmToken ?? this.fcmToken,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
@@ -111,21 +117,20 @@ class AuthService {
           .get();
 
       if (querySnapshot.docs.isEmpty) {
-        throw Exception('No user found for that email.');
+        throw Exception('user-not-found');
       }
 
       final userDoc = querySnapshot.docs.first;
       final userData = userDoc.data();
 
       if (userData['password'] != password) {
-        throw Exception('Wrong password provided for that user.');
+        throw Exception('incorrect-credentials');
       }
 
       // Check if user is verified - only allow login if isVerified is explicitly true
       final isVerified = userData['isVerified'];
       if (isVerified != true) {
-        throw Exception(
-            'Your account is pending verification. Please contact the authority for verification.');
+        throw Exception('account-not-verified');
       }
 
       final user = UserModel.fromMap(userData, userDoc.id);
@@ -140,7 +145,8 @@ class AuthService {
     }
   }
 
-  Future<UserModel> register(String email, String password, String role) async {
+  Future<UserModel> register(String email, String password, String role,
+      {String? name, String? department}) async {
     try {
       final querySnapshot = await _firestore
           .collection('users')
@@ -159,6 +165,9 @@ class AuthService {
         'email': email,
         'password': password,
         'role': role,
+        'displayName': name,
+        'department': department,
+        'isVerified': false, // User registration defaults to false
         'createdAt': FieldValue.serverTimestamp(),
       };
 
@@ -167,6 +176,51 @@ class AuthService {
       final user = UserModel(
         uid: userId,
         email: email,
+        displayName: name,
+        department: department,
+        role: role,
+      );
+
+      return user;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Admin registration with pre-verified status
+  Future<UserModel> adminRegister(String email, String password, String role,
+      {String? name, String? department}) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        throw Exception(
+            'The email address is already in use by another account.');
+      }
+
+      final userId = _uuid.v4();
+
+      final userData = {
+        'email': email,
+        'password': password,
+        'role': role,
+        'displayName': name,
+        'department': department,
+        'isVerified': true, // Admin registration defaults to true
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+
+      await _firestore.collection('users').doc(userId).set(userData);
+
+      final user = UserModel(
+        uid: userId,
+        email: email,
+        displayName: name,
+        department: department,
         role: role,
       );
 
@@ -179,6 +233,7 @@ class AuthService {
   Future<void> updateUserProfile({
     required String uid,
     String? displayName,
+    String? department,
     String? email,
     String? password,
     String? fcmToken,
@@ -189,6 +244,10 @@ class AuthService {
 
       if (displayName != null) {
         updates['displayName'] = displayName;
+      }
+
+      if (department != null) {
+        updates['department'] = department;
       }
 
       if (email != null) {
@@ -214,6 +273,7 @@ class AuthService {
             _authStateController.value?.uid == uid) {
           final updatedUser = _authStateController.value!.copyWith(
             displayName: displayName,
+            department: department,
             email: email,
             fcmToken: fcmToken,
             notificationsEnabled: notificationsEnabled,

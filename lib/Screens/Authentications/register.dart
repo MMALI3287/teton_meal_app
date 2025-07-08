@@ -564,10 +564,15 @@ class _RegisterState extends State<Register> {
         showProgress = true;
       });
       try {
-        await _authService.register(email, password, role);
+        await _authService.adminRegister(
+          email,
+          password,
+          role,
+          name: nameController.text.trim(),
+          department: departmentController.text.trim(),
+        );
 
-        // TODO: Save additional user data (name, department) to Firestore
-        // This would typically be done in the AuthService or here after registration
+        // User data (name, department) is now saved in the AuthService
 
         CustomExceptionDialog.showSuccess(
           context: context,

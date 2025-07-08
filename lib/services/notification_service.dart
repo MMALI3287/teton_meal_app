@@ -40,6 +40,9 @@ class NotificationService {
         }
       },
     );
+
+    // Create notification channel for Android
+    await _createNotificationChannel();
   }
 
   Future<bool> requestPermissions() async {
@@ -67,11 +70,16 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       showWhen: false,
+      enableVibration: true,
+      playSound: true,
+      category: AndroidNotificationCategory.alarm,
+      fullScreenIntent: true,
     );
 
     const DarwinNotificationDetails iosNotificationDetails =
         DarwinNotificationDetails(
       categoryIdentifier: 'reminder_category',
+      interruptionLevel: InterruptionLevel.critical,
     );
 
     const NotificationDetails notificationDetails = NotificationDetails(
@@ -82,29 +90,42 @@ class NotificationService {
     // Cancel existing notification
     await _flutterLocalNotificationsPlugin.cancel(notificationId);
 
-    if (!reminder.isActive) return;
+    if (!reminder.isActive) {
+      return;
+    }
 
     final DateTime scheduledDate = reminder.isRepeating
         ? (reminder.getNextOccurrence() ?? reminder.dateTime)
         : reminder.dateTime;
 
-    if (scheduledDate.isBefore(DateTime.now())) return;
+    if (scheduledDate.isBefore(DateTime.now())) {
+      return;
+    }
 
-    await _flutterLocalNotificationsPlugin.zonedSchedule(
-      notificationId,
-      reminder.name,
-      reminder.details ?? 'Teton Meal App Reminder',
-      tz.TZDateTime.from(scheduledDate, tz.local),
-      notificationDetails,
-      payload: reminder.id,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: reminder.isRepeating
-          ? _getMatchDateTimeComponents(reminder.repeatType)
-          : null,
-    );
+    final tz.TZDateTime tzScheduledDate =
+        tz.TZDateTime.from(scheduledDate, tz.local);
 
-    if (kDebugMode) {
-      print('Scheduled reminder: ${reminder.name} for ${scheduledDate}');
+    try {
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
+        notificationId,
+        reminder.name,
+        reminder.details ?? 'Teton Meal App Reminder',
+        tzScheduledDate,
+        notificationDetails,
+        payload: reminder.id,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: reminder.isRepeating
+            ? _getMatchDateTimeComponents(reminder.repeatType)
+            : null,
+      );
+
+      if (kDebugMode) {
+        print('Scheduled reminder: ${reminder.name} for $scheduledDate');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error scheduling reminder: $e');
+      }
     }
   }
 
@@ -140,5 +161,49 @@ class NotificationService {
 
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
+  }
+
+  Future<void> _createNotificationChannel() async {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'reminder_channel',
+      'Reminders',
+      description: 'Meal app reminders and alarms',
+      importance: Importance.max,
+      enableVibration: true,
+      playSound: true,
+      showBadge: true,
+    );
+
+    final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
+        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidPlugin != null) {
+      await androidPlugin.createNotificationChannel(channel);
+    }
+  }
+
+  Future<bool> checkExactAlarmPermission() async {
+    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidImplementation != null) {
+      final bool? hasPermission =
+          await androidImplementation.canScheduleExactNotifications();
+      return hasPermission ?? false;
+    }
+
+    return true; // Assume permission granted on other platforms
+  }
+
+  Future<void> requestExactAlarmPermission() async {
+    final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+        _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
+    if (androidImplementation != null) {
+      await androidImplementation.requestExactAlarmsPermission();
+    }
   }
 }

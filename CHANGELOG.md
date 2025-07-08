@@ -83,14 +83,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - Previous Version
 
-### Added
+### Added in 1.1.0
 
 - Basic meal voting system
 - Menu management for planners
 - User authentication and role management
 - Calendar and grid views for meal planning
 
-### Fixed
+### Fixed in 1.1.0
 
 - Cross button functionality in menu creation pages
 - Title alignment in page headers
@@ -99,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - Initial Release
 
-### Added
+### Added in 1.0.0
 
 - Core meal management application
 - User roles (Diner, Planner, Admin)

@@ -154,161 +154,173 @@ class _RemindersPageState extends State<RemindersPage> {
       }
     }
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.fWhite,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4.r,
-            offset: Offset(0, 2.h),
+    return GestureDetector(
+        onTap: () => _editReminder(reminder),
+        child: Container(
+          margin: EdgeInsets.only(bottom: 12.h),
+          padding: EdgeInsets.all(16.w),
+          decoration: BoxDecoration(
+            color: AppColors.fWhite,
+            borderRadius: BorderRadius.circular(12.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4.r,
+                offset: Offset(0, 2.h),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Time icon
-          Container(
-            width: 40.w,
-            height: 40.h,
-            decoration: BoxDecoration(
-              color: AppColors.fIconAndLabelText.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            child: Icon(
-              Icons.access_time,
-              color: AppColors.fIconAndLabelText,
-              size: 20.sp,
-            ),
-          ),
-          SizedBox(width: 16.w),
-          // Reminder info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  reminder.name,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.fTextH1,
-                    fontFamily: 'Mulish',
-                  ),
-                  overflow: TextOverflow.ellipsis,
+          child: Row(
+            children: [
+              // Time icon
+              Container(
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                  color: AppColors.fIconAndLabelText.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
-                if (reminder.details != null &&
-                    reminder.details!.isNotEmpty) ...[
-                  SizedBox(height: 4.h),
-                  Text(
-                    reminder.details!,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: AppColors.fIconAndLabelText,
-                      fontFamily: 'Mulish',
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                ],
-                SizedBox(height: 8.h),
-                Row(
+                child: Icon(
+                  Icons.access_time,
+                  color: AppColors.fIconAndLabelText,
+                  size: 20.sp,
+                ),
+              ),
+              SizedBox(width: 16.w),
+              // Reminder info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      displayTime,
+                      reminder.name,
                       style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.fRedBright,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.fTextH1,
                         fontFamily: 'Mulish',
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      '•',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: AppColors.fIconAndLabelText,
+                    if (reminder.details != null &&
+                        reminder.details!.isNotEmpty) ...[
+                      SizedBox(height: 4.h),
+                      Text(
+                        reminder.details!,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: AppColors.fIconAndLabelText,
+                          fontFamily: 'Mulish',
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
                       ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      displayDate,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: AppColors.fIconAndLabelText,
-                        fontFamily: 'Mulish',
-                      ),
+                    ],
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Text(
+                          displayTime,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.fRedBright,
+                            fontFamily: 'Mulish',
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          '•',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.fIconAndLabelText,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          displayDate,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: AppColors.fIconAndLabelText,
+                            fontFamily: 'Mulish',
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          SizedBox(width: 16.w),
-          // Toggle switch
-          GestureDetector(
-            onTap: () async {
-              await _reminderService.toggleReminderStatus(
-                reminder.id,
-                !reminder.isActive,
-              );
-            },
-            child: Container(
-              width: 48.w,
-              height: 28.h,
-              decoration: BoxDecoration(
-                color: reminder.isActive
-                    ? AppColors.fRedBright
-                    : AppColors.fIconAndLabelText.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(14.r),
               ),
-              child: AnimatedAlign(
-                alignment: reminder.isActive
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                duration: const Duration(milliseconds: 200),
+              SizedBox(width: 16.w),
+              // Toggle switch
+              GestureDetector(
+                onTap: () async {
+                  await _reminderService.toggleReminderStatus(
+                    reminder.id,
+                    !reminder.isActive,
+                  );
+                },
                 child: Container(
-                  width: 24.w,
-                  height: 24.h,
-                  margin: EdgeInsets.all(2.w),
+                  width: 48.w,
+                  height: 28.h,
                   decoration: BoxDecoration(
-                    color: AppColors.fWhite,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 2.r,
-                        offset: Offset(0, 1.h),
+                    color: reminder.isActive
+                        ? AppColors.fRedBright
+                        : AppColors.fIconAndLabelText.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(14.r),
+                  ),
+                  child: AnimatedAlign(
+                    alignment: reminder.isActive
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    duration: const Duration(milliseconds: 200),
+                    child: Container(
+                      width: 24.w,
+                      height: 24.h,
+                      margin: EdgeInsets.all(2.w),
+                      decoration: BoxDecoration(
+                        color: AppColors.fWhite,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 2.r,
+                            offset: Offset(0, 1.h),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-          SizedBox(width: 12.w),
-          // Delete button
-          GestureDetector(
-            onTap: () => _showDeleteDialog(reminder),
-            child: Container(
-              width: 36.w,
-              height: 36.h,
-              decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8.r),
+              SizedBox(width: 12.w),
+              // Delete button
+              GestureDetector(
+                onTap: () => _showDeleteDialog(reminder),
+                child: Container(
+                  width: 36.w,
+                  height: 36.h,
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(
+                    Icons.delete_outline,
+                    color: Colors.red,
+                    size: 18.sp,
+                  ),
+                ),
               ),
-              child: Icon(
-                Icons.delete_outline,
-                color: Colors.red,
-                size: 18.sp,
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
+    );
+  }
+
+  void _editReminder(ReminderModel reminder) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddReminderPage(reminder: reminder),
       ),
     );
   }

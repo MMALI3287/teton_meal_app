@@ -6,6 +6,21 @@ import "package:teton_meal_app/services/auth_service.dart";
 import 'package:teton_meal_app/Screens/BottomNavPages/Menus/pages/create_new_menu_page.dart';
 import 'package:teton_meal_app/Styles/colors.dart';
 
+/*
+ * DATABASE MIGRATION NOTE:
+ * Existing polls in the database may not have the 'adminOverride' field.
+ * The code safely handles this by using null-aware operators (?? false).
+ * New polls created through the app will automatically include this field.
+ * 
+ * If needed, you can run this one-time migration in Firebase Console:
+ * 
+ * polls.where('adminOverride', '==', null).get().then(snapshot => {
+ *   snapshot.docs.forEach(doc => {
+ *     doc.ref.update({ adminOverride: false });
+ *   });
+ * });
+ */
+
 class VotesPage extends StatefulWidget {
   const VotesPage({super.key});
 
@@ -345,37 +360,55 @@ class _VotesPageState extends State<VotesPage>
     final Map<String, dynamic> votes = data['votes'] ?? {};
     final int? endTimeMs = data['endTimeMillis'];
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Column(
-        children: [
-          SizedBox(height: 8.h),
-          _buildMainCard(pollData, formattedDate, options, votes),
-          SizedBox(height: 16.h),
-          _buildIllustration(),
-          SizedBox(height: 16.h),
-          _buildEndTimeCard(endTimeMs, pollData.id),
-          SizedBox(height: 100.h), // Space for bottom navigation
-        ],
-      ),
+    return Column(
+      children: [
+        // Main scrollable content - takes up available space minus end time card
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Column(
+              children: [
+                SizedBox(height: 8.h),
+                _buildMainCard(pollData, formattedDate, options, votes),
+                SizedBox(height: 16.h),
+                _buildIllustration(),
+                SizedBox(
+                    height: 20.h), // Reduced padding since card is now in flow
+              ],
+            ),
+          ),
+        ),
+        // Fixed end time card at bottom with consistent spacing
+        Container(
+          margin: EdgeInsets.fromLTRB(
+              16.w, 0, 16.w, 10.h), // Same horizontal margin and bottom space
+          child: _buildEndTimeCard(endTimeMs, pollData.id),
+        ),
+      ],
     );
   }
 
   Widget _buildMainCard(QueryDocumentSnapshot pollData, String formattedDate,
       List<String> options, Map<String, dynamic> votes) {
-    final int? endTimeMs = pollData['endTimeMillis'];
+    final data = pollData.data() as Map<String, dynamic>;
+    final int? endTimeMs = data['endTimeMillis'];
     final bool isTimeUp =
         endTimeMs != null && DateTime.now().millisecondsSinceEpoch > endTimeMs;
-    final bool isManuallyActive = pollData['isActive'] ?? false;
+    final bool isManuallyActive = data['isActive'] ?? false;
+    final bool adminOverride = data['adminOverride'] ?? false;
 
     // Auto-disable toggle when time is up
     _autoDisableToggleIfTimeUp(pollData, isTimeUp, isManuallyActive);
 
-    // For voting: only allow if manually active AND time not up, OR if admin manually enabled after time up
+    // For voting: allow if manually active AND (time not up OR admin override is set)
     final bool effectiveActiveState =
-        isManuallyActive && (!isTimeUp || _isAdminOrPlanner);
-    // For UI display: show time up message only if time is up AND toggle is off
-    final bool showTimeUpMessage = isTimeUp && !isManuallyActive;
+        isManuallyActive && (!isTimeUp || adminOverride);
+    // For UI display: show time up message only if time is up AND toggle is off AND no admin override
+    final bool showTimeUpMessage =
+        isTimeUp && !isManuallyActive && !adminOverride;
+    // Show admin override message if voting is active after time up due to admin override
+    final bool showAdminOverrideMessage =
+        isTimeUp && isManuallyActive && adminOverride;
 
     return Container(
       width: double.infinity,
@@ -422,7 +455,7 @@ class _VotesPageState extends State<VotesPage>
                       ),
                   ],
                 ),
-                // Time up indicator - show only when time has passed AND toggle is off
+                // Time up indicator - show only when time has passed AND toggle is off AND no admin override
                 if (showTimeUpMessage)
                   Padding(
                     padding: EdgeInsets.only(top: 8.h),
@@ -440,6 +473,31 @@ class _VotesPageState extends State<VotesPage>
                             fontSize: 11.sp,
                             color: const Color(0xFFFF3951), // F_Red_Bright
                             fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // Admin override indicator - show when voting is extended by admin
+                if (showAdminOverrideMessage)
+                  Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.admin_panel_settings,
+                          color: const Color(0xFF4CAF50), // Success green
+                          size: 14.sp,
+                        ),
+                        SizedBox(width: 4.w),
+                        Expanded(
+                          child: Text(
+                            'Voting extended by admin - employees can still vote',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: const Color(0xFF4CAF50), // Success green
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -905,16 +963,35 @@ class _VotesPageState extends State<VotesPage>
     );
   }
 
+  /*
+   * DATABASE MIGRATION NOTE:
+   * Existing polls in the database may not have the 'adminOverride' field.
+   * The code safely handles this by using null-aware operators (?? false).
+   * New polls created through the app will automatically include this field.
+   * 
+   * If needed, you can run this one-time migration in Firebase Console:
+   * 
+   * polls.where('adminOverride', '==', null).get().then(snapshot => {
+   *   snapshot.docs.forEach(doc => {
+   *     doc.ref.update({ adminOverride: false });
+   *   });
+   * });
+   */
+
   // Auto-disable toggle when time expires
   void _autoDisableToggleIfTimeUp(
       QueryDocumentSnapshot pollData, bool isTimeUp, bool isManuallyActive) {
+    final data = pollData.data() as Map<String, dynamic>;
+    final bool adminOverride = data['adminOverride'] ?? false;
+
     // Don't auto-disable if:
-    // 1. Admin has manually overridden this poll
+    // 1. Admin has overridden this poll (database flag)
     // 2. Poll was already auto-disabled
     // 3. Time is not up
     // 4. Poll is already inactive
     if (isTimeUp &&
         isManuallyActive &&
+        !adminOverride && // Check database adminOverride flag
         !_autoDisabledPolls.contains(pollData.id) &&
         !_adminOverriddenPolls.contains(pollData.id)) {
       // Mark as auto-disabled to prevent multiple calls
@@ -936,10 +1013,10 @@ class _VotesPageState extends State<VotesPage>
 
   Future<void> _disablePollToggle(String pollId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('polls')
-          .doc(pollId)
-          .update({'isActive': false});
+      await FirebaseFirestore.instance.collection('polls').doc(pollId).update({
+        'isActive': false,
+        'adminOverride': false, // Clear admin override when auto-disabling
+      });
     } catch (e) {
       // Remove from auto-disabled set on error so it can be retried
       _autoDisabledPolls.remove(pollId);
@@ -957,29 +1034,44 @@ class _VotesPageState extends State<VotesPage>
       final bool isTimeUp = endTimeMs != null &&
           DateTime.now().millisecondsSinceEpoch > endTimeMs;
 
-      // If admin is enabling after time expiry, mark as overridden immediately
+      // Prepare the update data
+      Map<String, dynamic> updateData = {'isActive': newStatus};
+
+      // Handle admin override logic
       if (newStatus && isTimeUp) {
+        // Admin is enabling voting after time expiry - set admin override
+        updateData['adminOverride'] = true;
         _adminOverriddenPolls.add(pollData.id);
       } else if (!newStatus) {
-        // If admin is disabling, remove from override tracking
+        // Admin is disabling voting - clear admin override
+        updateData['adminOverride'] = false;
         _adminOverriddenPolls.remove(pollData.id);
+      } else if (newStatus && !isTimeUp) {
+        // Admin is enabling voting before time expiry - ensure no override flag
+        updateData['adminOverride'] = false;
       }
 
-      // Update the database
+      // Update the database with both isActive and adminOverride
       await FirebaseFirestore.instance
           .collection('polls')
           .doc(pollData.id)
-          .update({'isActive': newStatus});
+          .update(updateData);
 
       if (mounted) {
+        String message = newStatus
+            ? (isTimeUp
+                ? 'Menu reopened with admin override - voting extended beyond end time'
+                : 'Menu is now open for orders')
+            : 'Menu is now closed for orders';
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(newStatus
-                ? 'Menu is now open for orders'
-                : 'Menu is now closed for orders'),
+            content: Text(message),
             backgroundColor: newStatus
                 ? const Color(0xFF4CAF50)
                 : const Color(0xFFEF9F27), // Success green or warning yellow
+            duration:
+                Duration(milliseconds: isTimeUp && newStatus ? 3000 : 2000),
           ),
         );
       }
