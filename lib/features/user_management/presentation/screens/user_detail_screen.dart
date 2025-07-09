@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
-import '../../../../shared/presentation/widgets/common/confirmation_delete_dialog.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
 
 class UserDetailPage extends StatelessWidget {
   final String userId;

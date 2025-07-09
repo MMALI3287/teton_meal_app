@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
-import '../../../../data/models/user_model.dart';
-import '../../../../shared/presentation/widgets/form_components/date_selector_widget.dart';
+import 'package:teton_meal_app/data/models/user_model.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/form_components/date_selector_widget.dart';
 import '../widgets/add_menu_item_button.dart';
-import '../../../../shared/presentation/widgets/form_components/end_time_selector_widget.dart';
-import '../../../../data/models/menu_item_model.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/form_components/end_time_selector_widget.dart';
+import 'package:teton_meal_app/data/models/menu_item_model.dart';
 import 'select_menu_item_screen.dart';
 
 class CreateNewMenuPage extends StatefulWidget {
