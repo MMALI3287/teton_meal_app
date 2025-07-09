@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/menu_item_model.dart';
+import 'package:teton_meal_app/data/models/menu_item_model.dart';
 
 class MenuItemService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;

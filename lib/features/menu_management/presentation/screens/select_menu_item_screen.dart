@@ -4,7 +4,7 @@ import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/data/services/menu_item_service.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
 import 'package:teton_meal_app/data/models/menu_item_model.dart';
-import 'add_menu_item_screen.dart';
+import 'package:teton_meal_app/features/menu_management/presentation/screens/add_menu_item_screen.dart';
 
 class SelectItemPage extends StatefulWidget {
   final List<MenuItem> initialSelectedItems;

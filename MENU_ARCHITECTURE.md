@@ -8,7 +8,7 @@ The Create New Menu functionality has been completely redesigned and modularized
 
 ### 1. Components (Reusable UI Elements)
 
-Located in: `lib/Screens/BottomNavPages/Menus/components/`
+Located in: `lib/features/menu_management/presentation/components/`
 
 #### `date_selector_component.dart`
 
@@ -39,7 +39,7 @@ Located in: `lib/Screens/BottomNavPages/Menus/components/`
 
 ### 2. Data Models
 
-Located in: `lib/Screens/BottomNavPages/Menus/models/`
+Located in: `lib/features/menu_management/data/models/`
 
 #### `menu_item.dart`
 
@@ -50,9 +50,9 @@ Located in: `lib/Screens/BottomNavPages/Menus/models/`
 
 ### 3. Pages (Full Screen Views)
 
-Located in: `lib/Screens/BottomNavPages/Menus/pages/`
+Located in: `lib/features/menu_management/presentation/screens/`
 
-#### `create_new_menu_page.dart`
+#### `create_menu_screen.dart`
 
 - **Purpose**: Main menu creation page
 - **Features**:

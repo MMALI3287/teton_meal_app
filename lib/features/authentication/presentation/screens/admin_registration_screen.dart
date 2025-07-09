@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/custom_exception_dialog.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
-import 'package:teton_meal_app/data/models/user_model.dart';
+import 'package:teton_meal_app/data/services/auth_service.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});

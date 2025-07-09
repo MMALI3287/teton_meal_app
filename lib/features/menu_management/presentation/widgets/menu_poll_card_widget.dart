@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
-import '../screens/poll_votes_detail_screen.dart';
+import 'package:teton_meal_app/features/menu_management/presentation/screens/poll_votes_detail_screen.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/edit_poll_dialog.dart';
 
 class MenuPollCard extends StatelessWidget {

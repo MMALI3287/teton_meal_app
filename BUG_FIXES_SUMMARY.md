@@ -106,13 +106,13 @@
 
 **Files Modified**:
 
-- `lib/widgets/custom_exception_dialog.dart` (new)
-- `lib/widgets/custom_delete_dialog.dart` (new)
-- `lib/Screens/BottomNavPages/Votes/vote_option.dart`
-- `lib/Screens/navbar.dart`
-- `lib/Screens/Authentications/register.dart`
-- `lib/Screens/Authentications/login.dart`
-- `lib/services/auth_service.dart`
+- `lib/shared/presentation/widgets/common/custom_exception_dialog.dart` (new)
+- `lib/shared/presentation/widgets/common/confirmation_delete_dialog.dart` (new)
+- `lib/features/voting_system/presentation/screens/voting_screen.dart`
+- `lib/shared/presentation/widgets/common/app_navigation_bar.dart`
+- `lib/features/authentication/presentation/screens/user_registration_screen.dart`
+- `lib/features/authentication/presentation/screens/login_screen.dart`
+- `lib/data/services/auth_service.dart`
 - `lib/main.dart`
 
 **Benefits**:

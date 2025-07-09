@@ -120,15 +120,30 @@ teton_meal_app/
 │   │   └── Register.dart        # Registration screen
 │   ├── Styles/                  # App styling
 │   │   └── colors.dart          # Color definitions
-│   ├── services/                # Business logic services
-│   │   ├── auth_service.dart    # Authentication service
-│   │   ├── notification_service.dart # Local notification service
-│   │   └── reminder_service.dart     # Reminder management service
-│   ├── models/                  # Data models
-│   │   └── reminder_model.dart  # Reminder data structure
-│   ├── widgets/                 # Reusable UI components
-│   │   ├── custom_delete_dialog.dart     # Custom delete confirmation dialog
-│   │   └── custom_exception_dialog.dart  # Custom error/warning/success dialogs
+│   ├── data/                    # Data layer
+│   │   ├── models/              # Data models
+│   │   │   ├── user_model.dart  # User data structure
+│   │   │   └── reminder_model.dart  # Reminder data structure
+│   │   └── services/            # Business logic services
+│   │       ├── auth_service.dart    # Authentication service
+│   │       ├── notification_service.dart # Local notification service
+│   │       └── reminder_service.dart     # Reminder management service
+│   ├── features/                # Feature modules
+│   │   ├── authentication/      # Authentication feature
+│   │   │   └── presentation/    # UI components
+│   │   │       ├── screens/     # Authentication screens
+│   │   │       └── widgets/     # Authentication widgets
+│   │   ├── user_management/     # User management feature
+│   │   │   └── presentation/    # UI components
+│   │   │       ├── screens/     # User management screens
+│   │   │       └── widgets/     # User management widgets
+│   │   └── reminders/           # Reminders feature
+│   │       └── presentation/    # UI components
+│   │           ├── screens/     # Reminder screens
+│   │           └── widgets/     # Reminder widgets
+│   ├── shared/                  # Shared components
+│   │   └── presentation/        # Shared UI components
+│   │       └── widgets/         # Reusable widgets
 │   ├── firebase_options.dart    # Firebase configuration
 │   └── main.dart                # App entry point
 ├── android/                     # Android-specific code

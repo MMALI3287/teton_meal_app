@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
-import '../models/reminder_model.dart';
+import 'package:teton_meal_app/data/models/reminder_model.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();

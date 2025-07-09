@@ -106,29 +106,29 @@ CustomDeleteDialog.show(
 
 ### Core Components
 
-1. **ReminderModel** (`lib/models/reminder_model.dart`)
+1. **ReminderModel** (`lib/features/reminders/data/models/reminder_model.dart`)
    - Data structure for reminders
    - Firestore serialization support
    - User-specific reminder management
 
-2. **NotificationService** (`lib/services/notification_service.dart`)
+2. **NotificationService** (`lib/data/services/notification_service.dart`)
    - Local notification management
    - Permission handling
    - Notification scheduling and cancellation
 
-3. **ReminderService** (`lib/services/reminder_service.dart`)
+3. **ReminderService** (`lib/data/services/reminder_service.dart`)
    - CRUD operations for reminders
    - Integration with NotificationService
    - User-specific reminder filtering
 
 ### UI Components
 
-1. **RemindersPage** (`lib/Screens/BottomNavPages/Account/reminders_page.dart`)
+1. **RemindersPage** (`lib/features/reminders/presentation/screens/reminders_list_screen.dart`)
    - List view of all user reminders
    - Enable/disable toggle functionality
    - Delete confirmation using CustomDeleteDialog
 
-2. **AddReminderPage** (`lib/Screens/BottomNavPages/Account/add_reminder_page.dart`)
+2. **AddReminderPage** (`lib/features/reminders/presentation/screens/add_reminder_screen.dart`)
    - Form for creating new reminders
    - Time picker integration
    - Repeat options (daily, weekly, monthly)

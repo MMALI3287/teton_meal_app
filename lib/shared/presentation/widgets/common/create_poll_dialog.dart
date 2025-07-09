@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:teton_meal_app/data/models/user_model.dart';
+import 'package:teton_meal_app/data/services/auth_service.dart';
 
 class CreatePollDialog extends StatefulWidget {
   const CreatePollDialog({super.key});

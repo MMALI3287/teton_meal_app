@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import "package:teton_meal_app/data/models/user_model.dart";
+import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:teton_meal_app/features/menu_management/presentation/screens/create_menu_screen.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 

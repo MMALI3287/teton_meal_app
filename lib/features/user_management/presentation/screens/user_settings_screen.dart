@@ -8,6 +8,7 @@ import 'package:teton_meal_app/features/user_management/presentation/screens/ter
 import 'package:teton_meal_app/features/user_management/presentation/screens/privacy_policy_screen.dart';
 import 'package:teton_meal_app/features/reminders/presentation/screens/reminders_list_screen.dart';
 import 'package:teton_meal_app/data/models/user_model.dart';
+import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 
 class SettingsPage extends StatefulWidget {

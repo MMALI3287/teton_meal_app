@@ -24,7 +24,7 @@
 
 ### ✅ Fix 1: MenuItem String Format
 
-**File**: `lib/Screens/BottomNavPages/Menus/models/menu_item.dart`
+**File**: `lib/features/menu_management/data/models/menu_item.dart`
 
 ```dart
 // BEFORE (Problematic)
@@ -48,7 +48,7 @@ String toString() {
 
 ### ✅ Fix 2: Transaction-Based Menu Creation
 
-**File**: `lib/Screens/BottomNavPages/Menus/pages/create_new_menu_page.dart`
+**File**: `lib/features/menu_management/presentation/screens/create_menu_screen.dart`
 
 **Changes**:
 
@@ -78,7 +78,7 @@ await FirebaseFirestore.instance.runTransaction((transaction) async {
 
 ### ✅ Fix 3: Improved Voting Logic
 
-**File**: `lib/Screens/BottomNavPages/Votes/vote_option.dart`
+**File**: `lib/features/voting_system/data/models/vote_option.dart`
 
 **Changes**:
 

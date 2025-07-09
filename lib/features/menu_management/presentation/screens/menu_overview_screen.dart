@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
-import '../widgets/menu_poll_card_widget.dart';
-import 'polls_by_date_screen.dart';
+import 'package:teton_meal_app/features/menu_management/presentation/widgets/menu_poll_card_widget.dart';
+import 'package:teton_meal_app/features/menu_management/presentation/screens/polls_by_date_screen.dart';
 
 class MenusPage extends StatefulWidget {
   const MenusPage({super.key});

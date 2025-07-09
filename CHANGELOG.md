@@ -10,14 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Splash Screen**
-  - `lib/Screens/splash_screen.dart`
+  - `lib/shared/presentation/widgets/common/app_splash_screen.dart`
   - Initial splash screen displayed on app launch
 
 - **Authentication UI Enhancements**
-  - Updated login and registration flows (`login.dart`, `register.dart`, `user_register.dart`)
+  - Updated login and registration flows (`lib/features/authentication/presentation/screens/login_screen.dart`, `lib/features/authentication/presentation/screens/user_registration_screen.dart`)
 
 - **Menu & Voting UI Updates**
-  - Improved create new menu page (`create_new_menu_page.dart`)
+  - Improved create new menu page (`lib/features/menu_management/presentation/screens/create_menu_screen.dart`)
   - Enhanced voting page (`votes_page.dart`)
 
 ## [1.2.0] - 2025-01-07

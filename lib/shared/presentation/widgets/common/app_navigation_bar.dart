@@ -5,7 +5,7 @@ import 'package:teton_meal_app/features/voting_system/presentation/screens/votin
 import 'package:teton_meal_app/features/menu_management/presentation/screens/menu_overview_screen.dart';
 import 'package:teton_meal_app/features/user_management/presentation/screens/user_settings_screen.dart';
 import 'package:teton_meal_app/features/user_management/presentation/screens/user_requests_screen.dart';
-import 'package:teton_meal_app/data/models/user_model.dart';
+import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/custom_exception_dialog.dart';
 
 class Navbar extends StatefulWidget {

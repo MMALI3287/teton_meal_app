@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import '../models/reminder_model.dart';
-import '../models/user_model.dart';
-import 'notification_service.dart';
+import 'package:teton_meal_app/data/models/reminder_model.dart';
+import 'package:teton_meal_app/data/services/notification_service.dart';
+import 'package:teton_meal_app/data/services/auth_service.dart';
 
 class ReminderService {
   static final ReminderService _instance = ReminderService._internal();
