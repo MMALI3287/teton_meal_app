@@ -2,18 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:teton_meal_app/Screens/navbar.dart';
-import 'package:teton_meal_app/Screens/Authentications/login.dart';
-import 'package:teton_meal_app/Screens/splash_screen.dart';
-import 'package:teton_meal_app/services/firebase_options.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/app_navigation_bar.dart';
+import 'package:teton_meal_app/features/authentication/presentation/screens/login_screen.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/app_splash_screen.dart';
+import 'package:teton_meal_app/core/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:teton_meal_app/services/auth_service.dart';
-import 'package:teton_meal_app/widgets/custom_exception_dialog.dart';
-import 'package:teton_meal_app/Styles/colors.dart';
-import 'package:teton_meal_app/services/menu_item_service.dart';
-import 'package:teton_meal_app/services/notification_service.dart';
-import 'package:teton_meal_app/services/reminder_service.dart';
+import 'package:teton_meal_app/data/models/user_model.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/custom_exception_dialog.dart';
+import 'package:teton_meal_app/app/app_theme.dart';
+import 'package:teton_meal_app/data/services/menu_item_service.dart';
+import 'package:teton_meal_app/data/services/notification_service.dart';
+import 'package:teton_meal_app/data/services/reminder_service.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
