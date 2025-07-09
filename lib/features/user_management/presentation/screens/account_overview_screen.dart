@@ -59,9 +59,12 @@ class _AccountPageState extends State<AccountPage> {
                 child: SingleChildScrollView(
                   child: UserProfileCard(
                     user: user,
-                    onEditName: () => _showEditDialog('Name', user?.displayName ?? ''),
-                    onEditEmail: () => _showEditDialog('Email', user?.email ?? ''),
-                    onEditAccountType: () => _showEditDialog('Account Type', user?.role ?? ''),
+                    onEditName: () =>
+                        _showEditDialog('Name', user?.displayName ?? ''),
+                    onEditEmail: () =>
+                        _showEditDialog('Email', user?.email ?? ''),
+                    onEditAccountType: () =>
+                        _showEditDialog('Account Type', user?.role ?? ''),
                   ),
                 ),
               ),

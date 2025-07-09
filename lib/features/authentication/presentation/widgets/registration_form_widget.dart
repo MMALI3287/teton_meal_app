@@ -12,7 +12,7 @@ class RegistrationFormWidget extends StatefulWidget {
 
 class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   bool showProgress = false;
-  
+
   final _formkey = GlobalKey<FormState>();
   final _authService = AuthService();
 
@@ -187,8 +187,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                       });
                     },
                     activeColor: const Color(0xFFEF4444),
-                    materialTapTargetSize:
-                        MaterialTapTargetSize.shrinkWrap,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -212,8 +211,8 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 onPressed: showProgress
                     ? null
                     : () {
-                        signUp(emailController.text,
-                            passwordController.text, role);
+                        signUp(emailController.text, passwordController.text,
+                            role);
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFEF4444),

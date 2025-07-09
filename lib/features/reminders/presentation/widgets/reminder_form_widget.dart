@@ -6,7 +6,8 @@ import 'package:teton_meal_app/data/models/reminder_model.dart';
 
 class ReminderFormWidget extends StatefulWidget {
   final ReminderModel? initialReminder;
-  final Function(String name, String? details, DateTime dateTime, bool isRepeating, String? repeatType)? onSave;
+  final Function(String name, String? details, DateTime dateTime,
+      bool isRepeating, String? repeatType)? onSave;
   final bool isLoading;
 
   const ReminderFormWidget({
@@ -498,7 +499,9 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
                 ),
               )
             : Text(
-                widget.initialReminder != null ? 'Update Reminder' : 'Set Reminder',
+                widget.initialReminder != null
+                    ? 'Update Reminder'
+                    : 'Set Reminder',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,

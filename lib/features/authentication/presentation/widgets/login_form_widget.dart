@@ -60,10 +60,9 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               suffixIcon: IconButton(
                 icon: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
-                  transitionBuilder: (Widget child,
-                      Animation<double> animation) {
-                    return ScaleTransition(
-                        scale: animation, child: child);
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return ScaleTransition(scale: animation, child: child);
                   },
                   child: Icon(
                     _isPasswordVisible
@@ -106,11 +105,9 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                             _rememberMe = value ?? false;
                           });
                         },
-                        activeColor:
-                            AppColors.fIconAndLabelText,
+                        activeColor: AppColors.fIconAndLabelText,
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(3.r),
+                          borderRadius: BorderRadius.circular(3.r),
                         ),
                       ),
                     ),
@@ -165,8 +162,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   borderRadius: BorderRadius.circular(20.r),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryColor
-                          .withOpacity(0.2),
+                      color: AppColors.primaryColor.withOpacity(0.2),
                       blurRadius: 10.r,
                       offset: Offset(0, 4.h),
                       spreadRadius: 0,
@@ -178,11 +174,9 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   style: ElevatedButton.styleFrom(
                     foregroundColor: AppColors.white,
                     backgroundColor: AppColors.primaryColor,
-                    disabledBackgroundColor:
-                        AppColors.disabledButton,
+                    disabledBackgroundColor: AppColors.disabledButton,
                     elevation: 0,
-                    padding:
-                        EdgeInsets.symmetric(vertical: 12.h),
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12.r),
                     ),
@@ -193,8 +187,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                           width: 20.w,
                           child: CircularProgressIndicator(
                             valueColor:
-                                AlwaysStoppedAnimation<Color>(
-                                    AppColors.white),
+                                AlwaysStoppedAnimation<Color>(AppColors.white),
                             strokeWidth: 2.5.w,
                           ),
                         )

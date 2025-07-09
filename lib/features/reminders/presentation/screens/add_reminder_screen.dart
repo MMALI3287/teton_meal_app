@@ -41,7 +41,8 @@ class _AddReminderPageState extends State<AddReminderPage> {
 
   bool get _isEditMode => widget.reminder != null;
 
-  Future<void> _handleSave(String name, String? details, DateTime dateTime, bool isRepeating, String? repeatType) async {
+  Future<void> _handleSave(String name, String? details, DateTime dateTime,
+      bool isRepeating, String? repeatType) async {
     setState(() {
       _isLoading = true;
     });
