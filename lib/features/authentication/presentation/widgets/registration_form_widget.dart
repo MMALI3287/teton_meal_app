@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
+import 'package:teton_meal_app/app/app_fonts.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/custom_exception_dialog.dart';
 import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:teton_meal_app/features/authentication/presentation/screens/login_screen.dart';
 
 class RegistrationFormWidget extends StatefulWidget {
-  const RegistrationFormWidget({super.key});
+  final String? profileImageUrl;
+
+  const RegistrationFormWidget({super.key, this.profileImageUrl});
 
   @override
   State<RegistrationFormWidget> createState() => _RegistrationFormWidgetState();
@@ -13,9 +17,24 @@ class RegistrationFormWidget extends StatefulWidget {
 
 class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   bool showProgress = false;
+  bool _isFormSubmitted =
+      false; // Flag to track if form submission was attempted
 
   final _formkey = GlobalKey<FormState>();
   final _authService = AuthService();
+
+  // Method to manually validate all fields and force error display
+  void _validateAndShowErrors() {
+    setState(() {
+      _isFormSubmitted = true;
+    });
+
+    // This will trigger validation on all fields
+    _formkey.currentState!.validate();
+
+    // Force a rebuild to show errors
+    setState(() {});
+  }
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -24,10 +43,9 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   bool _isObscure = true;
   bool _isObscure2 = true;
   bool _agreedToTerms = false;
-  var role = "Diner";
-  var _currentItemSelected = "Diner";
+  String? role;
   var rool = ["Diner", "Planner", "Admin"];
-  var department = "Software";
+  String? department;
   var departmentOptions = ["Software", "Hardware", "Operations"];
 
   @override
@@ -43,9 +61,11 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   Widget build(BuildContext context) {
     return Form(
       key: _formkey,
+      autovalidateMode:
+          AutovalidateMode.disabled, // Only validate on submission
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Name field
             _buildTextField(
@@ -59,7 +79,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 16.h),
 
             // Email field
             _buildTextField(
@@ -77,23 +97,24 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 16.h),
 
             // Department field
             _buildTextField(
-              controller: TextEditingController(text: department),
+              controller: TextEditingController(
+                  text: department ?? 'Select Department'),
               hint: 'Department :',
               icon: Icons.business_outlined,
               readOnly: true,
               onTap: () => _showDepartmentPicker(context),
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (department == null || department!.isEmpty) {
                   return 'Please select your department';
                 }
                 return null;
               },
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 16.h),
 
             // Password field
             _buildTextField(
@@ -106,8 +127,8 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                   _isObscure
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: const Color(0xFF9CA3AF),
-                  size: 20,
+                  color: AppColors.fIconAndLabelText,
+                  size: 20.sp,
                 ),
                 onPressed: () {
                   setState(() {
@@ -125,7 +146,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 16.h),
 
             // Confirm password field
             _buildTextField(
@@ -138,8 +159,8 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                   _isObscure2
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: const Color(0xFF9CA3AF),
-                  size: 20,
+                  color: AppColors.fIconAndLabelText,
+                  size: 20.sp,
                 ),
                 onPressed: () {
                   setState(() {
@@ -157,148 +178,214 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 16.h),
 
-            // Account Type dropdown
-            _buildDropdownField(
-              value: _currentItemSelected,
+            // Account Type field
+            _buildTextField(
+              controller: TextEditingController(text: role ?? 'Select Role'),
               hint: 'Account Type :',
               icon: Icons.person_outline,
-              items: rool,
-              onChanged: (newValue) {
-                setState(() {
-                  _currentItemSelected = newValue!;
-                  role = newValue;
-                });
+              readOnly: true,
+              onTap: () => _showRolePicker(context),
+              validator: (value) {
+                if (role == null || role!.isEmpty) {
+                  return 'Please select your role';
+                }
+                return null;
               },
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 16.h),
 
             // Terms checkbox
-            Row(
-              children: [
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: Checkbox(
-                    value: _agreedToTerms,
-                    onChanged: (value) {
-                      setState(() {
-                        _agreedToTerms = value!;
-                      });
-                    },
-                    activeColor: const Color(0xFFEF4444),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text(
-                    'By checking the box you agree to our Terms and Conditions.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF6B7280),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 18.w,
+                    height: 18.h,
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.only(top: 2.h),
+                    child: Transform.scale(
+                      scale: 0.8,
+                      child: Checkbox(
+                        value: _agreedToTerms,
+                        onChanged: (value) {
+                          setState(() {
+                            _agreedToTerms = value!;
+                          });
+                        },
+                        activeColor: AppColors.fRedBright,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3.r),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text.rich(
+                        TextSpan(
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w400,
+                            fontFamily: 'Mulish',
+                            color: AppColors.fTextH1,
+                            height: 1.4,
+                          ),
+                          children: [
+                            const TextSpan(
+                                text: 'By checking the box you agree to our '),
+                            TextSpan(
+                              text: 'Terms',
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fRed2,
+                              ),
+                            ),
+                            const TextSpan(text: ' and '),
+                            TextSpan(
+                              text: 'Conditions',
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fRed2,
+                              ),
+                            ),
+                            const TextSpan(text: '.'),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: 24.h),
 
             // Register button
-            SizedBox(
-              width: double.infinity,
+            Container(
+              width: 300.w,
+              height: 50.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.fTextH1.withValues(alpha: 0.25),
+                    blurRadius: 4.r,
+                    offset: Offset(0, 4.h),
+                  ),
+                ],
+              ),
               child: ElevatedButton(
                 onPressed: showProgress
                     ? null
                     : () {
-                        signUp(emailController.text, passwordController.text,
-                            role);
+                        // Manually validate all fields and show errors
+                        _validateAndShowErrors();
+
+                        // Only proceed if all validations pass
+                        if (_formkey.currentState!.validate()) {
+                          signUp(emailController.text, passwordController.text,
+                              role);
+                        }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFEF4444),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: AppColors.fRedBright,
+                  foregroundColor: AppColors.fWhite,
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16.r),
                   ),
                   elevation: 0,
                 ),
                 child: showProgress
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
+                    ? SizedBox(
+                        height: 20.h,
+                        width: 20.w,
                         child: CircularProgressIndicator(
                           color: AppColors.fWhite,
-                          strokeWidth: 2,
+                          strokeWidth: 2.w,
                         ),
                       )
-                    : const Text(
+                    : Text(
                         'Register',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.fWhite,
-                        ),
+                        style: AppFonts.buttonMedium,
                       ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
     );
   }
 
-  void signUp(String email, String password, String role) async {
-    if (_formkey.currentState!.validate()) {
-      if (!_agreedToTerms) {
-        CustomExceptionDialog.showWarning(
-          context: context,
-          title: "Agreement Required",
-          message: "Please agree to terms and conditions",
-        );
-        return;
-      }
+  void signUp(String email, String password, String? roleParam) async {
+    if (!_agreedToTerms) {
+      CustomExceptionDialog.showWarning(
+        context: context,
+        title: "Agreement Required",
+        message: "Please agree to terms and conditions",
+      );
+      return;
+    }
+
+    // Early return if role is null (shouldn't happen due to validation)
+    if (roleParam == null || department == null) {
+      CustomExceptionDialog.showWarning(
+        context: context,
+        title: "Selection Required",
+        message: "Please select both department and role",
+      );
+      return;
+    }
+
+    setState(() {
+      showProgress = true;
+    });
+    try {
+      await _authService.register(
+        email,
+        password,
+        roleParam,
+        name: nameController.text.trim(),
+        department: department!,
+        profileImageUrl: widget.profileImageUrl,
+      );
+
+      CustomExceptionDialog.showSuccess(
+        context: context,
+        title: "Success",
+        message:
+            "Account created successfully! Please wait for admin approval before logging in.",
+      );
 
       setState(() {
-        showProgress = true;
+        showProgress = false;
       });
-      try {
-        await _authService.register(
-          email,
-          password,
-          role,
-          name: nameController.text.trim(),
-          department: department,
-        );
 
-        CustomExceptionDialog.showSuccess(
-          context: context,
-          title: "Success",
-          message:
-              "Account created successfully! Please wait for admin approval before logging in.",
-        );
+      // Navigate back to login page after successful registration
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      CustomExceptionDialog.showError(
+        context: context,
+        title: "Registration Failed",
+        message: e.toString().replaceAll('Exception: ', ''),
+      );
 
-        setState(() {
-          showProgress = false;
-        });
-
-        // Navigate back to login page after successful registration
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-          (Route<dynamic> route) => false,
-        );
-      } catch (e) {
-        CustomExceptionDialog.showError(
-          context: context,
-          title: "Registration Failed",
-          message: e.toString().replaceAll('Exception: ', ''),
-        );
-
-        setState(() {
-          showProgress = false;
-        });
-      }
+      setState(() {
+        showProgress = false;
+      });
     }
   }
 
@@ -312,120 +399,168 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
     VoidCallback? onTap,
     String? Function(String?)? validator,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.fWhite,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
+    // Create a key to identify the form field
+    final fieldKey = GlobalKey<FormFieldState>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 50.h,
+          width: 345.w,
+          decoration: BoxDecoration(
+            color: AppColors.fWhite,
+            borderRadius: BorderRadius.circular(10.r),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.fTextH1.withValues(alpha: 0.05),
+                blurRadius: 4.r,
+                offset: Offset(0, 4.h),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        readOnly: readOnly,
-        onTap: onTap,
-        validator: validator,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 14,
+          child: TextFormField(
+            key: fieldKey,
+            controller: controller,
+            obscureText: obscureText,
+            readOnly: readOnly,
+            onTap: onTap,
+            validator: validator,
+            autovalidateMode: AutovalidateMode
+                .disabled, // Only validate when form is submitted
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontFamily: 'Mulish',
+              color: AppColors.fTextH1,
+            ),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(
+                color: AppColors.fIconAndLabelText,
+                fontSize: 14.sp,
+                fontFamily: 'Mulish',
+                fontWeight: FontWeight.w400,
+              ),
+              // Move icon to the right side
+              suffixIcon: suffixIcon ??
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    child: Icon(
+                      icon,
+                      color: AppColors.fIconAndLabelText,
+                      size: 20.sp,
+                    ),
+                  ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: BorderSide.none,
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: BorderSide.none,
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
+              filled: true,
+              fillColor: AppColors.fWhite,
+              // Hide default error text
+              errorStyle: const TextStyle(
+                height: 0,
+                fontSize: 0,
+                color: Colors.transparent,
+              ),
+            ),
           ),
-          prefixIcon: Icon(
-            icon,
-            color: const Color(0xFF9CA3AF),
-            size: 20,
-          ),
-          suffixIcon: suffixIcon,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-          filled: true,
-          fillColor: AppColors.fWhite,
         ),
-      ),
+        // Custom error message outside the text field
+        Builder(
+          builder: (context) {
+            // Only show error if form submission was attempted
+            if (_isFormSubmitted && validator != null) {
+              final errorText = validator(controller.text);
+              if (errorText != null) {
+                return Padding(
+                  padding: EdgeInsets.only(left: 16.w, top: 4.h),
+                  child: Text(
+                    errorText,
+                    style: TextStyle(
+                      color: AppColors.fRedBright,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Mulish',
+                    ),
+                  ),
+                );
+              }
+            }
+            return SizedBox(height: 4.h);
+          },
+        ),
+      ],
     );
   }
 
-  Widget _buildDropdownField({
-    required String value,
-    required String hint,
-    required IconData icon,
-    required List<String> items,
-    required void Function(String?) onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.fWhite,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
-          ),
-        ],
+  void _showRolePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.fWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 14,
-          ),
-          prefixIcon: Icon(
-            icon,
-            color: const Color(0xFF9CA3AF),
-            size: 20,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-          filled: true,
-          fillColor: AppColors.fWhite,
-        ),
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(
-              item,
-              style: const TextStyle(
-                color: Color(0xFF374151),
-                fontSize: 14,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Text(
+                  'Select Role',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Mulish',
+                    color: AppColors.fTextH1,
+                  ),
+                ),
               ),
-            ),
-          );
-        }).toList(),
-        onChanged: onChanged,
-      ),
+              SizedBox(height: 20.h),
+              ...rool.map((roleOption) => ListTile(
+                    title: Text(
+                      roleOption,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontFamily: 'Mulish',
+                        color: AppColors.fTextH1,
+                      ),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        role = roleOption;
+                      });
+                      Navigator.pop(context);
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  )),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -433,32 +568,46 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.fWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (BuildContext context) {
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20.r),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Select Department',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF374151),
+              Center(
+                child: Text(
+                  'Select Department',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Mulish',
+                    color: AppColors.fTextH1,
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               ...departmentOptions.map((dept) => ListTile(
-                    title: Text(dept),
+                    title: Text(
+                      dept,
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontFamily: 'Mulish',
+                        color: AppColors.fTextH1,
+                      ),
+                    ),
                     onTap: () {
                       setState(() {
                         department = dept;
                       });
                       Navigator.pop(context);
                     },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
                   )),
             ],
           ),

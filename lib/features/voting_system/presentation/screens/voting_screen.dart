@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -101,10 +102,12 @@ class _VotesPageState extends State<VotesPage>
                           .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      print('Error in StreamBuilder: ${snapshot.error}');
-                      print(
-                          'Query: ${_isAdminOrPlanner ? "Admin/Planner - Latest poll" : "Diner - Active polls only"}');
-                      return _buildErrorWidget(snapshot.error);
+                      if (kDebugMode) {
+                        print('Error in StreamBuilder: ${snapshot.error}');
+                        print(
+                            'Query: ${_isAdminOrPlanner ? "Admin/Planner - Latest poll" : "Diner - Active polls only"}');
+                        return _buildErrorWidget(snapshot.error);
+                      }
                     }
 
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -112,8 +115,10 @@ class _VotesPageState extends State<VotesPage>
                     }
 
                     final polls = snapshot.data?.docs ?? [];
-                    print(
-                        'Loaded ${polls.length} polls for ${_isAdminOrPlanner ? "Admin/Planner" : "Diner"}');
+                    if (kDebugMode) {
+                      print(
+                          'Loaded ${polls.length} polls for ${_isAdminOrPlanner ? "Admin/Planner" : "Diner"}');
+                    }
 
                     if (polls.isEmpty) {
                       return _buildEmptyWidget();
@@ -123,8 +128,10 @@ class _VotesPageState extends State<VotesPage>
                     if (polls.isNotEmpty) {
                       final pollData =
                           polls.first.data() as Map<String, dynamic>;
-                      print(
-                          'Active poll - Date: ${pollData['date']}, Options: ${pollData['options']}, Active: ${pollData['isActive']}');
+                      if (kDebugMode) {
+                        print(
+                            'Active poll - Date: ${pollData['date']}, Options: ${pollData['options']}, Active: ${pollData['isActive']}');
+                      }
                     }
 
                     return _buildPollContent(polls.first);
@@ -175,7 +182,7 @@ class _VotesPageState extends State<VotesPage>
                       borderRadius: BorderRadius.circular(8.r),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: AppColors.fTextH1.withValues(alpha: 0.1),
                           blurRadius: 2.92.r,
                           offset: Offset(0, 2.92.h),
                         ),
@@ -417,7 +424,7 @@ class _VotesPageState extends State<VotesPage>
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.fTextH1.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),
@@ -585,7 +592,7 @@ class _VotesPageState extends State<VotesPage>
     };
 
     return Material(
-      color: Colors.transparent,
+      color: AppColors.fTransparent,
       child: InkWell(
         onTap: isActive && currentUser != null
             ? () => _voteForOption(option, pollId)
@@ -598,8 +605,8 @@ class _VotesPageState extends State<VotesPage>
             color: hasUserVoted
                 ? const Color(0xFFF0F8FF)
                 : (isActive
-                    ? Colors.transparent
-                    : Colors.grey.withValues(alpha: 0.1)),
+                    ? AppColors.fTransparent
+                    : AppColors.fTextH2.withValues(alpha: 0.1)),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Column(
@@ -609,7 +616,7 @@ class _VotesPageState extends State<VotesPage>
                   // Vote icon with smooth animation
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
-                    child: Container(
+                    child: SizedBox(
                       key: ValueKey(hasUserVoted),
                       width: 16.w,
                       height: 16.h,
@@ -638,7 +645,7 @@ class _VotesPageState extends State<VotesPage>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.25),
+                          color: AppColors.fTextH1.withValues(alpha: 0.25),
                           blurRadius: 4.r,
                           offset: Offset(0, 4.h),
                         ),
@@ -707,7 +714,7 @@ class _VotesPageState extends State<VotesPage>
                     'Poll is closed',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: Colors.red,
+                      color: AppColors.fRedBright,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -719,7 +726,7 @@ class _VotesPageState extends State<VotesPage>
                     'Please log in to vote',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: Colors.orange,
+                      color: AppColors.fYellow,
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -792,7 +799,7 @@ class _VotesPageState extends State<VotesPage>
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.fTextH1.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 2.h),
           ),
@@ -800,7 +807,7 @@ class _VotesPageState extends State<VotesPage>
       ),
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: 18.w,
             height: 12.h,
             child: Icon(
@@ -835,7 +842,7 @@ class _VotesPageState extends State<VotesPage>
   }
 
   Widget _buildIllustration() {
-    return Container(
+    return SizedBox(
       height: 158.h,
       width: 341.w,
       child: Center(
@@ -887,7 +894,7 @@ class _VotesPageState extends State<VotesPage>
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.fTextH1.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),
@@ -909,7 +916,7 @@ class _VotesPageState extends State<VotesPage>
                   borderRadius: BorderRadius.circular(8.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
+                      color: AppColors.fTextH1.withValues(alpha: 0.25),
                       blurRadius: 4.r,
                       offset: Offset(0, 4.h),
                     ),
@@ -1115,7 +1122,11 @@ class _VotesPageState extends State<VotesPage>
 
         return '$dayWithSuffix $monthName, $year';
       }
-    } catch (e) {}
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error formatting date: $e');
+      }
+    }
     return dateString;
   }
 

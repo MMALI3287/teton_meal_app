@@ -26,7 +26,7 @@ class TermsConditionsPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12.r),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: AppColors.fTextH1.withValues(alpha: 0.05),
                           blurRadius: 4.r,
                           offset: Offset(0, 2.h),
                         ),

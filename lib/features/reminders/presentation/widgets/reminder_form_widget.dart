@@ -116,7 +116,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please enter a reminder name'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.fRedBright,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -330,7 +330,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
+                                color: AppColors.fTextH1.withValues(alpha: 0.1),
                                 blurRadius: 2.r,
                                 offset: Offset(0, 1.h),
                               ),

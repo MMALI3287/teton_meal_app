@@ -119,7 +119,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
   }
 
   Widget _buildHeader() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Row(
         children: [
@@ -197,7 +197,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
         return Container(
           margin: EdgeInsets.only(bottom: 12.h),
           child: Material(
-            color: Colors.transparent,
+            color: AppColors.fTransparent,
             child: InkWell(
               onTap: () => _toggleItemSelection(item),
               borderRadius: BorderRadius.circular(12.r),
@@ -227,7 +227,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                         ),
                         color: isSelected
                             ? AppColors.fRedBright
-                            : Colors.transparent,
+                            : AppColors.fTransparent,
                       ),
                       child: isSelected
                           ? Icon(
@@ -319,7 +319,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
     return Row(
       children: [
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 48.h,
             child: OutlinedButton(
               onPressed: _addNewItem,
@@ -357,7 +357,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
         ),
         SizedBox(width: 16.w),
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 48.h,
             child: ElevatedButton(
               onPressed: _selectedItems.isNotEmpty ? _saveSelection : null,

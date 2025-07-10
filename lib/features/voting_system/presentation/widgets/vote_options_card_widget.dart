@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -161,8 +162,10 @@ class _VoteOptionState extends State<VoteOption>
       final userId = user.uid;
       final hasVotedThisOption = isUserSelectedOption(userId);
 
-      print(
-          'Voting attempt - User: $userId, Option: ${widget.option}, HasVoted: $hasVotedThisOption');
+      if (kDebugMode) {
+        print(
+            'Voting attempt - User: $userId, Option: ${widget.option}, HasVoted: $hasVotedThisOption');
+      }
 
       String? previousOption;
       for (var entry in widget.allVotes.entries) {
@@ -174,7 +177,9 @@ class _VoteOptionState extends State<VoteOption>
       }
 
       if (previousOption != null) {
-        print('User had previously voted for: $previousOption');
+        if (kDebugMode) {
+          print('User had previously voted for: $previousOption');
+        }
       }
 
       final pollRef =
@@ -183,14 +188,18 @@ class _VoteOptionState extends State<VoteOption>
       // Get current poll data to update votes properly
       final pollDoc = await pollRef.get();
       if (!pollDoc.exists) {
-        print('Poll document not found: ${widget.pollId}');
+        if (kDebugMode) {
+          print('Poll document not found: ${widget.pollId}');
+        }
         throw Exception('Poll not found');
       }
 
       final pollData = pollDoc.data() as Map<String, dynamic>;
       final currentVotes = Map<String, dynamic>.from(pollData['votes'] ?? {});
 
-      print('Current votes before update: $currentVotes');
+      if (kDebugMode) {
+        print('Current votes before update: $currentVotes');
+      }
 
       if (hasVotedThisOption) {
         // Remove user from this option
@@ -234,7 +243,9 @@ class _VoteOptionState extends State<VoteOption>
       // Update the entire votes field
       await pollRef.update({'votes': currentVotes});
 
-      print('Votes updated successfully: $currentVotes');
+      if (kDebugMode) {
+        print('Votes updated successfully: $currentVotes');
+      }
 
       if (mounted) {
         final theme = Theme.of(context);
@@ -307,8 +318,10 @@ class _VoteOptionState extends State<VoteOption>
     final bool canVote = widget.isActive;
 
     // Debug info
-    print(
-        'VoteOption build - Option: ${widget.option}, IsActive: ${widget.isActive}, CanVote: $canVote, EndTime: ${widget.endTimeMillis}, CurrentTime: ${DateTime.now().millisecondsSinceEpoch}');
+    if (kDebugMode) {
+      print(
+          'VoteOption build - Option: ${widget.option}, IsActive: ${widget.isActive}, CanVote: $canVote, EndTime: ${widget.endTimeMillis}, CurrentTime: ${DateTime.now().millisecondsSinceEpoch}');
+    }
 
     final voteCount = (widget.allVotes[widget.option] as List?)?.length ?? 0;
 
@@ -341,8 +354,10 @@ class _VoteOptionState extends State<VoteOption>
           onTap: (_isProcessing || !canVote)
               ? null
               : () {
-                  print(
-                      'Vote option tapped! Option: ${widget.option}, CanVote: $canVote, IsProcessing: $_isProcessing');
+                  if (kDebugMode) {
+                    print(
+                        'Vote option tapped! Option: ${widget.option}, CanVote: $canVote, IsProcessing: $_isProcessing');
+                  }
                   _handleVote();
                 },
           splashColor:
@@ -371,7 +386,7 @@ class _VoteOptionState extends State<VoteOption>
                             ),
                             color: isSelected
                                 ? AppColors.fRedBright
-                                : Colors.transparent,
+                                : AppColors.fTransparent,
                           ),
                           child: isSelected
                               ? Icon(
@@ -461,7 +476,7 @@ class _VoteOptionState extends State<VoteOption>
                         valueColor: AlwaysStoppedAnimation<Color>(
                           percentage > 0
                               ? AppColors.fRedBright
-                              : Colors.transparent,
+                              : AppColors.fTransparent,
                         ),
                       ),
                     ),

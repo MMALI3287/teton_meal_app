@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -57,6 +58,22 @@ class MenuPollCard extends StatelessWidget {
     );
   }
 
+  String _getDayWithSuffix(int day) {
+    if (day >= 11 && day <= 13) {
+      return '${day}th';
+    }
+    switch (day % 10) {
+      case 1:
+        return '${day}st';
+      case 2:
+        return '${day}nd';
+      case 3:
+        return '${day}rd';
+      default:
+        return '${day}th';
+    }
+  }
+
   String _formatDate(String dateString) {
     try {
       final parts = dateString.split('/');
@@ -85,24 +102,12 @@ class MenuPollCard extends StatelessWidget {
 
         return '$dayWithSuffix $monthName, $year';
       }
-    } catch (e) {}
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error formatting date: $e');
+      }
+    }
     return dateString;
-  }
-
-  String _getDayWithSuffix(int day) {
-    if (day >= 11 && day <= 13) {
-      return '${day}th';
-    }
-    switch (day % 10) {
-      case 1:
-        return '${day}st';
-      case 2:
-        return '${day}nd';
-      case 3:
-        return '${day}rd';
-      default:
-        return '${day}th';
-    }
   }
 
   @override
@@ -251,7 +256,7 @@ class MenuPollCard extends StatelessWidget {
                       ),
                     ),
                     style: TextButton.styleFrom(
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: AppColors.fTransparent,
                       elevation: 0,
                       padding:
                           EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
@@ -297,7 +302,7 @@ class MenuPollCard extends StatelessWidget {
                             ),
                           ),
                           style: TextButton.styleFrom(
-                            backgroundColor: Colors.transparent,
+                            backgroundColor: AppColors.fTransparent,
                             elevation: 0,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 8.w, vertical: 4.h),
@@ -336,7 +341,7 @@ class MenuPollCard extends StatelessWidget {
                             ),
                           ),
                           style: TextButton.styleFrom(
-                            backgroundColor: Colors.transparent,
+                            backgroundColor: AppColors.fTransparent,
                             elevation: 0,
                             padding: EdgeInsets.symmetric(
                                 horizontal: 8.w, vertical: 4.h),

@@ -51,7 +51,7 @@ class ReminderCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: AppColors.fTextH1.withValues(alpha: 0.05),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),
@@ -164,7 +164,7 @@ class ReminderCardWidget extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: AppColors.fTextH1.withValues(alpha: 0.1),
                           blurRadius: 2.r,
                           offset: Offset(0, 1.h),
                         ),
@@ -182,12 +182,12 @@ class ReminderCardWidget extends StatelessWidget {
                 width: 36.w,
                 height: 36.h,
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
+                  color: AppColors.fRedBright.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(
                   Icons.delete_outline,
-                  color: Colors.red,
+                  color: AppColors.fRedBright,
                   size: 18.sp,
                 ),
               ),

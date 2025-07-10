@@ -15,7 +15,7 @@ class CustomExceptionDialog extends StatelessWidget {
     required this.title,
     required this.message,
     this.icon = Icons.error_outline,
-    this.iconColor = Colors.red,
+    this.iconColor = AppColors.fRedBright,
     this.buttonText = 'OK',
     this.onButtonPressed,
   });
@@ -23,7 +23,7 @@ class CustomExceptionDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.fTransparent,
       child: Container(
         width: 320.w,
         padding: EdgeInsets.all(24.w),
@@ -32,7 +32,7 @@ class CustomExceptionDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
+              color: AppColors.fTextH1.withValues(alpha: 0.1),
               blurRadius: 20.r,
               offset: Offset(0, 10.h),
             ),
@@ -138,7 +138,7 @@ class CustomExceptionDialog extends StatelessWidget {
           title: title,
           message: message,
           icon: Icons.error_outline,
-          iconColor: Colors.red,
+          iconColor: AppColors.fRedBright,
           buttonText: buttonText,
           onButtonPressed: onButtonPressed,
         );
@@ -162,7 +162,7 @@ class CustomExceptionDialog extends StatelessWidget {
           title: title,
           message: message,
           icon: Icons.warning_amber_rounded,
-          iconColor: Colors.orange,
+          iconColor: AppColors.fYellow,
           buttonText: buttonText,
           onButtonPressed: onButtonPressed,
         );
@@ -186,7 +186,7 @@ class CustomExceptionDialog extends StatelessWidget {
           title: title,
           message: message,
           icon: Icons.check_circle_outline,
-          iconColor: Colors.green,
+          iconColor: AppColors.saveGreen,
           buttonText: buttonText,
           onButtonPressed: onButtonPressed,
         );
@@ -210,7 +210,7 @@ class CustomExceptionDialog extends StatelessWidget {
           title: title,
           message: message,
           icon: Icons.info_outline,
-          iconColor: Colors.blue,
+          iconColor: AppColors.fCyan,
           buttonText: buttonText,
           onButtonPressed: onButtonPressed,
         );

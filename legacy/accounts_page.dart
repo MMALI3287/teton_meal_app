@@ -245,7 +245,8 @@ class _AccountsPageState extends State<AccountsPage>
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
+                                  color:
+                                      AppColors.fTextH1.withValues(alpha: 0.05),
                                   blurRadius: 15,
                                   offset: const Offset(0, 5),
                                 ),
@@ -304,7 +305,7 @@ class _AccountsPageState extends State<AccountsPage>
                                                   width: 2),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.black
+                                                  color: AppColors.fTextH1
                                                       .withValues(alpha: 0.1),
                                                   blurRadius: 6,
                                                 ),
@@ -613,7 +614,8 @@ class _AccountsPageState extends State<AccountsPage>
                                       color: _notificationsEnabled
                                           ? theme.colorScheme.primary
                                               .withValues(alpha: 0.1)
-                                          : Colors.grey.withValues(alpha: 0.1),
+                                          : AppColors.fTextH2
+                                              .withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -622,7 +624,7 @@ class _AccountsPageState extends State<AccountsPage>
                                           : Icons.notifications_off_outlined,
                                       color: _notificationsEnabled
                                           ? theme.colorScheme.primary
-                                          : Colors.grey,
+                                          : AppColors.fTextH2,
                                     ),
                                   ),
                                   value: _notificationsEnabled,
@@ -712,7 +714,7 @@ class _AccountsPageState extends State<AccountsPage>
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon,
-            color: isEnabled ? theme.colorScheme.primary : Colors.grey),
+            color: isEnabled ? theme.colorScheme.primary : AppColors.fTextH2),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(

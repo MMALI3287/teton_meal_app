@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,9 +18,9 @@ class _PollVotesPageState extends State<PollVotesPage> {
   bool _isLoading = true;
   Map<String, int> _voteCounts = {};
   int _totalVotes = 0;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  Map<String, Map<String, dynamic>> _userCache = {};
+  final Map<String, Map<String, dynamic>> _userCache = {};
 
   @override
   void initState() {
@@ -50,7 +51,9 @@ class _PollVotesPageState extends State<PollVotesPage> {
         return userData;
       }
     } catch (e) {
-      print('Error fetching user data: $e');
+      if (kDebugMode) {
+        print('Error fetching user data: $e');
+      }
     }
     return null;
   }
@@ -102,7 +105,11 @@ class _PollVotesPageState extends State<PollVotesPage> {
 
         return '$dayWithSuffix $monthName, $year';
       }
-    } catch (e) {}
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error formatting date: $e');
+      }
+    }
     return dateString;
   }
 
@@ -355,7 +362,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
               borderRadius: BorderRadius.circular(25.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: AppColors.fTextH1.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -439,7 +446,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.fTextH1.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -493,7 +500,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                         borderRadius: BorderRadius.circular(12.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
+                            color: AppColors.fTextH1.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -666,7 +673,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                 );
               },
             );
-          }).toList(),
+          }),
         ],
       ),
     );

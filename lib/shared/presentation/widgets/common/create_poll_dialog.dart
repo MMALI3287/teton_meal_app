@@ -228,7 +228,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                 const SizedBox(height: 24),
                 Card(
                   elevation: 0,
-                  color: theme.colorScheme.background,
+                  color: theme.colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
@@ -262,8 +262,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                   color: AppColors.fWhite,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                      color:
-                                          Colors.grey.withValues(alpha: 0.2)),
+                                      color: AppColors.fTextH2
+                                          .withValues(alpha: 0.2)),
                                 ),
                                 margin: const EdgeInsets.only(bottom: 12),
                                 child: Row(
@@ -381,7 +381,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                       IconButton(
                                         icon: const Icon(
                                             Icons.remove_circle_outline,
-                                            color: Colors.redAccent),
+                                            color: AppColors.fRed2),
                                         onPressed: () => _removeOption(index),
                                       ),
                                   ],

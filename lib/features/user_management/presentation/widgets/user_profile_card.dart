@@ -214,7 +214,7 @@ class UserProfileCard extends StatelessWidget {
           if (onEdit != null)
             GestureDetector(
               onTap: onEdit,
-              child: Container(
+              child: SizedBox(
                 width: 18.w,
                 height: 18.h,
                 child: Icon(

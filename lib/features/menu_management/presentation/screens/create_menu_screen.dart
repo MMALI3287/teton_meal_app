@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -132,7 +133,9 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
         );
       }
     } catch (e) {
-      print('Error creating menu: $e'); // For debugging
+      if (kDebugMode) {
+        print('Error creating menu: $e');
+      } // For debugging
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -187,7 +190,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
   }
 
   Widget _buildHeader() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Row(
         children: [
@@ -362,7 +365,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
       child: Row(
         children: [
           Expanded(
-            child: Container(
+            child: SizedBox(
               height: 52.h,
               child: OutlinedButton(
                 onPressed: _isLoading ? null : () => Navigator.pop(context),

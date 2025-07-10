@@ -279,7 +279,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                             final date = weekDays[dayIndex];
                             if (date.year == 0) {
                               // Empty cell
-                              return Container(
+                              return SizedBox(
                                 width: 32.w,
                                 height: 32.h,
                               );
@@ -302,7 +302,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                                       : hasOrders
                                           ? AppColors.fRedBright
                                               .withValues(alpha: 0.1)
-                                          : Colors.transparent,
+                                          : AppColors.fTransparent,
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
@@ -324,7 +324,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                               ),
                             );
                           } else {
-                            return Container(
+                            return SizedBox(
                               width: 32.w,
                               height: 32.h,
                             );

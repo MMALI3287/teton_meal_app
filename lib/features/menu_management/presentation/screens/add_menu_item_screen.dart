@@ -95,7 +95,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
   }
 
   Widget _buildHeader() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Row(
         children: [
@@ -236,7 +236,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
     return Row(
       children: [
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 48.h,
             child: OutlinedButton(
               onPressed: _isLoading ? null : () => Navigator.pop(context),
@@ -259,7 +259,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
         ),
         SizedBox(width: 16.w),
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 48.h,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _saveItem,

@@ -83,7 +83,7 @@ class _RegisterState extends State<Register> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: AppColors.fTextH1.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 4),
                     ),
@@ -110,7 +110,7 @@ class _RegisterState extends State<Register> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: AppColors.fTextH1.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 4),
                     ),
@@ -302,14 +302,15 @@ class _RegisterState extends State<Register> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.25),
+                                color:
+                                    AppColors.fTextH1.withValues(alpha: 0.25),
                                 blurRadius: 4,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Material(
-                            color: Colors.transparent,
+                            color: AppColors.fTransparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
                               onTap: () {
@@ -380,7 +381,7 @@ class _RegisterState extends State<Register> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: AppColors.fTextH1.withValues(alpha: 0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 4),
               ),
@@ -473,7 +474,7 @@ class _RegisterState extends State<Register> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: AppColors.fTextH1.withValues(alpha: 0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 4),
               ),

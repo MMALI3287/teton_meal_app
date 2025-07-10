@@ -134,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
                             height: 1.1,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withValues(alpha: 0.2),
+                                color: AppColors.fTextH1.withValues(alpha: 0.2),
                                 offset: Offset(0, 4.h),
                                 blurRadius: 8.r,
                               ),

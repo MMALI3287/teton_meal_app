@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/app_navigation_bar.dart';
@@ -30,9 +31,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+    
+    // Initialize Firebase with all services
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    
+    // Explicitly initialize Firebase Storage
+    final storage = FirebaseStorage.instance;
+    if (kDebugMode) {
+      print('Firebase Storage initialized: ${storage.bucket}');
+    }
 
     final messaging = FirebaseMessaging.instance;
 
@@ -97,7 +106,9 @@ Future<void> main() async {
 
     runApp(const MyApp());
   } catch (e) {
-    print("Failed to initialize app: ${e.toString()}");
+    if (kDebugMode) {
+      print("Failed to initialize app: ${e.toString()}");
+    }
   }
 }
 
@@ -133,7 +144,9 @@ Future<void> setupFirebaseMessaging() async {
       }
     });
   } catch (e) {
-    print("Failed to setup notifications: ${e.toString()}");
+    if (kDebugMode) {
+      print("Failed to setup notifications: ${e.toString()}");
+    }
   }
 }
 

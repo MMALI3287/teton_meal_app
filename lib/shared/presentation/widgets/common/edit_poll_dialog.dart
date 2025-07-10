@@ -248,7 +248,7 @@ class EditPollDialogState extends State<EditPollDialog> {
   }
 
   Widget _buildHeader() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -291,7 +291,7 @@ class EditPollDialogState extends State<EditPollDialog> {
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: AppColors.fTextH1.withValues(alpha: 0.05),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),
@@ -368,7 +368,7 @@ class EditPollDialogState extends State<EditPollDialog> {
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: AppColors.fTextH1.withValues(alpha: 0.05),
                   blurRadius: 4.r,
                   offset: Offset(0, 2.h),
                 ),
@@ -534,7 +534,7 @@ class EditPollDialogState extends State<EditPollDialog> {
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: AppColors.fTextH1.withValues(alpha: 0.05),
                   blurRadius: 4.r,
                   offset: Offset(0, 2.h),
                 ),
@@ -599,7 +599,7 @@ class EditPollDialogState extends State<EditPollDialog> {
         SizedBox(width: 16.w),
         Expanded(
           flex: 2,
-          child: Container(
+          child: SizedBox(
             height: 48.h,
             child: ElevatedButton.icon(
               onPressed:

@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:teton_meal_app/data/models/user_model.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
@@ -84,7 +85,7 @@ class AuthService {
   }
 
   Future<UserModel> register(String email, String password, String role,
-      {String? name, String? department}) async {
+      {String? name, String? department, String? profileImageUrl}) async {
     try {
       final querySnapshot = await _firestore
           .collection('users')
@@ -105,6 +106,7 @@ class AuthService {
         'role': role,
         'displayName': name,
         'department': department,
+        'profileImageUrl': profileImageUrl,
         'isVerified': false, // User registration defaults to false
         'createdAt': FieldValue.serverTimestamp(),
       };
@@ -250,7 +252,9 @@ class AuthService {
         }
       });
     } catch (e) {
-      print("Failed to setup notifications: ${e.toString()}");
+      if (kDebugMode) {
+        print("Failed to setup notifications: ${e.toString()}");
+      }
     }
   }
 

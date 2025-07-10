@@ -5,6 +5,7 @@ class UserModel {
   final String? department;
   final String role;
   final String? fcmToken;
+  final String? profileImageUrl;
   final bool? notificationsEnabled;
 
   UserModel({
@@ -14,6 +15,7 @@ class UserModel {
     this.department,
     required this.role,
     this.fcmToken,
+    this.profileImageUrl,
     this.notificationsEnabled = true,
   });
 
@@ -25,6 +27,7 @@ class UserModel {
       department: map['department'],
       role: map['role'] ?? 'Diner',
       fcmToken: map['fcm_token'],
+      profileImageUrl: map['profileImageUrl'],
       notificationsEnabled: map['notifications_enabled'] ?? true,
     );
   }
@@ -36,6 +39,7 @@ class UserModel {
       'department': department,
       'role': role,
       'fcm_token': fcmToken,
+      'profileImageUrl': profileImageUrl,
       'notifications_enabled': notificationsEnabled,
     };
   }
@@ -47,6 +51,7 @@ class UserModel {
     String? department,
     String? role,
     String? fcmToken,
+    String? profileImageUrl,
     bool? notificationsEnabled,
   }) {
     return UserModel(
@@ -56,6 +61,7 @@ class UserModel {
       department: department ?? this.department,
       role: role ?? this.role,
       fcmToken: fcmToken ?? this.fcmToken,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     );
   }

@@ -101,7 +101,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to save reminder: ${e.toString()}'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.fRedBright,
           behavior: SnackBarBehavior.floating,
         ),
       );

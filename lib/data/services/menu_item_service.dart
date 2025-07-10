@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:teton_meal_app/data/models/menu_item_model.dart';
 
 class MenuItemService {
@@ -51,10 +52,14 @@ class MenuItemService {
           await _firestore.collection(_collection).add(item.toMap());
         }
 
-        print('Default menu items initialized successfully');
+        if (kDebugMode) {
+          print('Default menu items initialized successfully');
+        }
       }
     } catch (e) {
-      print('Error initializing default menu items: $e');
+      if (kDebugMode) {
+        print('Error initializing default menu items: $e');
+      }
     }
   }
 
@@ -70,7 +75,9 @@ class MenuItemService {
           .map((doc) => MenuItem.fromMap(doc.data(), doc.id))
           .toList();
     } catch (e) {
-      print('Error getting menu items: $e');
+      if (kDebugMode) {
+        print('Error getting menu items: $e');
+      }
       return [];
     }
   }
@@ -95,7 +102,9 @@ class MenuItemService {
         createdAt: newItem.createdAt,
       );
     } catch (e) {
-      print('Error adding menu item: $e');
+      if (kDebugMode) {
+        print('Error adding menu item: $e');
+      }
       return null;
     }
   }
@@ -106,7 +115,9 @@ class MenuItemService {
       await _firestore.collection(_collection).doc(itemId).delete();
       return true;
     } catch (e) {
-      print('Error deleting menu item: $e');
+      if (kDebugMode) {
+        print('Error deleting menu item: $e');
+      }
       return false;
     }
   }

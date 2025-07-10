@@ -57,7 +57,7 @@ class UserDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: AppColors.fTextH1.withValues(alpha: 0.05),
                     blurRadius: 4.r,
                     offset: Offset(0, 2.h),
                   ),
@@ -159,7 +159,7 @@ class UserDetailPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.fTextH1.withValues(alpha: 0.05),
             blurRadius: 10.r,
             offset: Offset(0, 4.h),
           ),
@@ -262,7 +262,7 @@ class UserDetailPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: AppColors.fTextH1.withValues(alpha: 0.05),
               blurRadius: 10.r,
               offset: Offset(0, 4.h),
             ),
@@ -272,7 +272,7 @@ class UserDetailPage extends StatelessWidget {
           children: [
             Icon(
               Icons.check_circle,
-              color: Colors.green,
+              color: AppColors.saveGreen,
               size: 24.sp,
             ),
             SizedBox(width: 12.w),
@@ -282,7 +282,7 @@ class UserDetailPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
-                  color: Colors.green,
+                  color: AppColors.saveGreen,
                   fontFamily: 'Mulish',
                 ),
               ),
@@ -310,7 +310,7 @@ class UserDetailPage extends StatelessWidget {
             context,
             'Approve',
             AppColors.fWhite,
-            Colors.green,
+            AppColors.saveGreen,
             Icons.check,
             () => _approveUser(context),
           ),
@@ -383,7 +383,7 @@ class UserDetailPage extends StatelessWidget {
                 Text('User approved successfully'),
               ],
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.saveGreen,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.r),

@@ -17,10 +17,24 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   bool _rememberMe = false;
+  bool _isFormSubmitted = false; // Flag to track if form has been submitted
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _authService = AuthService();
+
+  // Method to manually validate all fields and force error display
+  void _validateAndShowErrors() {
+    setState(() {
+      _isFormSubmitted = true;
+    });
+    
+    // This will trigger validation on all fields
+    _formKey.currentState!.validate();
+    
+    // Force a rebuild to show errors
+    setState(() {});
+  }
 
   @override
   void dispose() {
@@ -33,6 +47,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.disabled, // Only validate on submission
       child: SizedBox(
         width: 300.w,
         child: Column(
@@ -232,6 +247,9 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     Widget? suffixIcon,
     required FormFieldValidator<String> validator,
   }) {
+    // Create a key to identify the form field
+    final fieldKey = GlobalKey<FormFieldState>();
+    
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 800),
@@ -244,51 +262,89 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           ),
         );
       },
-      child: Container(
-        height: 50.h,
-        width: 300.w,
-        decoration: BoxDecoration(
-          color: AppColors.fLineaAndLabelBox,
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: TextFormField(
-          controller: controller,
-          obscureText: obscure,
-          validator: validator,
-          style: TextStyle(fontSize: 14.sp, color: AppColors.fTextH1),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle:
-                TextStyle(fontSize: 14.sp, color: AppColors.fIconAndLabelText),
-            suffixIcon: hint == 'Password'
-                ? suffixIcon
-                : Container(
-                    padding: EdgeInsets.all(13.w),
-                    child: Icon(
-                      icon,
-                      color: AppColors.fIconAndLabelText,
-                      size: 18.sp,
-                    ),
-                  ),
-            border: InputBorder.none,
-            contentPadding:
-                EdgeInsets.symmetric(vertical: 15.h, horizontal: 22.w),
-            fillColor: AppColors.fTransparent,
-            filled: true,
-            focusedBorder: InputBorder.none,
-            errorStyle: const TextStyle(
-              color: AppColors.fRedBright,
-              fontWeight: FontWeight.w500,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 50.h,
+            width: 300.w,
+            decoration: BoxDecoration(
+              color: AppColors.fLineaAndLabelBox,
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: TextFormField(
+              key: fieldKey,
+              controller: controller,
+              obscureText: obscure,
+              validator: validator,
+              autovalidateMode: AutovalidateMode.disabled, // Only validate when form is submitted
+              style: TextStyle(fontSize: 14.sp, color: AppColors.fTextH1),
+              decoration: InputDecoration(
+                hintText: hint,
+                hintStyle:
+                    TextStyle(fontSize: 14.sp, color: AppColors.fIconAndLabelText),
+                suffixIcon: hint == 'Password'
+                    ? suffixIcon
+                    : Container(
+                        padding: EdgeInsets.all(13.w),
+                        child: Icon(
+                          icon,
+                          color: AppColors.fIconAndLabelText,
+                          size: 18.sp,
+                        ),
+                      ),
+                border: InputBorder.none,
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 15.h, horizontal: 22.w),
+                fillColor: AppColors.fTransparent,
+                filled: true,
+                focusedBorder: InputBorder.none,
+                // Hide the default error style by making it transparent
+                errorStyle: const TextStyle(
+                  height: 0,
+                  fontSize: 0,
+                  color: Colors.transparent,
+                ),
+              ),
+              cursorColor: AppColors.fRedBright,
             ),
           ),
-          cursorColor: AppColors.fRedBright,
-        ),
+          // Custom error message outside the text field that only shows after form submission attempt
+          Builder(
+            builder: (context) {
+              // Only show error message if the form has been submitted and there is an error
+              if (_isFormSubmitted) {
+                final errorText = validator(controller.text);
+                if (errorText != null) {
+                  return Padding(
+                    padding: EdgeInsets.only(left: 12.w, top: 4.h),
+                    child: Text(
+                      errorText,
+                      style: TextStyle(
+                        color: AppColors.fRedBright,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                }
+              }
+              return SizedBox(height: 4.h);
+            },
+          ),
+        ],
       ),
     );
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    // Manually validate all fields and show errors
+    _validateAndShowErrors();
+    
+    // Only proceed if all validations pass
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
     setState(() {
       _isLoading = true;

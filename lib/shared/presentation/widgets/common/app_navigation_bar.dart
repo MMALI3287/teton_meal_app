@@ -251,8 +251,8 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
 
     return InkWell(
       onTap: () => _onItemTapped(index),
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
+      splashColor: AppColors.fTransparent,
+      highlightColor: AppColors.fTransparent,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         child: Column(
