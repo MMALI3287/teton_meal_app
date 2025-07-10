@@ -33,9 +33,9 @@ class MenuPollCard extends StatelessWidget {
                 const SnackBar(
                   content: Text(
                     'Menu deleted successfully',
-                    style: TextStyle(color: AppColors.white),
+                    style: TextStyle(color: AppColors.fWhite),
                   ),
-                  backgroundColor: AppColors.success,
+                  backgroundColor: AppColors.fGreen,
                 ),
               );
             }
@@ -45,9 +45,9 @@ class MenuPollCard extends StatelessWidget {
                 SnackBar(
                   content: Text(
                     'Error deleting menu: $e',
-                    style: const TextStyle(color: AppColors.white),
+                    style: const TextStyle(color: AppColors.fWhite),
                   ),
-                  backgroundColor: AppColors.error,
+                  backgroundColor: AppColors.fRed2,
                 ),
               );
             }
@@ -123,13 +123,13 @@ class MenuPollCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: 7.89.h),
       padding: EdgeInsets.symmetric(horizontal: 15.77.w, vertical: 7.89.h),
       decoration: ShapeDecoration(
-        color: AppColors.cardBackground,
+        color: AppColors.fWhite,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14.79.r),
         ),
         shadows: [
           BoxShadow(
-            color: AppColors.shadowColor,
+            color: AppColors.fRedBright,
             blurRadius: 3.94.r,
             offset: Offset(0, 3.94.h),
             spreadRadius: 0,
@@ -153,7 +153,7 @@ class MenuPollCard extends StatelessWidget {
                     Text(
                       _formatDate(date),
                       style: TextStyle(
-                        color: AppColors.secondaryColor,
+                        color: AppColors.fYellow,
                         fontSize: 11.83.sp,
                         fontFamily: 'DM Sans',
                         fontWeight: FontWeight.w500,
@@ -169,7 +169,7 @@ class MenuPollCard extends StatelessWidget {
                     Text(
                       'Total Orders',
                       style: TextStyle(
-                        color: AppColors.secondaryText,
+                        color: AppColors.fTextH2,
                         fontSize: 11.83.sp,
                         fontFamily: 'DM Sans',
                         fontWeight: FontWeight.w700,
@@ -199,7 +199,7 @@ class MenuPollCard extends StatelessWidget {
             width: double.infinity,
             height: 0.99.h,
             decoration: const BoxDecoration(
-              color: AppColors.divider,
+              color: AppColors.fLineaAndLabelBox,
             ),
           ),
           // Menu options with order counts
@@ -214,11 +214,11 @@ class MenuPollCard extends StatelessWidget {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.divider,
+                    color: AppColors.fLineaAndLabelBox,
                     borderRadius: BorderRadius.circular(8.r),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.shadowColor,
+                        color: AppColors.fRedBright,
                         blurRadius: 2.r,
                         offset: Offset(0, 1.h),
                       ),
@@ -262,11 +262,11 @@ class MenuPollCard extends StatelessWidget {
                 isActive
                     ? Container(
                         decoration: BoxDecoration(
-                          color: AppColors.divider,
+                          color: AppColors.fLineaAndLabelBox,
                           borderRadius: BorderRadius.circular(8.r),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.shadowColor,
+                              color: AppColors.fRedBright,
                               blurRadius: 2.r,
                               offset: Offset(0, 1.h),
                             ),
@@ -282,13 +282,13 @@ class MenuPollCard extends StatelessWidget {
                           },
                           icon: Icon(
                             Icons.edit_outlined,
-                            color: AppColors.secondaryColor,
+                            color: AppColors.fYellow,
                             size: 12.sp,
                           ),
                           label: Text(
                             'Edit',
                             style: TextStyle(
-                              color: AppColors.secondaryColor,
+                              color: AppColors.fYellow,
                               fontSize: 9.86.sp,
                               fontFamily: 'DM Sans',
                               fontWeight: FontWeight.w500,
@@ -307,11 +307,11 @@ class MenuPollCard extends StatelessWidget {
                       )
                     : Container(
                         decoration: BoxDecoration(
-                          color: AppColors.divider,
+                          color: AppColors.fLineaAndLabelBox,
                           borderRadius: BorderRadius.circular(8.r),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.shadowColor,
+                              color: AppColors.fRedBright,
                               blurRadius: 2.r,
                               offset: Offset(0, 1.h),
                             ),
@@ -321,13 +321,13 @@ class MenuPollCard extends StatelessWidget {
                           onPressed: () => _deletePoll(context),
                           icon: Icon(
                             Icons.delete_outline,
-                            color: AppColors.primaryColor,
+                            color: AppColors.fRedBright,
                             size: 12.sp,
                           ),
                           label: Text(
                             'Delete',
                             style: TextStyle(
-                              color: AppColors.primaryColor,
+                              color: AppColors.fRedBright,
                               fontSize: 9.86.sp,
                               fontFamily: 'DM Sans',
                               fontWeight: FontWeight.w500,
@@ -371,7 +371,7 @@ class MenuPollCard extends StatelessWidget {
                   width: 3.94.w,
                   height: 3.94.h,
                   decoration: const ShapeDecoration(
-                    color: AppColors.primaryText,
+                    color: AppColors.fTextH1,
                     shape: OvalBorder(),
                   ),
                 ),
@@ -380,7 +380,7 @@ class MenuPollCard extends StatelessWidget {
                   child: Text(
                     option,
                     style: TextStyle(
-                      color: AppColors.secondaryText,
+                      color: AppColors.fTextH2,
                       fontSize: 13.80.sp,
                       fontFamily: 'DM Sans',
                       fontWeight: FontWeight.w500,
@@ -393,11 +393,11 @@ class MenuPollCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                   decoration: BoxDecoration(
-                    color: AppColors.divider,
+                    color: AppColors.fLineaAndLabelBox,
                     borderRadius: BorderRadius.circular(12.r),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.shadowColor,
+                        color: AppColors.fRedBright,
                         blurRadius: 2.r,
                         offset: Offset(0, 1.h),
                       ),
@@ -406,7 +406,7 @@ class MenuPollCard extends StatelessWidget {
                   child: Text(
                     '$orderCount order${orderCount != 1 ? 's' : ''}',
                     style: TextStyle(
-                      color: AppColors.tertiaryText,
+                      color: AppColors.fIconAndLabelText,
                       fontSize: 9.86.sp,
                       fontFamily: 'DM Sans',
                       fontWeight: FontWeight.w500,
@@ -423,7 +423,7 @@ class MenuPollCard extends StatelessWidget {
             width: double.infinity,
             height: 0.99.h,
             decoration: const BoxDecoration(
-              color: AppColors.divider,
+              color: AppColors.fLineaAndLabelBox,
             ),
           ),
         ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:teton_meal_app/data/services/auth_service.dart';
+import 'package:teton_meal_app/app/app_theme.dart';
 
 class CreatePollDialog extends StatefulWidget {
   const CreatePollDialog({super.key});
@@ -256,7 +257,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                             children: [
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: AppColors.fWhite,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                       color: Colors.grey.withOpacity(0.2)),
@@ -363,7 +364,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                             value?.isEmpty ?? true
                                                 ? 'Please select an option'
                                                 : null,
-                                        dropdownColor: Colors.white,
+                                        dropdownColor: AppColors.fWhite,
                                         icon: Icon(
                                           Icons.arrow_drop_down_circle,
                                           color: theme.colorScheme.primary,
@@ -499,7 +500,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                       onPressed: _createPoll,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.secondary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.fWhite,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
                         elevation: 0,

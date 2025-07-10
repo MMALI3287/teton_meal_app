@@ -19,25 +19,4 @@ class AppColors {
   static const Color fNameBoxYellow = Color(0xFFEDCFA1);
   static const Color fNameBoxPink = Color(0xFFE4CBCE);
   static const Color fRedProgressbar = Color(0xFFFBB1BA);
-
-  static const Color primaryColor = fRedBright;
-  static const Color secondaryColor = fYellow;
-  static const Color backgroundColor = fWhiteBackground;
-  static const Color cardBackground = fWhite;
-
-  static const Color primaryText = fTextH1;
-  static const Color secondaryText = fTextH2;
-  static const Color tertiaryText = fIconAndLabelText;
-
-  static const Color success = fGreen;
-  static const Color error = fRed2;
-  static const Color warning = fNameBoxYellow;
-
-  static const Color divider = fLineaAndLabelBox;
-  static const Color grey = fTextH2;
-  static const Color white = fWhite;
-
-  static Color disabledButton = primaryColor.withOpacity(0.7);
-  static Color shadowColor = primaryColor.withOpacity(0.3);
-  static Color inputBorderColor = grey.withOpacity(0.3);
 }

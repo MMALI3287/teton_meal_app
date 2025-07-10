@@ -93,7 +93,7 @@ class _UsersPageState extends State<UsersPage> {
                       ),
                       child: const Icon(
                         Icons.arrow_back,
-                        color: Colors.white,
+                        color: AppColors.fWhite,
                         size: 20,
                       ),
                     ),
@@ -141,7 +141,7 @@ class _UsersPageState extends State<UsersPage> {
                           ),
                           child: const Icon(
                             Icons.add,
-                            color: Colors.white,
+                            color: AppColors.fWhite,
                             size: 24,
                           ),
                         ),

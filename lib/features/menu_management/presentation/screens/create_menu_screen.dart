@@ -45,7 +45,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select at least one item'),
-          backgroundColor: AppColors.error,
+          backgroundColor: AppColors.fRed2,
         ),
       );
       return;
@@ -137,7 +137,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error creating menu: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: AppColors.fRed2,
           ),
         );
       }
@@ -153,7 +153,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.fWhiteBackground,
       body: Container(
         width: 393.w,
         height: 805.h,
@@ -197,12 +197,12 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
               width: 32.w,
               height: 32.h,
               decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
+                color: AppColors.fYellow,
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
                 Icons.close,
-                color: AppColors.white,
+                color: AppColors.fWhite,
                 size: 18.sp,
               ),
             ),
@@ -212,7 +212,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
               child: Text(
                 'Create New Menu',
                 style: TextStyle(
-                  color: AppColors.primaryText,
+                  color: AppColors.fTextH1,
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -262,7 +262,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
             Text(
               'Selected Items (${_selectedItems.length})',
               style: TextStyle(
-                color: AppColors.primaryText,
+                color: AppColors.fTextH1,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
               ),
@@ -273,10 +273,9 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
         Container(
           constraints: BoxConstraints(maxHeight: 140.h),
           decoration: BoxDecoration(
-            color: AppColors.cardBackground,
+            color: AppColors.fWhite,
             borderRadius: BorderRadius.circular(12.r),
-            border:
-                Border.all(color: AppColors.inputBorderColor.withOpacity(0.5)),
+            border: Border.all(color: AppColors.fTextH2.withOpacity(0.5)),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -312,7 +311,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                           Text(
                             item.name,
                             style: TextStyle(
-                              color: AppColors.primaryText,
+                              color: AppColors.fTextH1,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w500,
                             ),
@@ -323,7 +322,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                               child: Text(
                                 'With ${item.subItem}',
                                 style: TextStyle(
-                                  color: AppColors.secondaryText,
+                                  color: AppColors.fTextH2,
                                   fontSize: 12.sp,
                                 ),
                               ),
@@ -368,8 +367,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
               child: OutlinedButton(
                 onPressed: _isLoading ? null : () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
-                  side:
-                      BorderSide(color: AppColors.inputBorderColor, width: 1.5),
+                  side: BorderSide(color: AppColors.fTextH2, width: 1.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
@@ -377,7 +375,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                 child: Text(
                   'Cancel',
                   style: TextStyle(
-                    color: AppColors.secondaryText,
+                    color: AppColors.fTextH2,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w500,
                   ),
@@ -394,7 +392,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                 boxShadow: _selectedItems.isNotEmpty && !_isLoading
                     ? [
                         BoxShadow(
-                          color: AppColors.primaryColor.withOpacity(0.3),
+                          color: AppColors.fRedBright.withOpacity(0.3),
                           blurRadius: 8.r,
                           offset: Offset(0, 4.h),
                         ),
@@ -405,9 +403,9 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                 onPressed:
                     _isLoading || _selectedItems.isEmpty ? null : _createMenu,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: AppColors.white,
-                  disabledBackgroundColor: AppColors.disabledButton,
+                  backgroundColor: AppColors.fRedBright,
+                  foregroundColor: AppColors.fWhite,
+                  disabledBackgroundColor: AppColors.fRedBright,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
@@ -420,7 +418,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                         child: const CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.white,
+                            AppColors.fWhite,
                           ),
                         ),
                       )

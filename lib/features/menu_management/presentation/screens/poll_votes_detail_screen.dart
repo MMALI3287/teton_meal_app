@@ -180,9 +180,9 @@ class _PollVotesPageState extends State<PollVotesPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: AppColors.fWhiteBackground,
         appBar: AppBar(
-          backgroundColor: AppColors.backgroundColor,
+          backgroundColor: AppColors.fWhiteBackground,
           elevation: 0,
           automaticallyImplyLeading: false,
           title: Row(
@@ -193,12 +193,12 @@ class _PollVotesPageState extends State<PollVotesPage> {
                   width: 36.w,
                   height: 36.h,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryText,
+                    color: AppColors.fTextH1,
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
                     Icons.close,
-                    color: AppColors.white,
+                    color: AppColors.fWhite,
                     size: 18.sp,
                   ),
                 ),
@@ -207,7 +207,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
               Text(
                 'Order Details',
                 style: TextStyle(
-                  color: AppColors.primaryText,
+                  color: AppColors.fTextH1,
                   fontSize: 18.sp,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
@@ -218,7 +218,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
         ),
         body: const Center(
           child: CircularProgressIndicator(
-            color: AppColors.primaryColor,
+            color: AppColors.fRedBright,
           ),
         ),
       );
@@ -226,9 +226,9 @@ class _PollVotesPageState extends State<PollVotesPage> {
 
     if (pollSnapshot == null) {
       return Scaffold(
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: AppColors.fWhiteBackground,
         appBar: AppBar(
-          backgroundColor: AppColors.backgroundColor,
+          backgroundColor: AppColors.fWhiteBackground,
           elevation: 0,
           automaticallyImplyLeading: false,
           title: Row(
@@ -239,12 +239,12 @@ class _PollVotesPageState extends State<PollVotesPage> {
                   width: 36.w,
                   height: 36.h,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryText,
+                    color: AppColors.fTextH1,
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
                     Icons.close,
-                    color: AppColors.white,
+                    color: AppColors.fWhite,
                     size: 18.sp,
                   ),
                 ),
@@ -253,7 +253,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
               Text(
                 'Order Details',
                 style: TextStyle(
-                  color: AppColors.primaryText,
+                  color: AppColors.fTextH1,
                   fontSize: 18.sp,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
@@ -266,7 +266,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
           child: Text(
             'Error loading menu data',
             style: TextStyle(
-              color: AppColors.error,
+              color: AppColors.fRed2,
               fontSize: 16.sp,
             ),
           ),
@@ -278,9 +278,9 @@ class _PollVotesPageState extends State<PollVotesPage> {
     final dateText = pollSnapshot!['date'] as String;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.fWhiteBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: AppColors.fWhiteBackground,
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: false,
@@ -292,12 +292,12 @@ class _PollVotesPageState extends State<PollVotesPage> {
                 width: 36.w,
                 height: 36.h,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryText,
+                  color: AppColors.fTextH1,
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(
                   Icons.close,
-                  color: AppColors.white,
+                  color: AppColors.fWhite,
                   size: 18.sp,
                 ),
               ),
@@ -309,14 +309,14 @@ class _PollVotesPageState extends State<PollVotesPage> {
                   children: [
                     Icon(
                       Icons.close,
-                      color: AppColors.secondaryColor,
+                      color: AppColors.fYellow,
                       size: 20.sp,
                     ),
                     SizedBox(width: 8.w),
                     Text(
                       'Order Details',
                       style: TextStyle(
-                        color: AppColors.primaryText,
+                        color: AppColors.fTextH1,
                         fontSize: 18.sp,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
@@ -339,7 +339,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
             child: Text(
               _formatDate(dateText),
               style: TextStyle(
-                color: AppColors.secondaryColor,
+                color: AppColors.fYellow,
                 fontSize: 14.sp,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w500,
@@ -351,7 +351,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
             margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: AppColors.cardBackground,
+              color: AppColors.fWhite,
               borderRadius: BorderRadius.circular(25.r),
               boxShadow: [
                 BoxShadow(
@@ -365,7 +365,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
               children: [
                 Icon(
                   Icons.search,
-                  color: AppColors.tertiaryText,
+                  color: AppColors.fIconAndLabelText,
                   size: 20.sp,
                 ),
                 SizedBox(width: 12.w),
@@ -380,7 +380,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                     decoration: InputDecoration(
                       hintText: 'Search with employee name here',
                       hintStyle: TextStyle(
-                        color: AppColors.tertiaryText,
+                        color: AppColors.fIconAndLabelText,
                         fontSize: 14.sp,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
@@ -394,7 +394,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                       isDense: true,
                     ),
                     style: TextStyle(
-                      color: AppColors.primaryText,
+                      color: AppColors.fTextH1,
                       fontSize: 14.sp,
                       fontFamily: 'Inter',
                     ),
@@ -410,7 +410,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                     child: Text(
                       'No orders yet',
                       style: TextStyle(
-                        color: AppColors.tertiaryText,
+                        color: AppColors.fIconAndLabelText,
                         fontSize: 16.sp,
                         fontFamily: 'Inter',
                       ),
@@ -435,7 +435,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
     return Container(
       margin: EdgeInsets.only(bottom: 24.h),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
@@ -458,12 +458,12 @@ class _PollVotesPageState extends State<PollVotesPage> {
                   width: 32.w,
                   height: 32.h,
                   decoration: BoxDecoration(
-                    color: AppColors.secondaryColor,
+                    color: AppColors.fYellow,
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: Icon(
                     Icons.restaurant,
-                    color: AppColors.white,
+                    color: AppColors.fWhite,
                     size: 16.sp,
                   ),
                 ),
@@ -473,7 +473,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                   child: Text(
                     option,
                     style: TextStyle(
-                      color: AppColors.primaryText,
+                      color: AppColors.fTextH1,
                       fontSize: 16.sp,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
@@ -488,7 +488,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                       decoration: BoxDecoration(
-                        color: AppColors.tertiaryText.withOpacity(0.1),
+                        color: AppColors.fIconAndLabelText.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12.r),
                         boxShadow: [
                           BoxShadow(
@@ -501,7 +501,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                       child: Text(
                         '${optionVotes.length} order${optionVotes.length != 1 ? 's' : ''}',
                         style: TextStyle(
-                          color: AppColors.tertiaryText,
+                          color: AppColors.fIconAndLabelText,
                           fontSize: 12.sp,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w500,
@@ -511,7 +511,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                     SizedBox(width: 8.w),
                     Icon(
                       Icons.keyboard_arrow_down,
-                      color: AppColors.tertiaryText,
+                      color: AppColors.fIconAndLabelText,
                       size: 20.sp,
                     ),
                   ],
@@ -529,7 +529,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                   child: Container(
                     height: 4.h,
                     decoration: BoxDecoration(
-                      color: AppColors.divider,
+                      color: AppColors.fLineaAndLabelBox,
                       borderRadius: BorderRadius.circular(2.r),
                     ),
                     child: FractionallySizedBox(
@@ -539,7 +539,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                           : 0,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
+                          color: AppColors.fRedBright,
                           borderRadius: BorderRadius.circular(2.r),
                         ),
                       ),
@@ -551,7 +551,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                 Text(
                   '${_totalVotes > 0 ? ((optionVotes.length / _totalVotes) * 100).toStringAsFixed(0) : 0}%',
                   style: TextStyle(
-                    color: AppColors.primaryColor,
+                    color: AppColors.fRedBright,
                     fontSize: 12.sp,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
@@ -566,7 +566,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
             Container(
               height: 1.h,
               margin: EdgeInsets.symmetric(horizontal: 16.w),
-              color: AppColors.divider,
+              color: AppColors.fLineaAndLabelBox,
             ),
           // User list
           ...optionVotes.asMap().entries.map((entry) {
@@ -604,7 +604,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                                 ? userName[0].toUpperCase()
                                 : 'U',
                             style: TextStyle(
-                              color: AppColors.white,
+                              color: AppColors.fWhite,
                               fontSize: 14.sp,
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w600,
@@ -621,7 +621,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                             Text(
                               userName,
                               style: TextStyle(
-                                color: AppColors.primaryText,
+                                color: AppColors.fTextH1,
                                 fontSize: 14.sp,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w500,
@@ -631,7 +631,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                               Text(
                                 userData['email'],
                                 style: TextStyle(
-                                  color: AppColors.tertiaryText,
+                                  color: AppColors.fIconAndLabelText,
                                   fontSize: 12.sp,
                                   fontFamily: 'Inter',
                                   fontWeight: FontWeight.w400,
@@ -649,13 +649,13 @@ class _PollVotesPageState extends State<PollVotesPage> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: AppColors.tertiaryText,
+                              color: AppColors.fIconAndLabelText,
                               width: 1,
                             ),
                           ),
                           child: Icon(
                             Icons.remove,
-                            color: AppColors.tertiaryText,
+                            color: AppColors.fIconAndLabelText,
                             size: 16.sp,
                           ),
                         ),
@@ -676,7 +676,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
       AppColors.fNameBoxGreen,
       AppColors.fNameBoxYellow,
       AppColors.fNameBoxPink,
-      AppColors.tertiaryText,
+      AppColors.fIconAndLabelText,
     ];
     return colors[index % colors.length];
   }

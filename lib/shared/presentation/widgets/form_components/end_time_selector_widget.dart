@@ -21,12 +21,12 @@ class EndTimeSelectorComponent extends StatelessWidget {
         height: 64.h,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: AppColors.fWhite,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppColors.inputBorderColor, width: 1),
+          border: Border.all(color: AppColors.fTextH2, width: 1),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor.withOpacity(0.1),
+              color: AppColors.fRedBright.withOpacity(0.1),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),
@@ -41,7 +41,7 @@ class EndTimeSelectorComponent extends StatelessWidget {
                 color: AppColors.fLineaAndLabelBox,
                 borderRadius: BorderRadius.circular(8.r),
                 border: Border.all(
-                  color: AppColors.inputBorderColor.withOpacity(0.5),
+                  color: AppColors.fTextH2.withOpacity(0.5),
                 ),
               ),
               child: Icon(
@@ -59,7 +59,7 @@ class EndTimeSelectorComponent extends StatelessWidget {
                 Text(
                   'End Time',
                   style: TextStyle(
-                    color: AppColors.secondaryText,
+                    color: AppColors.fTextH2,
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w400,
                     letterSpacing: 0.1,
@@ -70,7 +70,7 @@ class EndTimeSelectorComponent extends StatelessWidget {
                 Text(
                   selectedTime.format(context),
                   style: TextStyle(
-                    color: AppColors.primaryText,
+                    color: AppColors.fTextH1,
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.2,
@@ -83,10 +83,10 @@ class EndTimeSelectorComponent extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
               decoration: BoxDecoration(
-                color: AppColors.primaryColor.withOpacity(0.1),
+                color: AppColors.fRedBright.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20.r),
                 border: Border.all(
-                  color: AppColors.primaryColor.withOpacity(0.3),
+                  color: AppColors.fRedBright.withOpacity(0.3),
                 ),
               ),
               child: Row(
@@ -94,7 +94,7 @@ class EndTimeSelectorComponent extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.keyboard_arrow_down,
-                    color: AppColors.primaryColor,
+                    color: AppColors.fRedBright,
                     size: 16.sp,
                   ),
                 ],
@@ -114,8 +114,8 @@ class EndTimeSelectorComponent extends StatelessWidget {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: AppColors.primaryColor,
-                  onPrimary: AppColors.white,
+                  primary: AppColors.fRedBright,
+                  onPrimary: AppColors.fWhite,
                 ),
           ),
           child: child!,

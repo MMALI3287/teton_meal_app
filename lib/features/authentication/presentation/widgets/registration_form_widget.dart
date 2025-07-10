@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/custom_exception_dialog.dart';
 import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:teton_meal_app/features/authentication/presentation/screens/login_screen.dart';
@@ -227,7 +228,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                          color: Colors.white,
+                          color: AppColors.fWhite,
                           strokeWidth: 2,
                         ),
                       )
@@ -236,7 +237,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          color: AppColors.fWhite,
                         ),
                       ),
               ),
@@ -313,7 +314,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -356,7 +357,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppColors.fWhite,
         ),
       ),
     );
@@ -371,7 +372,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -409,7 +410,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppColors.fWhite,
         ),
         items: items.map((String item) {
           return DropdownMenuItem<String>(
@@ -431,7 +432,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   void _showDepartmentPicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.fWhite,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

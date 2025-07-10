@@ -78,7 +78,7 @@ class _VotesPageState extends State<VotesPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // F_WhiteBackground
+      backgroundColor: const Color(0xFFF9F9F9), // F_fWhiteBackground
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -183,7 +183,7 @@ class _VotesPageState extends State<VotesPage>
                     ),
                     child: Icon(
                       Icons.add,
-                      color: Colors.white,
+                      color: AppColors.fWhite,
                       size: 18.sp,
                     ),
                   ),
@@ -230,11 +230,11 @@ class _VotesPageState extends State<VotesPage>
         padding: EdgeInsets.all(20.w),
         margin: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: AppColors.fWhite,
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor,
+              color: AppColors.fRedBright,
               blurRadius: 10.r,
               offset: Offset(0, 5.h),
             ),
@@ -245,14 +245,14 @@ class _VotesPageState extends State<VotesPage>
           children: [
             Icon(
               Icons.error_outline,
-              color: AppColors.error,
+              color: AppColors.fRed2,
               size: 48.sp,
             ),
             SizedBox(height: 16.h),
             Text(
               'Error Loading Menu',
               style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    color: AppColors.error,
+                    color: AppColors.fRed2,
                     fontWeight: FontWeight.bold,
                   ),
             ),
@@ -267,7 +267,7 @@ class _VotesPageState extends State<VotesPage>
               'Error: ${error.toString()}',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: AppColors.tertiaryText,
+                    color: AppColors.fIconAndLabelText,
                   ),
             ),
             SizedBox(height: 16.h),
@@ -278,8 +278,8 @@ class _VotesPageState extends State<VotesPage>
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-                foregroundColor: AppColors.white,
+                backgroundColor: AppColors.fRedBright,
+                foregroundColor: AppColors.fWhite,
               ),
             ),
           ],
@@ -294,11 +294,11 @@ class _VotesPageState extends State<VotesPage>
         padding: EdgeInsets.all(30.w),
         margin: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: AppColors.fWhite,
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor,
+              color: AppColors.fRedBright,
               blurRadius: 15.r,
               offset: Offset(0, 5.h),
             ),
@@ -309,7 +309,7 @@ class _VotesPageState extends State<VotesPage>
           children: [
             Icon(
               Icons.restaurant,
-              color: AppColors.tertiaryText,
+              color: AppColors.fIconAndLabelText,
               size: 72.sp,
             ),
             SizedBox(height: 24.h),
@@ -335,8 +335,8 @@ class _VotesPageState extends State<VotesPage>
               icon: const Icon(Icons.refresh),
               label: const Text('Refresh'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-                foregroundColor: AppColors.white,
+                backgroundColor: AppColors.fRedBright,
+                foregroundColor: AppColors.fWhite,
                 padding: EdgeInsets.symmetric(
                   horizontal: 32.w,
                   vertical: 12.h,
@@ -413,7 +413,7 @@ class _VotesPageState extends State<VotesPage>
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // F_White
+        color: const Color(0xFFFFFFFF), // F_fWhite
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
@@ -447,7 +447,7 @@ class _VotesPageState extends State<VotesPage>
                         value:
                             isManuallyActive, // Show the actual database state, not effective state
                         activeColor: const Color(0xFF383A3F), // F_Text_H1
-                        inactiveThumbColor: const Color(0xFFFFFFFF), // F_White
+                        inactiveThumbColor: const Color(0xFFFFFFFF), // F_fWhite
                         inactiveTrackColor:
                             const Color(0xFF7A869A), // F_Icon& Label_Text
                         onChanged: (value) => _togglePollStatus(
@@ -788,7 +788,7 @@ class _VotesPageState extends State<VotesPage>
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // F_White
+        color: const Color(0xFFFFFFFF), // F_fWhite
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
@@ -883,7 +883,7 @@ class _VotesPageState extends State<VotesPage>
       width: 345.w,
       height: 50.h,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // F_White
+        color: const Color(0xFFFFFFFF), // F_fWhite
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(

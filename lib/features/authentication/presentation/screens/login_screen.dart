@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage>
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.shadowColor,
+                                color: AppColors.fRedBright,
                                 blurRadius: 10.r,
                                 offset: Offset(0, 5.h),
                                 spreadRadius: 0,
@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage>
                           ),
                           child: Icon(
                             Icons.restaurant_menu,
-                            color: AppColors.white,
+                            color: AppColors.fWhite,
                             size: 70.sp,
                           ),
                         ),
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage>
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontFamily: 'DMSans',
-                            color: AppColors.tertiaryText,
+                            color: AppColors.fIconAndLabelText,
                           ),
                         ),
                         GestureDetector(
@@ -134,7 +134,7 @@ class _LoginPageState extends State<LoginPage>
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontFamily: 'DMSans',
-                              color: AppColors.primaryColor,
+                              color: AppColors.fRedBright,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

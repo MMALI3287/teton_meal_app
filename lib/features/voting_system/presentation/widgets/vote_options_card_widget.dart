@@ -144,7 +144,7 @@ class _VoteOptionState extends State<VoteOption>
         SnackBar(
           content: const Text('Please sign in to place your order'),
           behavior: SnackBarBehavior.floating,
-          backgroundColor: AppColors.error,
+          backgroundColor: AppColors.fRed2,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
@@ -249,7 +249,7 @@ class _VoteOptionState extends State<VoteOption>
                   borderRadius: BorderRadius.circular(10)),
               action: SnackBarAction(
                 label: 'DISMISS',
-                textColor: Colors.white,
+                textColor: AppColors.fWhite,
                 onPressed: () {},
               ),
             ),
@@ -265,7 +265,7 @@ class _VoteOptionState extends State<VoteOption>
                   borderRadius: BorderRadius.circular(10)),
               action: SnackBarAction(
                 label: 'DISMISS',
-                textColor: Colors.white,
+                textColor: AppColors.fWhite,
                 onPressed: () {},
               ),
             ),
@@ -329,10 +329,10 @@ class _VoteOptionState extends State<VoteOption>
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.cardBackground,
+          color: AppColors.fWhite,
           border: Border(
             bottom: BorderSide(
-              color: AppColors.divider,
+              color: AppColors.fLineaAndLabelBox,
               width: 1.w,
             ),
           ),
@@ -364,18 +364,18 @@ class _VoteOptionState extends State<VoteOption>
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: isSelected
-                                  ? AppColors.primaryText
-                                  : AppColors.tertiaryText,
+                                  ? AppColors.fRedBright
+                                  : AppColors.fIconAndLabelText,
                               width: 2.w,
                             ),
                             color: isSelected
-                                ? AppColors.primaryText
+                                ? AppColors.fRedBright
                                 : Colors.transparent,
                           ),
                           child: isSelected
                               ? Icon(
                                   Icons.check,
-                                  color: AppColors.white,
+                                  color: AppColors.fWhite,
                                   size: 12.sp,
                                 )
                               : null,
@@ -385,7 +385,7 @@ class _VoteOptionState extends State<VoteOption>
                           width: 40.w,
                           height: 40.h,
                           decoration: const BoxDecoration(
-                            color: AppColors.divider,
+                            color: AppColors.fLineaAndLabelBox,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -402,7 +402,7 @@ class _VoteOptionState extends State<VoteOption>
                             style: TextStyle(
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.primaryText,
+                              color: AppColors.fRedBright,
                             ),
                           ),
                         ),
@@ -410,14 +410,14 @@ class _VoteOptionState extends State<VoteOption>
                           padding: EdgeInsets.symmetric(
                               horizontal: 8.w, vertical: 4.h),
                           decoration: BoxDecoration(
-                            color: AppColors.divider,
+                            color: AppColors.fLineaAndLabelBox,
                             borderRadius: BorderRadius.circular(12.r),
                           ),
                           child: Text(
                             '$voteCount orders',
                             style: TextStyle(
                               fontSize: 12.sp,
-                              color: AppColors.secondaryText,
+                              color: AppColors.fTextH2,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -456,7 +456,7 @@ class _VoteOptionState extends State<VoteOption>
                       borderRadius: BorderRadius.circular(3.r),
                       child: LinearProgressIndicator(
                         value: percentage,
-                        backgroundColor: AppColors.divider,
+                        backgroundColor: AppColors.fLineaAndLabelBox,
                         valueColor: AlwaysStoppedAnimation<Color>(
                           percentage > 0
                               ? AppColors.fRedBright

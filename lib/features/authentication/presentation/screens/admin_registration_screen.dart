@@ -54,7 +54,7 @@ class _RegisterState extends State<Register> {
                       ),
                       child: const Icon(
                         Icons.arrow_back,
-                        color: Colors.white,
+                        color: AppColors.fWhite,
                         size: 20,
                       ),
                     ),
@@ -324,7 +324,7 @@ class _RegisterState extends State<Register> {
                                         child: CircularProgressIndicator(
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                                  Colors.white),
+                                                  AppColors.fWhite),
                                           strokeWidth: 2,
                                         ),
                                       )

@@ -48,7 +48,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error saving item: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: AppColors.fRed2,
           ),
         );
       }
@@ -64,7 +64,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.fWhiteBackground,
       body: Container(
         width: 393.w,
         height: 805.h,
@@ -105,12 +105,12 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
               width: 32.w,
               height: 32.h,
               decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
+                color: AppColors.fYellow,
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
                 Icons.close,
-                color: AppColors.white,
+                color: AppColors.fWhite,
                 size: 18.sp,
               ),
             ),
@@ -120,7 +120,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
               child: Text(
                 'Add New Item',
                 style: TextStyle(
-                  color: AppColors.primaryText,
+                  color: AppColors.fTextH1,
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -140,7 +140,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
         Text(
           'Item Name',
           style: TextStyle(
-            color: AppColors.primaryText,
+            color: AppColors.fTextH1,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
           ),
@@ -149,25 +149,25 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.cardBackground,
+            color: AppColors.fWhite,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.inputBorderColor),
+            border: Border.all(color: AppColors.fTextH2),
           ),
           child: TextFormField(
             controller: _itemNameController,
             style: TextStyle(
-              color: AppColors.primaryText,
+              color: AppColors.fTextH1,
               fontSize: 16.sp,
             ),
             decoration: InputDecoration(
               hintText: 'Type item name here to add',
               hintStyle: TextStyle(
-                color: AppColors.tertiaryText,
+                color: AppColors.fIconAndLabelText,
                 fontSize: 16.sp,
               ),
               prefixIcon: Icon(
                 Icons.fastfood_outlined,
-                color: AppColors.tertiaryText,
+                color: AppColors.fIconAndLabelText,
                 size: 20.sp,
               ),
               border: InputBorder.none,
@@ -195,7 +195,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
         Text(
           'Sub Item',
           style: TextStyle(
-            color: AppColors.primaryText,
+            color: AppColors.fTextH1,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
           ),
@@ -204,20 +204,20 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.cardBackground,
+            color: AppColors.fWhite,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.inputBorderColor),
+            border: Border.all(color: AppColors.fTextH2),
           ),
           child: TextFormField(
             controller: _subItemController,
             style: TextStyle(
-              color: AppColors.primaryText,
+              color: AppColors.fTextH1,
               fontSize: 16.sp,
             ),
             decoration: InputDecoration(
               hintText: 'Optional',
               hintStyle: TextStyle(
-                color: AppColors.tertiaryText,
+                color: AppColors.fIconAndLabelText,
                 fontSize: 16.sp,
               ),
               border: InputBorder.none,
@@ -241,7 +241,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
             child: OutlinedButton(
               onPressed: _isLoading ? null : () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppColors.inputBorderColor),
+                side: BorderSide(color: AppColors.fTextH2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
@@ -249,7 +249,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
               child: Text(
                 'Cancel',
                 style: TextStyle(
-                  color: AppColors.secondaryText,
+                  color: AppColors.fTextH2,
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
                 ),
@@ -265,7 +265,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
               onPressed: _isLoading ? null : _saveItem,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.saveGreen,
-                foregroundColor: AppColors.white,
+                foregroundColor: AppColors.fWhite,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
@@ -278,7 +278,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                       child: const CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.white,
+                          AppColors.fWhite,
                         ),
                       ),
                     )

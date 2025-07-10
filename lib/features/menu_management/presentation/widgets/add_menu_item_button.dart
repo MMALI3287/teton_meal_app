@@ -22,7 +22,7 @@ class AddItemButtonComponent extends StatelessWidget {
         boxShadow: isEnabled
             ? [
                 BoxShadow(
-                  color: AppColors.secondaryColor.withOpacity(0.3),
+                  color: AppColors.fYellow.withOpacity(0.3),
                   blurRadius: 8.r,
                   offset: Offset(0, 4.h),
                 ),
@@ -32,9 +32,9 @@ class AddItemButtonComponent extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isEnabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.secondaryColor,
-          foregroundColor: AppColors.white,
-          disabledBackgroundColor: AppColors.disabledButton,
+          backgroundColor: AppColors.fYellow,
+          foregroundColor: AppColors.fWhite,
+          disabledBackgroundColor: AppColors.fRedBright,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
@@ -48,12 +48,12 @@ class AddItemButtonComponent extends StatelessWidget {
               width: 24.w,
               height: 24.h,
               decoration: BoxDecoration(
-                color: AppColors.white.withOpacity(0.3),
+                color: AppColors.fWhite.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(
                 Icons.add,
-                color: AppColors.white,
+                color: AppColors.fWhite,
                 size: 16.sp,
               ),
             ),
@@ -63,7 +63,7 @@ class AddItemButtonComponent extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.white,
+                color: AppColors.fWhite,
                 letterSpacing: 0.3,
               ),
             ),

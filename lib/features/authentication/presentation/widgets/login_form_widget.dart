@@ -69,7 +69,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                         ? Icons.visibility_off
                         : Icons.visibility,
                     key: ValueKey(_isPasswordVisible),
-                    color: AppColors.tertiaryText,
+                    color: AppColors.fIconAndLabelText,
                     size: 20.sp,
                   ),
                 ),
@@ -162,7 +162,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   borderRadius: BorderRadius.circular(20.r),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryColor.withOpacity(0.2),
+                      color: AppColors.fRedBright.withOpacity(0.2),
                       blurRadius: 10.r,
                       offset: Offset(0, 4.h),
                       spreadRadius: 0,
@@ -172,9 +172,9 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleLogin,
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: AppColors.white,
-                    backgroundColor: AppColors.primaryColor,
-                    disabledBackgroundColor: AppColors.disabledButton,
+                    foregroundColor: AppColors.fWhite,
+                    backgroundColor: AppColors.fRedBright,
+                    disabledBackgroundColor: AppColors.fRedBright,
                     elevation: 0,
                     padding: EdgeInsets.symmetric(vertical: 12.h),
                     shape: RoundedRectangleBorder(
@@ -187,7 +187,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                           width: 20.w,
                           child: CircularProgressIndicator(
                             valueColor:
-                                AlwaysStoppedAnimation<Color>(AppColors.white),
+                                AlwaysStoppedAnimation<Color>(AppColors.fWhite),
                             strokeWidth: 2.5.w,
                           ),
                         )
@@ -196,7 +196,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                           style: TextStyle(
                             fontSize: 20.sp,
                             fontFamily: 'DMSans',
-                            color: AppColors.white,
+                            color: AppColors.fWhite,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -231,11 +231,11 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: AppColors.fWhite,
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor,
+              color: AppColors.fRedBright,
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
               spreadRadius: 0,
@@ -246,45 +246,45 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           controller: controller,
           obscureText: obscure,
           validator: validator,
-          style: TextStyle(fontSize: 14.sp, color: AppColors.primaryText),
+          style: TextStyle(fontSize: 14.sp, color: AppColors.fTextH1),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle:
-                TextStyle(fontSize: 14.sp, color: AppColors.tertiaryText),
+                TextStyle(fontSize: 14.sp, color: AppColors.fIconAndLabelText),
             suffixIcon: hint == 'Password'
                 ? suffixIcon
                 : Container(
                     padding: EdgeInsets.symmetric(horizontal: 12.w),
                     child: Icon(
                       icon,
-                      color: AppColors.tertiaryText,
+                      color: AppColors.fIconAndLabelText,
                       size: 20.sp,
                     ),
                   ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide(
-                color: AppColors.inputBorderColor,
+                color: AppColors.fTextH2,
                 width: 1.w,
               ),
             ),
             contentPadding:
                 EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
-            fillColor: AppColors.white,
+            fillColor: AppColors.fWhite,
             filled: true,
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide(
-                color: AppColors.inputBorderColor,
+                color: AppColors.fTextH2,
                 width: 1.w,
               ),
             ),
             errorStyle: const TextStyle(
-              color: AppColors.primaryColor,
+              color: AppColors.fRedBright,
               fontWeight: FontWeight.w500,
             ),
           ),
-          cursorColor: AppColors.primaryColor,
+          cursorColor: AppColors.fRedBright,
         ),
       ),
     );

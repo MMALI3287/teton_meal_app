@@ -71,7 +71,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           title: Row(
             children: [
-              Icon(Icons.logout, color: AppColors.error),
+              Icon(Icons.logout, color: AppColors.fRed2),
               SizedBox(width: 10.w),
               const Text('Sign Out'),
             ],
@@ -83,7 +83,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
                 'Cancel',
-                style: TextStyle(color: AppColors.tertiaryText),
+                style: TextStyle(color: AppColors.fIconAndLabelText),
               ),
             ),
             ElevatedButton(
@@ -92,8 +92,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 _logout(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: AppColors.white,
+                backgroundColor: AppColors.fRed2,
+                foregroundColor: AppColors.fWhite,
               ),
               child: const Text('Sign Out'),
             ),
@@ -107,17 +107,17 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppColors.backgroundColor,
+        backgroundColor: AppColors.fWhiteBackground,
         body: Center(
           child: CircularProgressIndicator(
-            color: AppColors.primaryColor,
+            color: AppColors.fRedBright,
           ),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.fWhiteBackground,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -158,15 +158,15 @@ class _SettingsPageState extends State<SettingsPage> {
             width: 40.w,
             height: 40.h,
             decoration: BoxDecoration(
-              color: AppColors.cardBackground,
+              color: AppColors.fWhite,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: AppColors.inputBorderColor.withOpacity(0.5),
+                color: AppColors.fTextH2.withOpacity(0.5),
               ),
             ),
             child: Icon(
               Icons.arrow_back_ios_new,
-              color: AppColors.primaryText,
+              color: AppColors.fTextH1,
               size: 20.sp,
             ),
           ),
@@ -312,7 +312,7 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowColor.withOpacity(0.07),
+            color: AppColors.fRedBright.withOpacity(0.07),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),

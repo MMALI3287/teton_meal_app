@@ -21,7 +21,7 @@ class _MenusPageState extends State<MenusPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.fWhiteBackground,
       body: Container(
         width: 393.w,
         height: 805.h,
@@ -52,7 +52,7 @@ class _MenusPageState extends State<MenusPage> {
           Text(
             'Orders',
             style: TextStyle(
-              color: AppColors.primaryText,
+              color: AppColors.fTextH1,
               fontSize: 24.sp,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
@@ -86,13 +86,13 @@ class _MenusPageState extends State<MenusPage> {
                   width: 36.w,
                   height: 36.h,
                   decoration: ShapeDecoration(
-                    color: AppColors.primaryColor,
+                    color: AppColors.fRedBright,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6.r),
                     ),
                     shadows: [
                       BoxShadow(
-                        color: AppColors.shadowColor,
+                        color: AppColors.fRedBright,
                         blurRadius: 2.92.r,
                         offset: Offset(0, 2.92.h),
                         spreadRadius: 0,
@@ -101,7 +101,7 @@ class _MenusPageState extends State<MenusPage> {
                   ),
                   child: Icon(
                     Icons.calendar_today_outlined,
-                    color: AppColors.white,
+                    color: AppColors.fWhite,
                     size: 18.sp,
                   ),
                 ),
@@ -109,7 +109,7 @@ class _MenusPageState extends State<MenusPage> {
                 Text(
                   'History',
                   style: TextStyle(
-                    color: AppColors.secondaryText,
+                    color: AppColors.fTextH2,
                     fontSize: 10.sp,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w400,
@@ -135,7 +135,7 @@ class _MenusPageState extends State<MenusPage> {
             return const Center(
               child: Text(
                 'Something went wrong',
-                style: TextStyle(color: AppColors.error),
+                style: TextStyle(color: AppColors.fRed2),
               ),
             );
           }
@@ -143,7 +143,7 @@ class _MenusPageState extends State<MenusPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(
-                color: AppColors.primaryColor,
+                color: AppColors.fRedBright,
               ),
             );
           }

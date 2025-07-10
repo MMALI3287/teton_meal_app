@@ -36,17 +36,17 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF9F9F9), // F_WhiteBackground
+        backgroundColor: Color(0xFFF9F9F9), // F_fWhiteBackground
         body: Center(
           child: CircularProgressIndicator(
-            color: AppColors.primaryColor,
+            color: AppColors.fRedBright,
           ),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // F_WhiteBackground
+      backgroundColor: const Color(0xFFF9F9F9), // F_fWhiteBackground
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -84,15 +84,15 @@ class _AccountPageState extends State<AccountPage> {
             width: 40.w,
             height: 40.h,
             decoration: BoxDecoration(
-              color: AppColors.cardBackground,
+              color: AppColors.fWhite,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: AppColors.inputBorderColor.withOpacity(0.5),
+                color: AppColors.fTextH2.withOpacity(0.5),
               ),
             ),
             child: Icon(
               Icons.arrow_back_ios_new,
-              color: AppColors.primaryText,
+              color: AppColors.fTextH1,
               size: 20.sp,
             ),
           ),
@@ -141,7 +141,7 @@ class _AccountPageState extends State<AccountPage> {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: AppColors.tertiaryText),
+                style: TextStyle(color: AppColors.fIconAndLabelText),
               ),
             ),
             ElevatedButton(
@@ -152,13 +152,13 @@ class _AccountPageState extends State<AccountPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('$field updated successfully'),
-                    backgroundColor: AppColors.primaryColor,
+                    backgroundColor: AppColors.fRedBright,
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryColor,
-                foregroundColor: AppColors.white,
+                backgroundColor: AppColors.fRedBright,
+                foregroundColor: AppColors.fWhite,
               ),
               child: const Text('Save'),
             ),

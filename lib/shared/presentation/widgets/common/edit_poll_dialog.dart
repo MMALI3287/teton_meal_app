@@ -149,7 +149,7 @@ class EditPollDialogState extends State<EditPollDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select at least one item'),
-          backgroundColor: AppColors.error,
+          backgroundColor: AppColors.fRed2,
         ),
       );
       return;
@@ -198,7 +198,7 @@ class EditPollDialogState extends State<EditPollDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating menu: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: AppColors.fRed2,
           ),
         );
       }
@@ -467,7 +467,7 @@ class EditPollDialogState extends State<EditPollDialog> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondaryColor.withOpacity(0.3),
+            color: AppColors.fNameBoxPink.withOpacity(0.3),
             blurRadius: 8.r,
             offset: Offset(0, 4.h),
           ),
@@ -479,12 +479,12 @@ class EditPollDialogState extends State<EditPollDialog> {
           width: 24.w,
           height: 24.h,
           decoration: BoxDecoration(
-            color: AppColors.white.withOpacity(0.3),
+            color: AppColors.fWhite.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Icon(
             Icons.add,
-            color: AppColors.white,
+            color: AppColors.fWhite,
             size: 16.sp,
           ),
         ),
@@ -493,13 +493,13 @@ class EditPollDialogState extends State<EditPollDialog> {
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.w600,
-            color: AppColors.white,
+            color: AppColors.fWhite,
             fontFamily: 'Mulish',
             letterSpacing: 0.3,
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.secondaryColor,
+          backgroundColor: AppColors.fNameBoxPink,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
           ),

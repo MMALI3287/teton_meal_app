@@ -161,9 +161,9 @@ Entry Point → Create New Menu Page
 ### Colors
 
 - Primary: `AppColors.primaryColor` (Red)
-- Secondary: `AppColors.secondaryColor` (Yellow)
+- Secondary: `AppColors.fYellow` (Yellow)
 - Success: `AppColors.saveGreen`
-- Background: `AppColors.backgroundColor`
+- Background: `AppColors.fWhiteBackground`
 
 ### Typography
 

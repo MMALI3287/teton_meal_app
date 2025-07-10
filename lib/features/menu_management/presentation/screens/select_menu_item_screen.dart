@@ -45,7 +45,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading items: $e'),
-            backgroundColor: AppColors.error,
+            backgroundColor: AppColors.fRed2,
           ),
         );
       }
@@ -85,7 +85,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.fWhiteBackground,
       body: Container(
         width: 393.w,
         height: 805.h,
@@ -98,7 +98,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
               const Expanded(
                 child: Center(
                   child: CircularProgressIndicator(
-                    color: AppColors.primaryColor,
+                    color: AppColors.fRedBright,
                   ),
                 ),
               )
@@ -129,12 +129,12 @@ class _SelectItemPageState extends State<SelectItemPage> {
               width: 32.w,
               height: 32.h,
               decoration: BoxDecoration(
-                color: AppColors.secondaryColor,
+                color: AppColors.fYellow,
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
                 Icons.close,
-                color: AppColors.white,
+                color: AppColors.fWhite,
                 size: 18.sp,
               ),
             ),
@@ -144,7 +144,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
               child: Text(
                 'Select Item',
                 style: TextStyle(
-                  color: AppColors.primaryText,
+                  color: AppColors.fTextH1,
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
                 ),
@@ -165,13 +165,13 @@ class _SelectItemPageState extends State<SelectItemPage> {
           Icon(
             Icons.restaurant_menu_outlined,
             size: 64.sp,
-            color: AppColors.tertiaryText,
+            color: AppColors.fIconAndLabelText,
           ),
           SizedBox(height: 16.h),
           Text(
             'No items available',
             style: TextStyle(
-              color: AppColors.secondaryText,
+              color: AppColors.fTextH2,
               fontSize: 16.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -180,7 +180,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
           Text(
             'Start by adding your first menu item',
             style: TextStyle(
-              color: AppColors.tertiaryText,
+              color: AppColors.fIconAndLabelText,
               fontSize: 14.sp,
             ),
           ),
@@ -204,12 +204,11 @@ class _SelectItemPageState extends State<SelectItemPage> {
               child: Container(
                 padding: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
-                  color: AppColors.cardBackground,
+                  color: AppColors.fWhite,
                   borderRadius: BorderRadius.circular(12.r),
                   border: Border.all(
-                    color: isSelected
-                        ? AppColors.primaryColor
-                        : AppColors.inputBorderColor,
+                    color:
+                        isSelected ? AppColors.fRedBright : AppColors.fTextH2,
                     width: isSelected ? 2 : 1,
                   ),
                 ),
@@ -222,18 +221,18 @@ class _SelectItemPageState extends State<SelectItemPage> {
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isSelected
-                              ? AppColors.primaryColor
-                              : AppColors.inputBorderColor,
+                              ? AppColors.fRedBright
+                              : AppColors.fTextH2,
                           width: 2,
                         ),
                         color: isSelected
-                            ? AppColors.primaryColor
+                            ? AppColors.fRedBright
                             : Colors.transparent,
                       ),
                       child: isSelected
                           ? Icon(
                               Icons.check,
-                              color: AppColors.white,
+                              color: AppColors.fWhite,
                               size: 12.sp,
                             )
                           : null,
@@ -246,7 +245,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                           Text(
                             item.name,
                             style: TextStyle(
-                              color: AppColors.primaryText,
+                              color: AppColors.fTextH1,
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w600,
                             ),
@@ -257,7 +256,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                               child: Text(
                                 'With ${item.subItem}',
                                 style: TextStyle(
-                                  color: AppColors.secondaryText,
+                                  color: AppColors.fTextH2,
                                   fontSize: 14.sp,
                                 ),
                               ),
@@ -291,7 +290,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text('Error deleting item: $e'),
-                                      backgroundColor: AppColors.error,
+                                      backgroundColor: AppColors.fRed2,
                                     ),
                                   );
                                 }
@@ -302,7 +301,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                       },
                       icon: Icon(
                         Icons.delete_outline,
-                        color: AppColors.tertiaryText,
+                        color: AppColors.fIconAndLabelText,
                         size: 20.sp,
                       ),
                     ),
@@ -325,7 +324,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
             child: OutlinedButton(
               onPressed: _addNewItem,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.primaryColor),
+                side: const BorderSide(color: AppColors.fRedBright),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),
@@ -336,7 +335,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                 children: [
                   Icon(
                     Icons.add,
-                    color: AppColors.primaryColor,
+                    color: AppColors.fRedBright,
                     size: 18.sp,
                   ),
                   SizedBox(width: 8.w),
@@ -344,7 +343,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                     child: Text(
                       'Add New Item',
                       style: TextStyle(
-                        color: AppColors.primaryColor,
+                        color: AppColors.fRedBright,
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -364,8 +363,8 @@ class _SelectItemPageState extends State<SelectItemPage> {
               onPressed: _selectedItems.isNotEmpty ? _saveSelection : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.saveGreen,
-                foregroundColor: AppColors.white,
-                disabledBackgroundColor: AppColors.disabledButton,
+                foregroundColor: AppColors.fWhite,
+                disabledBackgroundColor: AppColors.fRedBright,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),

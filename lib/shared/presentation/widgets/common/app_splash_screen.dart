@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
+import 'package:teton_meal_app/app/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
   final Widget nextScreen;
-  
+
   const SplashScreen({super.key, required this.nextScreen});
 
   @override
@@ -21,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
@@ -51,9 +52,11 @@ class _SplashScreenState extends State<SplashScreen>
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => widget.nextScreen,
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                widget.nextScreen,
             transitionDuration: const Duration(milliseconds: 500),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
               return FadeTransition(
                 opacity: animation,
                 child: child,
@@ -106,27 +109,27 @@ class _SplashScreenState extends State<SplashScreen>
                           height: 100.h,
                           margin: EdgeInsets.only(bottom: 50.h),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
+                            color: AppColors.fWhite.withOpacity(0.15),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
+                              color: AppColors.fWhite.withOpacity(0.3),
                               width: 2,
                             ),
                           ),
                           child: Icon(
                             Icons.restaurant,
-                            color: Colors.white,
+                            color: AppColors.fWhite,
                             size: 45.sp,
                           ),
                         ),
-                        
+
                         // Main Title - "Meal Chill"
                         Text(
                           'Meal Chill',
                           style: GoogleFonts.lobster(
                             fontSize: 52.sp,
                             fontWeight: FontWeight.w400,
-                            color: Colors.white,
+                            color: AppColors.fWhite,
                             letterSpacing: 2.5,
                             height: 1.1,
                             shadows: [
@@ -138,16 +141,16 @@ class _SplashScreenState extends State<SplashScreen>
                             ],
                           ),
                         ),
-                        
+
                         SizedBox(height: 60.h),
-                        
+
                         // Loading indicator
                         SizedBox(
                           width: 30.w,
                           height: 30.h,
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white.withOpacity(0.8),
+                              AppColors.fWhite.withOpacity(0.8),
                             ),
                             strokeWidth: 2.5,
                           ),

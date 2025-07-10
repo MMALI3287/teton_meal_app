@@ -178,7 +178,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
                 width: 60.w,
                 child: const CircularProgressIndicator(
                   valueColor:
-                      AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+                      AlwaysStoppedAnimation<Color>(AppColors.fRedBright),
                   strokeWidth: 3,
                 ),
               ),

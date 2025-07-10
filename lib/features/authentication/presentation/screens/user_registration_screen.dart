@@ -33,7 +33,7 @@ class _UserRegisterState extends State<UserRegister> {
                       ),
                       child: const Icon(
                         Icons.arrow_back_ios,
-                        color: Colors.white,
+                        color: AppColors.fWhite,
                         size: 16,
                       ),
                     ),
@@ -58,7 +58,7 @@ class _UserRegisterState extends State<UserRegister> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.fWhite,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -81,7 +81,7 @@ class _UserRegisterState extends State<UserRegister> {
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: const BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.fWhite,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(24),
                     topRight: Radius.circular(24),

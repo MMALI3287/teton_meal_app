@@ -3,6 +3,7 @@ import 'package:teton_meal_app/features/authentication/presentation/screens/logi
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:teton_meal_app/data/models/user_model.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
+import 'package:teton_meal_app/data/services/auth_service.dart';
 
 class AccountsPage extends StatefulWidget {
   const AccountsPage({super.key});
@@ -209,7 +210,7 @@ class _AccountsPageState extends State<AccountsPage>
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
-                color: AppColors.primaryColor,
+                color: AppColors.fRedBright,
               ),
             )
           : Container(
@@ -218,8 +219,8 @@ class _AccountsPageState extends State<AccountsPage>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.primaryColor.withOpacity(0.05),
-                    AppColors.backgroundColor,
+                    AppColors.fRedBright.withOpacity(0.05),
+                    AppColors.fWhiteBackground,
                   ],
                 ),
               ),
@@ -240,7 +241,7 @@ class _AccountsPageState extends State<AccountsPage>
                           ).animate(_animation),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.fWhite,
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
@@ -282,7 +283,7 @@ class _AccountsPageState extends State<AccountsPage>
                                             _getInitials(),
                                             style: const TextStyle(
                                               fontSize: 36,
-                                              color: Colors.white,
+                                              color: AppColors.fWhite,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -299,7 +300,7 @@ class _AccountsPageState extends State<AccountsPage>
                                                   theme.colorScheme.secondary,
                                               shape: BoxShape.circle,
                                               border: Border.all(
-                                                  color: Colors.white,
+                                                  color: AppColors.fWhite,
                                                   width: 2),
                                               boxShadow: [
                                                 BoxShadow(
@@ -311,7 +312,7 @@ class _AccountsPageState extends State<AccountsPage>
                                             ),
                                             child: const Icon(
                                               Icons.photo_camera,
-                                              color: Colors.white,
+                                              color: AppColors.fWhite,
                                               size: 20,
                                             ),
                                           ),
@@ -365,7 +366,7 @@ class _AccountsPageState extends State<AccountsPage>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: AppColors.primaryColor.withOpacity(0.1),
+                              color: AppColors.fRedBright.withOpacity(0.1),
                             ),
                           ),
                           child: Padding(
@@ -662,7 +663,7 @@ class _AccountsPageState extends State<AccountsPage>
                             label: const Text('Sign Out'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: theme.colorScheme.error,
-                              foregroundColor: Colors.white,
+                              foregroundColor: AppColors.fWhite,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 24,
                                 vertical: 12,
@@ -725,7 +726,7 @@ class _AccountsPageState extends State<AccountsPage>
           borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: isEnabled ? Colors.white : Colors.grey[50],
+        fillColor: isEnabled ? AppColors.fWhite : Colors.grey[50],
       ),
       validator: validator,
     );
@@ -770,7 +771,7 @@ class _AccountsPageState extends State<AccountsPage>
           borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.fWhite,
       ),
       validator: validator,
     );
@@ -866,7 +867,7 @@ class _AccountsPageState extends State<AccountsPage>
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.error,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.fWhite,
               ),
               child: const Text('Sign Out'),
             ),
