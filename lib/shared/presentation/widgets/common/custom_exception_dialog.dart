@@ -9,6 +9,7 @@ class CustomExceptionDialog extends StatelessWidget {
   final Color iconColor;
   final String buttonText;
   final VoidCallback? onButtonPressed;
+  final bool showButton;
 
   const CustomExceptionDialog({
     super.key,
@@ -18,6 +19,7 @@ class CustomExceptionDialog extends StatelessWidget {
     this.iconColor = AppColors.fRedBright,
     this.buttonText = 'OK',
     this.onButtonPressed,
+    this.showButton = true,
   });
 
   @override
@@ -83,39 +85,40 @@ class CustomExceptionDialog extends StatelessWidget {
             ),
             SizedBox(height: 24.h),
 
-            // Button
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-                onButtonPressed?.call();
-              },
-              child: Container(
-                width: double.infinity,
-                height: 44.h,
-                decoration: BoxDecoration(
-                  color: iconColor,
-                  borderRadius: BorderRadius.circular(12.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: iconColor.withValues(alpha: 0.3),
-                      blurRadius: 8.r,
-                      offset: Offset(0, 4.h),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    buttonText,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.fWhite,
-                      fontFamily: 'Mulish',
+            // Button (conditionally shown)
+            if (showButton)
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                  onButtonPressed?.call();
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 44.h,
+                  decoration: BoxDecoration(
+                    color: iconColor,
+                    borderRadius: BorderRadius.circular(12.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: iconColor.withValues(alpha: 0.3),
+                        blurRadius: 8.r,
+                        offset: Offset(0, 4.h),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      buttonText,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.fWhite,
+                        fontFamily: 'Mulish',
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -213,6 +216,40 @@ class CustomExceptionDialog extends StatelessWidget {
           iconColor: AppColors.fCyan,
           buttonText: buttonText,
           onButtonPressed: onButtonPressed,
+        );
+      },
+    );
+  }
+
+  /// Static method to show welcome dialog that auto-closes after 3 seconds
+  static Future<void> showWelcome({
+    required BuildContext context,
+    required String userName,
+  }) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        // Auto-close dialog after 1 second for better visibility
+        Future.delayed(const Duration(seconds: 1), () {
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop();
+          }
+        });
+
+        return AnimatedScale(
+          scale: 1.0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.elasticOut,
+          child: CustomExceptionDialog(
+            title: 'Welcome $userName!',
+            message: 'Welcome to Teton Meal App!',
+            icon: Icons.check_circle_outline,
+            iconColor: AppColors.saveGreen,
+            buttonText: 'Continue',
+            onButtonPressed: null,
+            showButton: false, // Hide the button for auto-close dialog
+          ),
         );
       },
     );

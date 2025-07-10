@@ -31,12 +31,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    
+
     // Initialize Firebase with all services
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    
+
     // Explicitly initialize Firebase Storage
     final storage = FirebaseStorage.instance;
     if (kDebugMode) {

@@ -40,10 +40,12 @@ This document explains the changes made to fix the "Firebase Storage no object f
 ### Issue: "No object found at location"
 
 This typically means one of:
+
 - The Firebase Storage path doesn't exist
 - The app doesn't have permission to access that path
 
 **Solution:**
+
 1. Verify Firebase Storage rules allow access to the path
 2. Make sure the path exists (the test button can create the folder if missing)
 3. Check that Firebase Storage is properly initialized
@@ -51,6 +53,7 @@ This typically means one of:
 ### Issue: Upload starts but fails to complete
 
 **Solution:**
+
 1. Check network connectivity
 2. Verify the image file is not too large (we're already compressing images)
 3. Look for errors in the debug logs
@@ -58,6 +61,7 @@ This typically means one of:
 ### Issue: Can't get download URL after upload
 
 **Solution:**
+
 1. Verify Firebase Storage rules allow read access to the uploaded file
 2. Check if the upload completed successfully before requesting the URL
 

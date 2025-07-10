@@ -32,13 +32,13 @@ class StorageService {
     try {
       if (kDebugMode) {
         print('Starting upload of $fileName to $folder');
-        
+
         // Debug: Check if file exists and has content
         final file = File(filePath);
         final fileExists = await file.exists();
         final fileSize = fileExists ? await file.length() : 0;
         print('File exists: $fileExists, Size: $fileSize bytes');
-        
+
         // Debug: Check Firebase Storage instance
         print('Storage bucket: ${_storage.bucket}');
       }
@@ -48,7 +48,7 @@ class StorageService {
       if (kDebugMode) {
         print('Storage reference path: ${ref.fullPath}');
       }
-      
+
       // Set proper metadata
       final metadata = SettableMetadata(
         contentType: contentType,
@@ -84,31 +84,33 @@ class StorageService {
 
       // Wait for the upload to complete
       final snapshot = await uploadTask;
-      
+
       if (kDebugMode) {
         print('Upload completed. Trying to get download URL...');
       }
-      
+
       // Get the download URL
       final downloadUrl = await snapshot.ref.getDownloadURL();
-      
+
       if (kDebugMode) {
         print('Got download URL: $downloadUrl');
       }
-      
+
       return downloadUrl;
     } catch (e) {
       if (kDebugMode) {
         print('Error in uploadFile: $e');
-        
+
         // More specific error classification
         if (e is FirebaseException) {
           print('Firebase error code: ${e.code}, message: ${e.message}');
-          
+
           if (e.code == 'unauthorized') {
-            print('Firebase Storage Rules are likely blocking access. Check your security rules.');
+            print(
+                'Firebase Storage Rules are likely blocking access. Check your security rules.');
           } else if (e.code == 'object-not-found') {
-            print('The specified object (folder or file) was not found. Check if the path exists.');
+            print(
+                'The specified object (folder or file) was not found. Check if the path exists.');
           } else if (e.code == 'storage/quota-exceeded') {
             print('Storage quota exceeded. Check your Firebase plan.');
           }
@@ -130,6 +132,41 @@ class StorageService {
         throw Exception('File does not exist: $path');
       }
       return file;
+    }
+  }
+
+  // Upload profile image for a user
+  static Future<String?> uploadProfileImage(
+      String userId, File imageFile) async {
+    try {
+      final fileName = 'profile_$userId.jpg';
+      final downloadUrl = await uploadFile(
+        filePath: imageFile.path,
+        fileName: fileName,
+        contentType: 'image/jpeg',
+        folder: 'profile_images',
+      );
+      return downloadUrl;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error uploading profile image: $e');
+      }
+      return null;
+    }
+  }
+
+  // Delete profile image for a user
+  static Future<bool> deleteProfileImage(String userId) async {
+    try {
+      final fileName = 'profile_$userId.jpg';
+      final ref = _storage.ref().child('profile_images/$fileName');
+      await ref.delete();
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error deleting profile image: $e');
+      }
+      return false;
     }
   }
 }

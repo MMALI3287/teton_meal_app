@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
-import 'package:teton_meal_app/features/authentication/presentation/screens/admin_registration_screen.dart';
+import 'package:teton_meal_app/features/user_management/presentation/screens/user_edit_screen.dart';
 
 // Simple User data class for this page
 class UserData {
@@ -9,12 +10,16 @@ class UserData {
   final String email;
   final String role;
   final String? displayName;
+  final String? department;
+  final String? profileImageUrl;
 
   UserData({
     required this.uid,
     required this.email,
     required this.role,
     this.displayName,
+    this.department,
+    this.profileImageUrl,
   });
 }
 
@@ -41,9 +46,10 @@ class _UsersPageState extends State<UsersPage> {
         _isLoading = true;
       });
 
-      // Fetch users from Firestore
+      // Fetch verified users from Firestore
       final querySnapshot = await FirebaseFirestore.instance
           .collection('users')
+          .where('isVerified', isEqualTo: true)
           .orderBy('email')
           .get();
 
@@ -54,6 +60,8 @@ class _UsersPageState extends State<UsersPage> {
           email: data['email'] ?? '',
           role: data['role'] ?? 'Diner',
           displayName: data['displayName'],
+          department: data['department'],
+          profileImageUrl: data['profileImageUrl'],
         );
       }).toList();
     } catch (e) {
@@ -79,82 +87,36 @@ class _UsersPageState extends State<UsersPage> {
           children: [
             // Header
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
-                      width: 42,
-                      height: 42,
+                      width: 42.w,
+                      height: 42.h,
                       decoration: BoxDecoration(
                         color: AppColors.fTextH1,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back,
                         color: AppColors.fWhite,
-                        size: 20,
+                        size: 20.sp,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  const Expanded(
+                  SizedBox(width: 12.w),
+                  Expanded(
                     child: Text(
                       'Users',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.bold,
                         color: AppColors.fTextH1,
                         letterSpacing: -0.12,
+                        fontFamily: 'Mulish',
                       ),
-                    ),
-                  ),
-                  // Add New button
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Register(),
-                        ),
-                      ).then((_) {
-                        // Refresh the users list when returning from register page
-                        _loadUsers();
-                      });
-                    },
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            color: AppColors.fRedBright,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.fTextH1.withValues(alpha: 0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: AppColors.fWhite,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Add New',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.fRedBright,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ],
@@ -167,30 +129,32 @@ class _UsersPageState extends State<UsersPage> {
                       child: CircularProgressIndicator(),
                     )
                   : _users.isEmpty
-                      ? const Center(
+                      ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 Icons.people_outline,
-                                size: 64,
+                                size: 64.sp,
                                 color: AppColors.fIconAndLabelText,
                               ),
-                              SizedBox(height: 16),
+                              SizedBox(height: 16.h),
                               Text(
                                 'No users found',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 18.sp,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.fTextH1,
+                                  fontFamily: 'Mulish',
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              SizedBox(height: 8.h),
                               Text(
-                                'Tap "Add New" to create the first user',
+                                'No verified users yet',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   color: AppColors.fIconAndLabelText,
+                                  fontFamily: 'Mulish',
                                 ),
                               ),
                             ],
@@ -199,7 +163,7 @@ class _UsersPageState extends State<UsersPage> {
                       : RefreshIndicator(
                           onRefresh: _loadUsers,
                           child: ListView.builder(
-                            padding: const EdgeInsets.all(16),
+                            padding: EdgeInsets.all(16.w),
                             itemCount: _users.length,
                             itemBuilder: (context, index) {
                               final user = _users[index];
@@ -215,87 +179,143 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Widget _buildUserCard(UserData user) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.fWhite,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.fTextH1.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserEditScreen(
+              userId: user.uid,
+              userData: {
+                'email': user.email,
+                'role': user.role,
+                'displayName': user.displayName,
+                'department': user.department,
+                'profileImageUrl': user.profileImageUrl,
+              },
+            ),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // User Avatar
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.fWhiteBackground,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
-                width: 1,
+        );
+
+        // Reload users if changes were made
+        if (result == true) {
+          _loadUsers();
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: AppColors.fWhite,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.fTextH1.withValues(alpha: 0.05),
+              blurRadius: 4.r,
+              offset: Offset(0, 2.h),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // User Avatar with actual profile image
+            Container(
+              width: 48.w,
+              height: 48.h,
+              decoration: BoxDecoration(
+                color: AppColors.fWhiteBackground,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+                image: user.profileImageUrl != null &&
+                        user.profileImageUrl!.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(user.profileImageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              child:
+                  user.profileImageUrl == null || user.profileImageUrl!.isEmpty
+                      ? Icon(
+                          Icons.person_outline,
+                          color: AppColors.fIconAndLabelText,
+                          size: 24.sp,
+                        )
+                      : null,
+            ),
+            SizedBox(width: 16.w),
+            // User Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.displayName?.isNotEmpty == true
+                        ? user.displayName!
+                        : user.email.split('@').first,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.fTextH1,
+                      fontFamily: 'Mulish',
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    user.email,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.fIconAndLabelText,
+                      fontFamily: 'Mulish',
+                    ),
+                  ),
+                  // Department badge
+                  if (user.department != null &&
+                      user.department!.isNotEmpty) ...[
+                    SizedBox(height: 4.h),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.fCyan.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        user.department!,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.fCyan,
+                          fontFamily: 'Mulish',
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            child: const Icon(
-              Icons.person_outline,
-              color: AppColors.fIconAndLabelText,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          // User Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user.displayName?.isNotEmpty == true
-                      ? user.displayName!
-                      : user.email.split('@').first,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.fTextH1,
-                    fontFamily: 'Mulish',
-                  ),
+            // Role Badge with different colors
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: _getRoleColor(user.role).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6.r),
+              ),
+              child: Text(
+                user.role,
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w600,
+                  color: _getRoleColor(user.role),
+                  fontFamily: 'Mulish',
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  user.email,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.fIconAndLabelText,
-                    fontFamily: 'Mulish',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Role Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: _getRoleColor(user.role).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              user.role,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: _getRoleColor(user.role),
-                fontFamily: 'Mulish',
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -303,12 +323,12 @@ class _UsersPageState extends State<UsersPage> {
   Color _getRoleColor(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return AppColors.fRed2;
+        return AppColors.fRedBright; // Red for admin
       case 'planner':
-        return AppColors.fRedBright;
+        return AppColors.saveGreen; // Green for planner
       case 'diner':
       default:
-        return AppColors.fIconAndLabelText;
+        return AppColors.fYellow; // Yellow for diner
     }
   }
 }

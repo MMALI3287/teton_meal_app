@@ -30,7 +30,7 @@ class UserDetailPage extends StatelessWidget {
                     _buildUserAvatar(),
                     SizedBox(height: 24.h),
                     _buildUserInfo(),
-                    SizedBox(height: 32.h),
+                    SizedBox(height: 24.h),
                     _buildActionButtons(context),
                   ],
                 ),
@@ -73,7 +73,7 @@ class UserDetailPage extends StatelessWidget {
           SizedBox(width: 16.w),
           Expanded(
             child: Text(
-              'User Details',
+              'User Request Details',
               style: TextStyle(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w700,
@@ -169,7 +169,7 @@ class UserDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'User Information',
+            'Request Information',
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w700,

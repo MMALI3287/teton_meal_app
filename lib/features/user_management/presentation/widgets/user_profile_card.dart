@@ -7,14 +7,12 @@ class UserProfileCard extends StatelessWidget {
   final UserModel? user;
   final VoidCallback? onEditName;
   final VoidCallback? onEditEmail;
-  final VoidCallback? onEditAccountType;
 
   const UserProfileCard({
     super.key,
     required this.user,
     this.onEditName,
     this.onEditEmail,
-    this.onEditAccountType,
   });
 
   @override
@@ -45,17 +43,27 @@ class UserProfileCard extends StatelessWidget {
                 offset: Offset(0, 4.h),
               ),
             ],
+            // Show actual profile image if available
+            image: user?.profileImageUrl != null &&
+                    user!.profileImageUrl!.isNotEmpty
+                ? DecorationImage(
+                    image: NetworkImage(user!.profileImageUrl!),
+                    fit: BoxFit.cover,
+                  )
+                : null,
           ),
-          child: Center(
-            child: Text(
-              _getInitials(),
-              style: TextStyle(
-                fontSize: 32.sp,
-                fontWeight: FontWeight.w700,
-                color: AppColors.fWhite,
-              ),
-            ),
-          ),
+          child: user?.profileImageUrl == null || user!.profileImageUrl!.isEmpty
+              ? Center(
+                  child: Text(
+                    _getInitials(),
+                    style: TextStyle(
+                      fontSize: 32.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.fWhite,
+                    ),
+                  ),
+                )
+              : null,
         ),
         SizedBox(height: 8.h),
         // Name
@@ -154,10 +162,17 @@ class UserProfileCard extends StatelessWidget {
           ),
           _buildDivider(),
           _buildProfileItem(
+            icon: Icons.business_outlined,
+            title: 'Department',
+            value: user?.department ?? 'Not specified',
+            onEdit: null, // Department cannot be edited
+          ),
+          _buildDivider(),
+          _buildProfileItem(
             icon: Icons.account_circle_outlined,
             title: 'Account Type',
             value: user?.role ?? 'User',
-            onEdit: onEditAccountType,
+            onEdit: null, // Account type cannot be edited
           ),
           SizedBox(height: 16.h),
         ],
@@ -171,60 +186,60 @@ class UserProfileCard extends StatelessWidget {
     required String value,
     VoidCallback? onEdit,
   }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      child: Row(
-        children: [
-          Container(
-            width: 18.w,
-            height: 18.h,
-            margin: EdgeInsets.only(left: 8.w, right: 12.w),
-            child: Icon(
-              icon,
-              color: const Color(0xFF383A3F), // F_Text_H1
-              size: 18.sp,
+    return GestureDetector(
+      onTap: onEdit, // Make the entire row tappable
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        color: Colors.transparent, // Ensure tap area is responsive
+        child: Row(
+          children: [
+            Container(
+              width: 18.w,
+              height: 18.h,
+              margin: EdgeInsets.only(left: 8.w, right: 12.w),
+              child: Icon(
+                icon,
+                color: const Color(0xFF383A3F), // F_Text_H1
+                size: 18.sp,
+              ),
             ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF383A3F), // F_Text_H1
-                    letterSpacing: -0.2,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF383A3F), // F_Text_H1
+                      letterSpacing: -0.2,
+                    ),
                   ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF7A869A), // F_Icon& Label_Text
-                    letterSpacing: -0.24,
+                  SizedBox(height: 4.h),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                      letterSpacing: -0.24,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (onEdit != null)
-            GestureDetector(
-              onTap: onEdit,
-              child: SizedBox(
-                width: 18.w,
-                height: 18.h,
+            if (onEdit != null)
+              Container(
+                padding: EdgeInsets.all(8.w), // Larger tap area
                 child: Icon(
                   Icons.edit_outlined,
                   color: const Color(0xFF7A869A), // F_Icon& Label_Text
                   size: 18.sp,
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

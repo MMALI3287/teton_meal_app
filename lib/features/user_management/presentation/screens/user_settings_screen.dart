@@ -123,22 +123,42 @@ class _SettingsPageState extends State<SettingsPage> {
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Column(
             children: [
-              SizedBox(height: 16.h),
+              SizedBox(height: 12.h),
               _buildHeader(),
-              SizedBox(height: 24.h),
+              SizedBox(height: 8.h),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildGeneralSection(),
-                      SizedBox(height: 16.h),
-                      _buildSecurityPrivacySection(),
-                      SizedBox(height: 16.h),
-                      _buildHelpSupportSection(),
-                      SizedBox(height: 16.h),
-                      _buildLogoutSection(),
-                      SizedBox(height: 32.h),
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.fWhite,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24.r),
+                      topRight: Radius.circular(24.r),
+                      bottomLeft: Radius.circular(8.r),
+                      bottomRight: Radius.circular(24.r),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 4.r,
+                        offset: Offset(0, 4.h),
+                      ),
                     ],
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(height: 8.h),
+                        _buildGeneralSection(),
+                        SizedBox(height: 8.h),
+                        _buildSecurityPrivacySection(),
+                        SizedBox(height: 8.h),
+                        _buildHelpSupportSection(),
+                        SizedBox(height: 8.h),
+                        _buildLogoutSection(),
+                        SizedBox(height: 24.h),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -152,38 +172,18 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildHeader() {
     return Row(
       children: [
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            width: 40.w,
-            height: 40.h,
-            decoration: BoxDecoration(
-              color: AppColors.fWhite,
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: AppColors.fTextH2.withValues(alpha: 0.5),
-              ),
-            ),
-            child: Icon(
-              Icons.arrow_back_ios_new,
-              color: AppColors.fTextH1,
-              size: 20.sp,
-            ),
-          ),
-        ),
         Expanded(
-          child: Center(
-            child: Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF383A3F), // F_Text_H1
-              ),
+          child: Text(
+            'Settings',
+            style: TextStyle(
+              fontSize: 24.sp,
+              fontWeight: FontWeight.bold,
+              color: AppColors.fTextH1,
+              letterSpacing: -0.12,
+              fontFamily: 'Work Sans',
             ),
           ),
         ),
-        SizedBox(width: 40.w), // Balance the back button
       ],
     );
   }
@@ -191,7 +191,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildGeneralSection() {
     return _buildSection(
       title: 'General',
-      titleColor: const Color(0xFF466D5E), // F_Green
+      titleColor: AppColors.fGreen,
       items: [
         _buildSectionItem(
           icon: Icons.person_outline,
@@ -216,8 +216,8 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         ),
         _buildSectionItem(
-          icon: Icons.access_time,
-          title: 'Reminder',
+          icon: Icons.schedule_outlined,
+          title: 'Reminders',
           onTap: () {
             Navigator.push(
               context,
@@ -234,7 +234,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildSecurityPrivacySection() {
     return _buildSection(
       title: 'Security & Privacy',
-      titleColor: const Color(0xFF7495DE), // F_Blue
+      titleColor: AppColors.fBlue,
       items: [
         _buildSectionItem(
           icon: Icons.privacy_tip_outlined,
@@ -267,7 +267,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildHelpSupportSection() {
     return _buildSection(
       title: 'Help & Support',
-      titleColor: const Color(0xFFEF9F27), // F_Yellow
+      titleColor: AppColors.fYellow,
       items: [
         _buildSectionItem(
           icon: Icons.info_outline,
@@ -288,7 +288,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildLogoutSection() {
     return _buildSection(
       title: 'Logout',
-      titleColor: const Color(0xFFFF7686), // F_Red_2
+      titleColor: AppColors.fRed2,
       items: [
         _buildSectionItem(
           icon: Icons.logout,
@@ -307,22 +307,18 @@ class _SettingsPageState extends State<SettingsPage> {
   }) {
     return Container(
       width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // F_White
+        color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.fRedBright.withValues(alpha: 0.07),
-            blurRadius: 4.r,
-            offset: Offset(0, 4.h),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: 12.h),
+          // Section Title
           Padding(
-            padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 12.h),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Text(
               title,
               style: TextStyle(
@@ -330,18 +326,26 @@ class _SettingsPageState extends State<SettingsPage> {
                 fontWeight: FontWeight.w600,
                 color: titleColor,
                 letterSpacing: -0.2,
+                fontFamily: 'DM Sans',
               ),
             ),
           ),
           SizedBox(height: 8.h),
+          // Divider Line
           Container(
             width: double.infinity,
             height: 1.h,
-            margin: EdgeInsets.symmetric(horizontal: 20.w),
-            color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+            margin: EdgeInsets.symmetric(horizontal: 24.w),
+            color: AppColors.fLineaAndLabelBox,
           ),
           SizedBox(height: 8.h),
-          ...items,
+          // Section Items
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            child: Column(
+              children: items,
+            ),
+          ),
           SizedBox(height: 12.h),
         ],
       ),
@@ -354,42 +358,59 @@ class _SettingsPageState extends State<SettingsPage> {
     required VoidCallback onTap,
     bool showArrow = true,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        child: Row(
-          children: [
-            Container(
-              width: 16.w,
-              height: 16.h,
-              margin: EdgeInsets.only(left: 8.w, right: 16.w),
-              child: Icon(
-                icon,
-                color: const Color(0xFF383A3F), // F_Text_H1
-                size: 16.sp,
+    return Container(
+      margin: EdgeInsets.only(bottom: 8.h),
+      child: Column(
+        children: [
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15.r),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 20.w,
+                    height: 20.h,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      icon,
+                      color: AppColors.fTextH1,
+                      size: 14.sp,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.fTextH1,
+                        letterSpacing: -0.2,
+                        fontFamily: 'DM Sans',
+                      ),
+                    ),
+                  ),
+                  if (showArrow)
+                    Icon(
+                      Icons.chevron_right,
+                      color: AppColors.fIconAndLabelText,
+                      size: 10.sp,
+                    ),
+                ],
               ),
             ),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF383A3F), // F_Text_H1
-                  letterSpacing: -0.2,
-                ),
-              ),
-            ),
-            if (showArrow)
-              Icon(
-                Icons.chevron_right,
-                color: const Color(0xFF7A869A), // F_Icon& Label_Text
-                size: 16.sp,
-              ),
-          ],
-        ),
+          ),
+          Container(
+            width: double.infinity,
+            height: 1.h,
+            color: AppColors.fLineaAndLabelBox,
+          ),
+        ],
       ),
     );
   }

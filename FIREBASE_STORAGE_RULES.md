@@ -1,10 +1,10 @@
 # Firebase Storage Rules Configuration
 
-To fix the "Firebase Storage no object found" error, make sure your Firebase Storage rules allow uploads to the `profile_images` folder. 
+To fix the "Firebase Storage no object found" error, make sure your Firebase Storage rules allow uploads to the `profile_images` folder.
 
 ## Go to the Firebase Console
 
-1. Navigate to https://console.firebase.google.com
+1. Navigate to <https://console.firebase.google.com>
 2. Select your project "teton-meal-app"
 3. Click on "Storage" in the left sidebar
 4. Click on "Rules" tab at the top
@@ -34,6 +34,7 @@ service firebase.storage {
 ## Testing the Fix
 
 After updating the rules:
+
 1. Wait a few minutes for the rules to propagate
 2. Try the profile image upload again
 3. Check the debug logs for any additional errors

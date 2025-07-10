@@ -9,7 +9,6 @@ import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/app/app_fonts.dart';
 import 'package:teton_meal_app/data/services/storage_service.dart';
 import 'package:teton_meal_app/features/authentication/presentation/widgets/registration_form_widget.dart';
-import 'package:teton_meal_app/shared/utils/helpers/firebase_storage_test.dart';
 
 class UserRegister extends StatefulWidget {
   const UserRegister({super.key});

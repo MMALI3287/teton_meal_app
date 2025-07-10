@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/features/authentication/presentation/screens/admin_registration_screen.dart';
-import 'package:teton_meal_app/features/user_management/presentation/screens/user_detail_screen.dart';
+import 'package:teton_meal_app/features/user_management/presentation/screens/user_request_details_screen.dart';
 
 class UserRequestsPage extends StatefulWidget {
   const UserRequestsPage({super.key});

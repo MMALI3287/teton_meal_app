@@ -24,7 +24,16 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<void> _loadUserData() async {
     try {
-      user = AuthService().currentUser;
+      // Get fresh user data from auth service
+      final authService = AuthService();
+      user = authService.currentUser;
+
+      // If user data is not available, try to refresh it
+      if (user == null) {
+        // Force a state refresh if needed
+        await Future.delayed(const Duration(milliseconds: 100));
+        user = authService.currentUser;
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -63,8 +72,7 @@ class _AccountPageState extends State<AccountPage> {
                         _showEditDialog('Name', user?.displayName ?? ''),
                     onEditEmail: () =>
                         _showEditDialog('Email', user?.email ?? ''),
-                    onEditAccountType: () =>
-                        _showEditDialog('Account Type', user?.role ?? ''),
+                    // Removed onEditAccountType to prevent users from changing their role
                   ),
                 ),
               ),
@@ -119,50 +127,220 @@ class _AccountPageState extends State<AccountPage> {
     final TextEditingController controller =
         TextEditingController(text: currentValue);
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.fTransparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          title: Text('Edit $field'),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: field,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: AppColors.fIconAndLabelText),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Here you would typically update the user data
-                // For now, we'll just close the dialog
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('$field updated successfully'),
-                    backgroundColor: AppColors.fRedBright,
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Edit $field',
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.fTextH1,
+                        fontFamily: 'Mulish',
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: 32.w,
+                        height: 32.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.fLineaAndLabelBox,
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                        child: Icon(
+                          Icons.close,
+                          color: AppColors.fIconAndLabelText,
+                          size: 18.sp,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24.h),
+
+                // Input field
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.fLineaAndLabelBox,
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+                      width: 1.w,
+                    ),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.fRedBright,
-                foregroundColor: AppColors.fWhite,
-              ),
-              child: const Text('Save'),
+                  child: TextFormField(
+                    controller: controller,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.fTextH1,
+                      fontFamily: 'Mulish',
+                    ),
+                    decoration: InputDecoration(
+                      labelText: field,
+                      labelStyle: TextStyle(
+                        fontSize: 14.sp,
+                        color: AppColors.fIconAndLabelText,
+                        fontFamily: 'Mulish',
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 16.h,
+                      ),
+                    ),
+                    autofocus: true,
+                  ),
+                ),
+                SizedBox(height: 32.h),
+
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fLineaAndLabelBox,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fIconAndLabelText,
+                                fontFamily: 'Mulish',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (user != null &&
+                              controller.text.trim().isNotEmpty) {
+                            try {
+                              // Update user profile in Firebase
+                              if (field == 'Name') {
+                                await AuthService().updateUserProfile(
+                                  uid: user!.uid,
+                                  displayName: controller.text.trim(),
+                                );
+                              } else if (field == 'Email') {
+                                await AuthService().updateUserProfile(
+                                  uid: user!.uid,
+                                  email: controller.text.trim(),
+                                );
+                              }
+
+                              // Reload user data to reflect changes
+                              await _loadUserData();
+
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('$field updated successfully'),
+                                  backgroundColor: AppColors.saveGreen,
+                                  behavior: SnackBarBehavior.floating,
+                                  margin: EdgeInsets.all(16.w),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                ),
+                              );
+                            } catch (e) {
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Failed to update $field: ${e.toString()}'),
+                                  backgroundColor: AppColors.fRedBright,
+                                  behavior: SnackBarBehavior.floating,
+                                  margin: EdgeInsets.all(16.w),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                ),
+                              );
+                            }
+                          } else {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content:
+                                    const Text('Please enter a valid value'),
+                                backgroundColor: AppColors.fRedBright,
+                                behavior: SnackBarBehavior.floating,
+                                margin: EdgeInsets.all(16.w),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fRedBright,
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    AppColors.fRedBright.withValues(alpha: 0.3),
+                                blurRadius: 8.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Save Changes',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fWhite,
+                                fontFamily: 'Mulish',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16.h),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

@@ -28,10 +28,10 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     setState(() {
       _isFormSubmitted = true;
     });
-    
+
     // This will trigger validation on all fields
     _formKey.currentState!.validate();
-    
+
     // Force a rebuild to show errors
     setState(() {});
   }
@@ -47,7 +47,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidateMode: AutovalidateMode.disabled, // Only validate on submission
+      autovalidateMode:
+          AutovalidateMode.disabled, // Only validate on submission
       child: SizedBox(
         width: 300.w,
         child: Column(
@@ -249,7 +250,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   }) {
     // Create a key to identify the form field
     final fieldKey = GlobalKey<FormFieldState>();
-    
+
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 800),
@@ -277,12 +278,13 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               controller: controller,
               obscureText: obscure,
               validator: validator,
-              autovalidateMode: AutovalidateMode.disabled, // Only validate when form is submitted
+              autovalidateMode: AutovalidateMode
+                  .disabled, // Only validate when form is submitted
               style: TextStyle(fontSize: 14.sp, color: AppColors.fTextH1),
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle:
-                    TextStyle(fontSize: 14.sp, color: AppColors.fIconAndLabelText),
+                hintStyle: TextStyle(
+                    fontSize: 14.sp, color: AppColors.fIconAndLabelText),
                 suffixIcon: hint == 'Password'
                     ? suffixIcon
                     : Container(
@@ -340,7 +342,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   Future<void> _handleLogin() async {
     // Manually validate all fields and show errors
     _validateAndShowErrors();
-    
+
     // Only proceed if all validations pass
     if (!_formKey.currentState!.validate()) {
       return;
@@ -351,42 +353,48 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     });
 
     try {
-      await _authService.signIn(
+      final user = await _authService.signIn(
         emailController.text,
         passwordController.text,
       );
 
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const Navbar(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              var begin = const Offset(0.0, 1.0);
-              var end = Offset.zero;
-              var curve = Curves.easeOutQuint;
-              var tween =
-                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-              return SlideTransition(
-                position: animation.drive(tween),
-                child: FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 700),
-          ),
-        );
-      }
+        // Get the user's display name for the welcome message
+        final userName = user?.displayName ?? 'User';
 
-      CustomExceptionDialog.showSuccess(
-        context: context,
-        title: 'Welcome!',
-        message: 'Welcome to Teton Meal App!',
-      );
+        // Show welcome message that auto-closes after 5 seconds
+        await CustomExceptionDialog.showWelcome(
+          context: context,
+          userName: userName,
+        );
+
+        // Navigate to main app after welcome dialog closes
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const Navbar(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                var begin = const Offset(0.0, 1.0);
+                var end = Offset.zero;
+                var curve = Curves.easeOutQuint;
+                var tween = Tween(begin: begin, end: end)
+                    .chain(CurveTween(curve: curve));
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              },
+              transitionDuration: const Duration(milliseconds: 700),
+            ),
+          );
+        }
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
