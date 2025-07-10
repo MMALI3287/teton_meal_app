@@ -133,7 +133,7 @@ class _UsersPageState extends State<UsersPage> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -223,7 +223,7 @@ class _UsersPageState extends State<UsersPage> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -239,7 +239,7 @@ class _UsersPageState extends State<UsersPage> {
               color: AppColors.fWhiteBackground,
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.fIconAndLabelText.withOpacity(0.2),
+                color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
                 width: 1,
               ),
             ),
@@ -282,7 +282,7 @@ class _UsersPageState extends State<UsersPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: _getRoleColor(user.role).withOpacity(0.1),
+              color: _getRoleColor(user.role).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

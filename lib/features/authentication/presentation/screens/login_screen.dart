@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:teton_meal_app/app/app_theme.dart';
+import 'package:teton_meal_app/app/app_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/features/authentication/presentation/screens/user_registration_screen.dart';
 import 'package:teton_meal_app/features/authentication/presentation/widgets/login_form_widget.dart';
@@ -54,32 +54,14 @@ class _LoginPageState extends State<LoginPage>
                     Center(
                       child: ScaleTransition(
                         scale: _scaleAnimation,
-                        child: Container(
+                        child: SizedBox(
                           height: 113.11.h,
                           width: 110.03.w,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                AppColors.fRed2,
-                                AppColors.fRed2,
-                              ],
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10.r),
+                            child: Image.asset(
+                              'assets/images/food-delivery.png',
                             ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.fRedBright,
-                                blurRadius: 10.r,
-                                offset: Offset(0, 5.h),
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.restaurant_menu,
-                            color: AppColors.fWhite,
-                            size: 70.sp,
                           ),
                         ),
                       ),
@@ -87,38 +69,24 @@ class _LoginPageState extends State<LoginPage>
                     SizedBox(height: 8.h),
                     Text(
                       'Welcome back',
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: 'Mulish',
-                        color: AppColors.fTextH1,
-                      ),
+                      style: AppFonts.h1,
                     ),
                     SizedBox(height: 8.h),
                     Text(
-                      'Sign in to access your account',
+                      'sign in to access your account',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w300,
-                        fontFamily: 'Mulish',
-                        color: AppColors.fTextH1,
-                      ),
+                      style: AppFonts.bodyLight,
                     ),
-                    SizedBox(height: 40.h),
+                    SizedBox(height: 32.h),
                     const LoginFormWidget(),
-                    SizedBox(height: 20.h),
+                    SizedBox(height: 16.h),
                     // Registration link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "Don't have an account? ",
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontFamily: 'DMSans',
-                            color: AppColors.fIconAndLabelText,
-                          ),
+                          style: AppFonts.labelMedium,
                         ),
                         GestureDetector(
                           onTap: () {
@@ -131,16 +99,12 @@ class _LoginPageState extends State<LoginPage>
                           },
                           child: Text(
                             "Register here",
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontFamily: 'DMSans',
-                              color: AppColors.fRedBright,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: AppFonts.linkRegular,
                           ),
                         ),
                       ],
                     ),
+                    SizedBox(height: 28.h),
                   ],
                 ),
               ),

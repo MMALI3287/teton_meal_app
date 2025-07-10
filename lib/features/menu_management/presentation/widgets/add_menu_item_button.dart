@@ -22,7 +22,7 @@ class AddItemButtonComponent extends StatelessWidget {
         boxShadow: isEnabled
             ? [
                 BoxShadow(
-                  color: AppColors.fYellow.withOpacity(0.3),
+                  color: AppColors.fYellow.withValues(alpha: 0.3),
                   blurRadius: 8.r,
                   offset: Offset(0, 4.h),
                 ),
@@ -48,7 +48,7 @@ class AddItemButtonComponent extends StatelessWidget {
               width: 24.w,
               height: 24.h,
               decoration: BoxDecoration(
-                color: AppColors.fWhite.withOpacity(0.3),
+                color: AppColors.fWhite.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(

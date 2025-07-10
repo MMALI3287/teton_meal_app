@@ -212,7 +212,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                          color: theme.colorScheme.primary.withOpacity(0.3)),
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -231,7 +232,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                        color: theme.colorScheme.primary.withOpacity(0.2)),
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.2)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -260,7 +262,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                   color: AppColors.fWhite,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                      color: Colors.grey.withOpacity(0.2)),
+                                      color:
+                                          Colors.grey.withValues(alpha: 0.2)),
                                 ),
                                 margin: const EdgeInsets.only(bottom: 12),
                                 child: Row(
@@ -271,7 +274,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
                                         color: theme.colorScheme.primary
-                                            .withOpacity(0.1),
+                                            .withValues(alpha: 0.1),
                                         borderRadius: const BorderRadius.only(
                                           topLeft: Radius.circular(11),
                                           bottomLeft: Radius.circular(11),
@@ -417,8 +420,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                 style: TextStyle(
                                     color: theme.colorScheme.secondary)),
                             style: TextButton.styleFrom(
-                              backgroundColor:
-                                  theme.colorScheme.secondary.withOpacity(0.1),
+                              backgroundColor: theme.colorScheme.secondary
+                                  .withValues(alpha: 0.1),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8)),
                               padding: const EdgeInsets.symmetric(
@@ -433,11 +436,12 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                 const SizedBox(height: 24),
                 Card(
                   elevation: 0,
-                  color: theme.colorScheme.primary.withOpacity(0.05),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.05),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                     side: BorderSide(
-                        color: theme.colorScheme.primary.withOpacity(0.2)),
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.2)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -467,8 +471,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                             ),
                           ),
                           style: TextButton.styleFrom(
-                            backgroundColor:
-                                theme.colorScheme.primary.withOpacity(0.1),
+                            backgroundColor: theme.colorScheme.primary
+                                .withValues(alpha: 0.1),
                             shape: const StadiumBorder(),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),

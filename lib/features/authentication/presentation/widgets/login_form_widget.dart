@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
+import 'package:teton_meal_app/app/app_fonts.dart';
 import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/app_navigation_bar.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/custom_exception_dialog.dart';
@@ -36,113 +37,132 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         width: 300.w,
         child: Column(
           children: [
-            _buildTextField(
-              controller: emailController,
-              icon: Icons.email_outlined,
-              hint: 'Enter your email',
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
-                }
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                    .hasMatch(value)) {
-                  return 'Please enter a valid email';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 16.h),
-            _buildTextField(
-              controller: passwordController,
-              icon: Icons.lock_outline,
-              hint: 'Password',
-              obscure: !_isPasswordVisible,
-              suffixIcon: IconButton(
-                icon: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
-                    return ScaleTransition(scale: animation, child: child);
-                  },
-                  child: Icon(
-                    _isPasswordVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                    key: ValueKey(_isPasswordVisible),
-                    color: AppColors.fIconAndLabelText,
-                    size: 20.sp,
-                  ),
+            Theme(
+              data: Theme.of(context).copyWith(
+                inputDecorationTheme: const InputDecorationTheme(
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
                 ),
-                onPressed: () {
-                  setState(() {
-                    _isPasswordVisible = !_isPasswordVisible;
-                  });
+              ),
+              child: _buildTextField(
+                controller: emailController,
+                icon: Icons.email_outlined,
+                hint: 'Enter your email',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
                 },
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
-                }
-                return null;
-              },
             ),
             SizedBox(height: 16.h),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 8.w,
+            Theme(
+              data: Theme.of(context).copyWith(
+                inputDecorationTheme: const InputDecorationTheme(
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  errorBorder: InputBorder.none,
+                  disabledBorder: InputBorder.none,
+                ),
+              ),
+              child: _buildTextField(
+                controller: passwordController,
+                icon: Icons.lock_outline,
+                hint: 'Password',
+                obscure: !_isPasswordVisible,
+                suffixIcon: IconButton(
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                      return ScaleTransition(scale: animation, child: child);
+                    },
+                    child: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      key: ValueKey(_isPasswordVisible),
+                      color: AppColors.fIconAndLabelText,
+                      size: 20.sp,
                     ),
-                    SizedBox(
-                      width: 12.w,
-                      height: 12.h,
-                      child: Checkbox(
-                        value: _rememberMe,
-                        onChanged: (value) {
-                          setState(() {
-                            _rememberMe = value ?? false;
-                          });
-                        },
-                        activeColor: AppColors.fIconAndLabelText,
-                        shape: RoundedRectangleBorder(
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Container(
+              width: 296.w,
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 12.w,
+                        height: 12.h,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColors.fIconAndLabelText,
+                            width: 1.w,
+                          ),
                           borderRadius: BorderRadius.circular(3.r),
                         ),
-                      ),
-                    ),
-                    SizedBox(width: 5.w),
-                    Text(
-                      'Remember me',
-                      style: TextStyle(
-                        color: AppColors.fIconAndLabelText,
-                        fontSize: 9.sp,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: 'Mulish',
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Text(
-                        'Forgot password?',
-                        style: TextStyle(
-                          color: AppColors.fRed2,
-                          fontSize: 9.sp,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Mulish',
+                        child: Checkbox(
+                          value: _rememberMe,
+                          onChanged: (value) {
+                            setState(() {
+                              _rememberMe = value ?? false;
+                            });
+                          },
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                          activeColor: AppColors.fIconAndLabelText,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(3.r),
+                          ),
                         ),
                       ),
+                      SizedBox(width: 5.w),
+                      Text(
+                        'Remember me',
+                        style: AppFonts.labelSmall,
+                      ),
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Text(
+                      'Forget password ?',
+                      style: AppFonts.linkSmall,
                     ),
-                    SizedBox(width: 8.w),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 104.h),
+            SizedBox(height: 72.h),
             TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 0.0, end: 1.0),
               duration: const Duration(milliseconds: 800),
@@ -159,11 +179,11 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                 width: 300.w,
                 height: 50.h,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.r),
+                  borderRadius: BorderRadius.circular(10.r),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.fRedBright.withOpacity(0.2),
-                      blurRadius: 10.r,
+                      color: AppColors.fTextH1.withValues(alpha: 0.25),
+                      blurRadius: 4.r,
                       offset: Offset(0, 4.h),
                       spreadRadius: 0,
                     ),
@@ -176,9 +196,9 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                     backgroundColor: AppColors.fRedBright,
                     disabledBackgroundColor: AppColors.fRedBright,
                     elevation: 0,
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
                   ),
                   child: _isLoading
@@ -193,12 +213,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                         )
                       : Text(
                           "Sign In",
-                          style: TextStyle(
-                            fontSize: 20.sp,
-                            fontFamily: 'DMSans',
-                            color: AppColors.fWhite,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: AppFonts.buttonLarge,
                         ),
                 ),
               ),
@@ -230,17 +245,11 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         );
       },
       child: Container(
+        height: 50.h,
+        width: 300.w,
         decoration: BoxDecoration(
-          color: AppColors.fWhite,
-          borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.fRedBright,
-              blurRadius: 4.r,
-              offset: Offset(0, 2.h),
-              spreadRadius: 0,
-            ),
-          ],
+          color: AppColors.fLineaAndLabelBox,
+          borderRadius: BorderRadius.circular(10.r),
         ),
         child: TextFormField(
           controller: controller,
@@ -254,31 +263,19 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             suffixIcon: hint == 'Password'
                 ? suffixIcon
                 : Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    padding: EdgeInsets.all(13.w),
                     child: Icon(
                       icon,
                       color: AppColors.fIconAndLabelText,
-                      size: 20.sp,
+                      size: 18.sp,
                     ),
                   ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(
-                color: AppColors.fTextH2,
-                width: 1.w,
-              ),
-            ),
+            border: InputBorder.none,
             contentPadding:
-                EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
-            fillColor: AppColors.fWhite,
+                EdgeInsets.symmetric(vertical: 15.h, horizontal: 22.w),
+            fillColor: AppColors.fTransparent,
             filled: true,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(
-                color: AppColors.fTextH2,
-                width: 1.w,
-              ),
-            ),
+            focusedBorder: InputBorder.none,
             errorStyle: const TextStyle(
               color: AppColors.fRedBright,
               fontWeight: FontWeight.w500,

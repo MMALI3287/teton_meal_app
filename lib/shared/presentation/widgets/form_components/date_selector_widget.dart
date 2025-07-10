@@ -24,11 +24,11 @@ class DateSelectorComponent extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.fWhiteBackground,
           borderRadius: BorderRadius.circular(12.r),
-          border:
-              Border.all(color: AppColors.fTextH2.withOpacity(0.3), width: 1),
+          border: Border.all(
+              color: AppColors.fTextH2.withValues(alpha: 0.3), width: 1),
           boxShadow: [
             BoxShadow(
-              color: AppColors.fRedBright.withOpacity(0.3),
+              color: AppColors.fRedBright.withValues(alpha: 0.3),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),
@@ -43,7 +43,7 @@ class DateSelectorComponent extends StatelessWidget {
                 color: AppColors.fLineaAndLabelBox,
                 borderRadius: BorderRadius.circular(8.r),
                 border: Border.all(
-                  color: AppColors.fTextH2.withOpacity(0.3),
+                  color: AppColors.fTextH2.withValues(alpha: 0.3),
                 ),
               ),
               child: Icon(

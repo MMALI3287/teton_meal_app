@@ -40,7 +40,7 @@ class UserProfileCard extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.fRedBright.withOpacity(0.3),
+                color: AppColors.fRedBright.withValues(alpha: 0.3),
                 blurRadius: 8.r,
                 offset: Offset(0, 4.h),
               ),
@@ -109,7 +109,7 @@ class UserProfileCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.fRedBright.withOpacity(0.05),
+            color: AppColors.fRedBright.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),

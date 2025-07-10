@@ -355,7 +355,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
               borderRadius: BorderRadius.circular(25.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -439,7 +439,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -488,11 +488,12 @@ class _PollVotesPageState extends State<PollVotesPage> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                       decoration: BoxDecoration(
-                        color: AppColors.fIconAndLabelText.withOpacity(0.1),
+                        color:
+                            AppColors.fIconAndLabelText.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),

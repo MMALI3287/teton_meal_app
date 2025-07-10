@@ -87,7 +87,7 @@ class _AccountPageState extends State<AccountPage> {
               color: AppColors.fWhite,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: AppColors.fTextH2.withOpacity(0.5),
+                color: AppColors.fTextH2.withValues(alpha: 0.5),
               ),
             ),
             child: Icon(

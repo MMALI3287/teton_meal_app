@@ -219,7 +219,7 @@ class _AccountsPageState extends State<AccountsPage>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.fRedBright.withOpacity(0.05),
+                    AppColors.fRedBright.withValues(alpha: 0.05),
                     AppColors.fWhiteBackground,
                   ],
                 ),
@@ -245,7 +245,7 @@ class _AccountsPageState extends State<AccountsPage>
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 15,
                                   offset: const Offset(0, 5),
                                 ),
@@ -263,13 +263,13 @@ class _AccountsPageState extends State<AccountsPage>
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: theme.colorScheme.primary
-                                                .withOpacity(0.2),
+                                                .withValues(alpha: 0.2),
                                             width: 4,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
                                               color: theme.colorScheme.primary
-                                                  .withOpacity(0.2),
+                                                  .withValues(alpha: 0.2),
                                               blurRadius: 15,
                                               spreadRadius: 2,
                                             ),
@@ -305,7 +305,7 @@ class _AccountsPageState extends State<AccountsPage>
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.1),
+                                                      .withValues(alpha: 0.1),
                                                   blurRadius: 6,
                                                 ),
                                               ],
@@ -339,7 +339,7 @@ class _AccountsPageState extends State<AccountsPage>
                                       horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: theme.colorScheme.primary
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
@@ -366,7 +366,8 @@ class _AccountsPageState extends State<AccountsPage>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: AppColors.fRedBright.withOpacity(0.1),
+                              color:
+                                  AppColors.fRedBright.withValues(alpha: 0.1),
                             ),
                           ),
                           child: Padding(
@@ -474,8 +475,8 @@ class _AccountsPageState extends State<AccountsPage>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                               side: BorderSide(
-                                color:
-                                    theme.colorScheme.primary.withOpacity(0.1),
+                                color: theme.colorScheme.primary
+                                    .withValues(alpha: 0.1),
                               ),
                             ),
                             child: Padding(
@@ -563,7 +564,8 @@ class _AccountsPageState extends State<AccountsPage>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                             side: BorderSide(
-                              color: theme.colorScheme.primary.withOpacity(0.1),
+                              color: theme.colorScheme.primary
+                                  .withValues(alpha: 0.1),
                             ),
                           ),
                           child: Padding(
@@ -610,8 +612,8 @@ class _AccountsPageState extends State<AccountsPage>
                                     decoration: BoxDecoration(
                                       color: _notificationsEnabled
                                           ? theme.colorScheme.primary
-                                              .withOpacity(0.1)
-                                          : Colors.grey.withOpacity(0.1),
+                                              .withValues(alpha: 0.1)
+                                          : Colors.grey.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -713,13 +715,13 @@ class _AccountsPageState extends State<AccountsPage>
             color: isEnabled ? theme.colorScheme.primary : Colors.grey),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+          borderSide: BorderSide(
+              color: theme.colorScheme.primary.withValues(alpha: 0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+          borderSide: BorderSide(
+              color: theme.colorScheme.primary.withValues(alpha: 0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -758,13 +760,13 @@ class _AccountsPageState extends State<AccountsPage>
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+          borderSide: BorderSide(
+              color: theme.colorScheme.primary.withValues(alpha: 0.2)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              BorderSide(color: theme.colorScheme.primary.withOpacity(0.2)),
+          borderSide: BorderSide(
+              color: theme.colorScheme.primary.withValues(alpha: 0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -789,7 +791,7 @@ class _AccountsPageState extends State<AccountsPage>
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.1),
+            color: theme.colorScheme.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(

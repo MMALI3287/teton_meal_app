@@ -182,7 +182,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
             color: AppColors.fWhite,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: AppColors.fIconAndLabelText.withOpacity(0.2),
+              color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -231,7 +231,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
             color: AppColors.fWhite,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: AppColors.fIconAndLabelText.withOpacity(0.2),
+              color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -282,7 +282,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
             color: AppColors.fWhite,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: AppColors.fIconAndLabelText.withOpacity(0.2),
+              color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -312,7 +312,8 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
                       decoration: BoxDecoration(
                         color: _isRepeating
                             ? AppColors.fTextH1
-                            : AppColors.fIconAndLabelText.withOpacity(0.3),
+                            : AppColors.fIconAndLabelText
+                                .withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(14.r),
                       ),
                       child: AnimatedAlign(
@@ -329,7 +330,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 blurRadius: 2.r,
                                 offset: Offset(0, 1.h),
                               ),
@@ -362,7 +363,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
         color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: AppColors.fIconAndLabelText.withOpacity(0.2),
+          color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -411,7 +412,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
                 color: AppColors.fWhiteBackground,
                 borderRadius: BorderRadius.circular(8.r),
                 border: Border.all(
-                  color: AppColors.fIconAndLabelText.withOpacity(0.2),
+                  color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -446,7 +447,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
                 color: AppColors.fWhiteBackground,
                 borderRadius: BorderRadius.circular(8.r),
                 border: Border.all(
-                  color: AppColors.fIconAndLabelText.withOpacity(0.2),
+                  color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),

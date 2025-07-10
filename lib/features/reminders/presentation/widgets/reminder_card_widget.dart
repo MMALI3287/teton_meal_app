@@ -51,7 +51,7 @@ class ReminderCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),
@@ -64,7 +64,7 @@ class ReminderCardWidget extends StatelessWidget {
               width: 40.w,
               height: 40.h,
               decoration: BoxDecoration(
-                color: AppColors.fIconAndLabelText.withOpacity(0.1),
+                color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10.r),
               ),
               child: Icon(
@@ -147,7 +147,7 @@ class ReminderCardWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: reminder.isActive
                       ? AppColors.fRedBright
-                      : AppColors.fIconAndLabelText.withOpacity(0.3),
+                      : AppColors.fIconAndLabelText.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(14.r),
                 ),
                 child: AnimatedAlign(
@@ -164,7 +164,7 @@ class ReminderCardWidget extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 2.r,
                           offset: Offset(0, 1.h),
                         ),
@@ -182,7 +182,7 @@ class ReminderCardWidget extends StatelessWidget {
                 width: 36.w,
                 height: 36.h,
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Icon(

@@ -346,9 +346,10 @@ class _VoteOptionState extends State<VoteOption>
                   _handleVote();
                 },
           splashColor:
-              canVote ? theme.colorScheme.primary.withOpacity(0.1) : null,
-          highlightColor:
-              canVote ? theme.colorScheme.primary.withOpacity(0.05) : null,
+              canVote ? theme.colorScheme.primary.withValues(alpha: 0.1) : null,
+          highlightColor: canVote
+              ? theme.colorScheme.primary.withValues(alpha: 0.05)
+              : null,
           child: Stack(
             children: [
               Column(

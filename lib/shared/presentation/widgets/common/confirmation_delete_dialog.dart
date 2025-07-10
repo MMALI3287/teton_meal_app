@@ -27,7 +27,7 @@ class CustomDeleteDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20.r,
               offset: Offset(0, 8.h),
             ),
@@ -41,7 +41,7 @@ class CustomDeleteDialog extends StatelessWidget {
               width: 60.w,
               height: 60.h,
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -100,7 +100,8 @@ class CustomDeleteDialog extends StatelessWidget {
                     child: Container(
                       height: 48.h,
                       decoration: BoxDecoration(
-                        color: AppColors.fIconAndLabelText.withOpacity(0.1),
+                        color:
+                            AppColors.fIconAndLabelText.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Center(
@@ -133,7 +134,7 @@ class CustomDeleteDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withOpacity(0.3),
+                            color: Colors.red.withValues(alpha: 0.3),
                             blurRadius: 8.r,
                             offset: Offset(0, 4.h),
                           ),

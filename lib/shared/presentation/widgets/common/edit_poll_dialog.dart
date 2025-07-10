@@ -256,7 +256,7 @@ class EditPollDialogState extends State<EditPollDialog> {
           Container(
             padding: EdgeInsets.all(8.w),
             decoration: BoxDecoration(
-              color: AppColors.fIconAndLabelText.withOpacity(0.1),
+              color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Icon(
@@ -291,7 +291,7 @@ class EditPollDialogState extends State<EditPollDialog> {
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),
@@ -302,7 +302,7 @@ class EditPollDialogState extends State<EditPollDialog> {
             Container(
               padding: EdgeInsets.all(8.w),
               decoration: BoxDecoration(
-                color: AppColors.fIconAndLabelText.withOpacity(0.1),
+                color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
@@ -368,7 +368,7 @@ class EditPollDialogState extends State<EditPollDialog> {
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 4.r,
                   offset: Offset(0, 2.h),
                 ),
@@ -379,7 +379,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                 Container(
                   padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: AppColors.fIconAndLabelText.withOpacity(0.1),
+                    color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(
@@ -467,7 +467,7 @@ class EditPollDialogState extends State<EditPollDialog> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.fNameBoxPink.withOpacity(0.3),
+            color: AppColors.fNameBoxPink.withValues(alpha: 0.3),
             blurRadius: 8.r,
             offset: Offset(0, 4.h),
           ),
@@ -479,7 +479,7 @@ class EditPollDialogState extends State<EditPollDialog> {
           width: 24.w,
           height: 24.h,
           decoration: BoxDecoration(
-            color: AppColors.fWhite.withOpacity(0.3),
+            color: AppColors.fWhite.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Icon(
@@ -534,7 +534,7 @@ class EditPollDialogState extends State<EditPollDialog> {
               borderRadius: BorderRadius.circular(12.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 4.r,
                   offset: Offset(0, 2.h),
                 ),
@@ -621,7 +621,7 @@ class EditPollDialogState extends State<EditPollDialog> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.saveGreen,
                 disabledBackgroundColor:
-                    AppColors.fIconAndLabelText.withOpacity(0.3),
+                    AppColors.fIconAndLabelText.withValues(alpha: 0.3),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.r),
                 ),

@@ -57,7 +57,7 @@ class UserDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4.r,
                     offset: Offset(0, 2.h),
                   ),
@@ -100,7 +100,7 @@ class UserDetailPage extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.fRedBright.withOpacity(0.2),
+                color: AppColors.fRedBright.withValues(alpha: 0.2),
                 blurRadius: 20.r,
                 offset: Offset(0, 8.h),
               ),
@@ -133,7 +133,8 @@ class UserDetailPage extends StatelessWidget {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
           decoration: BoxDecoration(
-            color: _getRoleColor(userData['role'] ?? 'Diner').withOpacity(0.1),
+            color: _getRoleColor(userData['role'] ?? 'Diner')
+                .withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Text(
@@ -158,7 +159,7 @@ class UserDetailPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10.r,
             offset: Offset(0, 4.h),
           ),
@@ -212,7 +213,7 @@ class UserDetailPage extends StatelessWidget {
           width: 40.w,
           height: 40.h,
           decoration: BoxDecoration(
-            color: AppColors.fIconAndLabelText.withOpacity(0.1),
+            color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10.r),
           ),
           child: Icon(
@@ -261,7 +262,7 @@ class UserDetailPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(16.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10.r,
               offset: Offset(0, 4.h),
             ),
@@ -298,7 +299,7 @@ class UserDetailPage extends StatelessWidget {
             context,
             'Reject',
             AppColors.fIconAndLabelText,
-            AppColors.fIconAndLabelText.withOpacity(0.1),
+            AppColors.fIconAndLabelText.withValues(alpha: 0.1),
             Icons.close,
             () => _showRejectDialog(context),
           ),
@@ -335,7 +336,7 @@ class UserDetailPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: backgroundColor.withOpacity(0.3),
+              color: backgroundColor.withValues(alpha: 0.3),
               blurRadius: 8.r,
               offset: Offset(0, 4.h),
             ),

@@ -161,7 +161,7 @@ class _SettingsPageState extends State<SettingsPage> {
               color: AppColors.fWhite,
               borderRadius: BorderRadius.circular(12.r),
               border: Border.all(
-                color: AppColors.fTextH2.withOpacity(0.5),
+                color: AppColors.fTextH2.withValues(alpha: 0.5),
               ),
             ),
             child: Icon(
@@ -312,7 +312,7 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.fRedBright.withOpacity(0.07),
+            color: AppColors.fRedBright.withValues(alpha: 0.07),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),

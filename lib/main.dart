@@ -181,7 +181,7 @@ class _MyAppState extends State<MyApp> {
                 borderRadius: BorderRadius.circular(16),
               ),
               color: AppColors.fWhite,
-              shadowColor: AppColors.fWhite.withOpacity(0.3),
+              shadowColor: AppColors.fWhite.withValues(alpha: 0.3),
             ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,

@@ -301,7 +301,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                                       ? AppColors.fRedBright
                                       : hasOrders
                                           ? AppColors.fRedBright
-                                              .withOpacity(0.1)
+                                              .withValues(alpha: 0.1)
                                           : Colors.transparent,
                                   shape: BoxShape.circle,
                                 ),

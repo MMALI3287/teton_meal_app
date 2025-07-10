@@ -123,7 +123,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
               width: 40.w,
               height: 40.h,
               decoration: BoxDecoration(
-                color: AppColors.fIconAndLabelText.withOpacity(0.1),
+                color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(

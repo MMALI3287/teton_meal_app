@@ -275,7 +275,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
           decoration: BoxDecoration(
             color: AppColors.fWhite,
             borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.fTextH2.withOpacity(0.5)),
+            border: Border.all(color: AppColors.fTextH2.withValues(alpha: 0.5)),
           ),
           child: ListView.separated(
             shrinkWrap: true,
@@ -287,10 +287,10 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
               return Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                 decoration: BoxDecoration(
-                  color: AppColors.saveGreen.withOpacity(0.1),
+                  color: AppColors.saveGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8.r),
                   border: Border.all(
-                    color: AppColors.saveGreen.withOpacity(0.3),
+                    color: AppColors.saveGreen.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -392,7 +392,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                 boxShadow: _selectedItems.isNotEmpty && !_isLoading
                     ? [
                         BoxShadow(
-                          color: AppColors.fRedBright.withOpacity(0.3),
+                          color: AppColors.fRedBright.withValues(alpha: 0.3),
                           blurRadius: 8.r,
                           offset: Offset(0, 4.h),
                         ),

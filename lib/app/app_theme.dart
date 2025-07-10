@@ -19,4 +19,5 @@ class AppColors {
   static const Color fNameBoxYellow = Color(0xFFEDCFA1);
   static const Color fNameBoxPink = Color(0xFFE4CBCE);
   static const Color fRedProgressbar = Color(0xFFFBB1BA);
+  static const Color fTransparent = Colors.transparent;
 }

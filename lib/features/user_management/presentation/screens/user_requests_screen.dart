@@ -72,7 +72,7 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
                 borderRadius: BorderRadius.circular(20.r),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.fRedBright.withOpacity(0.3),
+                    color: AppColors.fRedBright.withValues(alpha: 0.3),
                     blurRadius: 8.r,
                     offset: Offset(0, 4.h),
                   ),
@@ -113,12 +113,12 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
         color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: AppColors.fIconAndLabelText.withOpacity(0.1),
+          color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 2.h),
           ),
@@ -256,7 +256,7 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 2.h),
           ),
@@ -308,10 +308,10 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
                     padding:
                         EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                     decoration: BoxDecoration(
-                      color: _getRoleColor(role).withOpacity(0.15),
+                      color: _getRoleColor(role).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8.r),
                       border: Border.all(
-                        color: _getRoleColor(role).withOpacity(0.3),
+                        color: _getRoleColor(role).withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -351,7 +351,7 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
                   timeAgo,
                   style: TextStyle(
                     fontSize: 11.sp,
-                    color: AppColors.fIconAndLabelText.withOpacity(0.7),
+                    color: AppColors.fIconAndLabelText.withValues(alpha: 0.7),
                     fontFamily: 'Mulish',
                   ),
                 ),
@@ -438,7 +438,7 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),
@@ -488,7 +488,7 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4.r,
               offset: Offset(0, 2.h),
             ),

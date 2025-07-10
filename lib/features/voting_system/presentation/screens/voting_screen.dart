@@ -175,7 +175,7 @@ class _VotesPageState extends State<VotesPage>
                       borderRadius: BorderRadius.circular(8.r),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 2.92.r,
                           offset: Offset(0, 2.92.h),
                         ),
@@ -417,7 +417,7 @@ class _VotesPageState extends State<VotesPage>
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),
@@ -599,7 +599,7 @@ class _VotesPageState extends State<VotesPage>
                 ? const Color(0xFFF0F8FF)
                 : (isActive
                     ? Colors.transparent
-                    : Colors.grey.withOpacity(0.1)),
+                    : Colors.grey.withValues(alpha: 0.1)),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Column(
@@ -638,7 +638,7 @@ class _VotesPageState extends State<VotesPage>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
+                          color: Colors.black.withValues(alpha: 0.25),
                           blurRadius: 4.r,
                           offset: Offset(0, 4.h),
                         ),
@@ -792,7 +792,7 @@ class _VotesPageState extends State<VotesPage>
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 2.h),
           ),
@@ -859,8 +859,8 @@ class _VotesPageState extends State<VotesPage>
                   child: Icon(
                     Icons.restaurant_menu,
                     size: 60.sp,
-                    color: const Color(0xFF7A869A)
-                        .withOpacity(0.5), // F_Icon& Label_Text with opacity
+                    color: const Color(0xFF7A869A).withValues(
+                        alpha: 0.5), // F_Icon& Label_Text with opacity
                   ),
                 ),
               ),
@@ -887,7 +887,7 @@ class _VotesPageState extends State<VotesPage>
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),
@@ -909,7 +909,7 @@ class _VotesPageState extends State<VotesPage>
                   borderRadius: BorderRadius.circular(8.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       blurRadius: 4.r,
                       offset: Offset(0, 4.h),
                     ),
