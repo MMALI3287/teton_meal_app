@@ -30,7 +30,23 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
   bool _isRepeating = false;
   String _repeatType = 'daily';
 
+  // For weekly selection
+  final List<int> _selectedWeekdays = []; // 1 = Monday, 7 = Sunday
+
+  // For monthly selection
+  int _selectedDay = 1; // Day of month (1-31)
+
   final List<String> _repeatOptions = ['daily', 'weekly', 'monthly'];
+
+  final List<String> _weekdayNames = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+  ];
 
   @override
   void initState() {
@@ -47,6 +63,19 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
       _selectedTime = TimeOfDay.fromDateTime(reminder.dateTime);
       _isRepeating = reminder.isRepeating;
       _repeatType = reminder.repeatType ?? 'daily';
+
+      // Initialize weekdays and monthly day based on the reminder date
+      if (_isRepeating) {
+        if (_repeatType == 'weekly') {
+          // Set the weekday based on the reminder date
+          final weekday = reminder.dateTime.weekday; // 1 = Monday, 7 = Sunday
+          _selectedWeekdays.clear();
+          _selectedWeekdays.add(weekday);
+        } else if (_repeatType == 'monthly') {
+          // Set the day of month based on the reminder date
+          _selectedDay = reminder.dateTime.day;
+        }
+      }
     }
   }
 
@@ -90,16 +119,19 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
       context: context,
       initialTime: _selectedTime,
       builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.fRedBright,
-              onPrimary: AppColors.fWhite,
-              surface: AppColors.fWhite,
-              onSurface: AppColors.fTextH1,
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: AppColors.fRedBright,
+                onPrimary: AppColors.fWhite,
+                surface: AppColors.fWhite,
+                onSurface: AppColors.fTextH1,
+              ),
             ),
+            child: child!,
           ),
-          child: child!,
         );
       },
     );
@@ -116,6 +148,18 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please enter a reminder name'),
+          backgroundColor: AppColors.fRedBright,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Validate weekly reminders have at least one day selected
+    if (_isRepeating && _repeatType == 'weekly' && _selectedWeekdays.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select at least one day for weekly reminders'),
           backgroundColor: AppColors.fRedBright,
           behavior: SnackBarBehavior.floating,
         ),
@@ -237,7 +281,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
           ),
           child: TextField(
             controller: _detailsController,
-            maxLines: 3,
+            maxLines: 2, // Reduced from 3 to 2
             decoration: InputDecoration(
               hintText: 'Add additional details...',
               hintStyle: TextStyle(
@@ -248,7 +292,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16.w,
-                vertical: 16.h,
+                vertical: 12.h, // Reduced vertical padding
               ),
             ),
             style: TextStyle(
@@ -344,10 +388,20 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
               ),
               SizedBox(height: 16.h),
               if (_isRepeating) ...[
-                _buildRepeatDropdown(),
+                _buildRepeatField(),
                 SizedBox(height: 16.h),
+                if (_repeatType == 'weekly') ...[
+                  _buildWeekdaySelector(),
+                  SizedBox(height: 16.h),
+                  _buildTimeRow(),
+                  SizedBox(height: 16.h),
+                ] else if (_repeatType == 'monthly') ...[
+                  _buildMonthlySelectors(),
+                  SizedBox(height: 16.h),
+                ],
               ],
-              _buildDateTimeRow(),
+              if (!_isRepeating) _buildDateTimeRow(),
+              if (_isRepeating && _repeatType == 'daily') _buildTimeRow(),
             ],
           ),
         ),
@@ -355,52 +409,434 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
     );
   }
 
-  Widget _buildRepeatDropdown() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: AppColors.fWhite,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
-          width: 1,
+  Widget _buildRepeatField() {
+    return GestureDetector(
+      onTap: () => _showRepeatPicker(context),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        decoration: BoxDecoration(
+          color: AppColors.fWhite,
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _repeatType.substring(0, 1).toUpperCase() +
+                  _repeatType.substring(1),
+              style: TextStyle(
+                color: AppColors.fTextH1,
+                fontSize: 14.sp,
+                fontFamily: 'Mulish',
+              ),
+            ),
+            Icon(
+              Icons.keyboard_arrow_down,
+              color: AppColors.fIconAndLabelText,
+              size: 20.sp,
+            ),
+          ],
         ),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _repeatType,
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            color: AppColors.fIconAndLabelText,
-            size: 20.sp,
+    );
+  }
+
+  void _showRepeatPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.fWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Text(
+                  'Repeat Option',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Mulish',
+                    color: AppColors.fTextH1,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              ..._repeatOptions.map((option) => ListTile(
+                    title: Text(
+                      option.substring(0, 1).toUpperCase() +
+                          option.substring(1),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontFamily: 'Mulish',
+                        color: AppColors.fTextH1,
+                      ),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _repeatType = option;
+                        // Reset selections when changing repeat type
+                        _selectedWeekdays.clear();
+                        _selectedDay = 1;
+                      });
+                      Navigator.pop(context);
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  )),
+            ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWeekdaySelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Select Days',
           style: TextStyle(
-            color: AppColors.fTextH1,
             fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            color: AppColors.fTextH1,
             fontFamily: 'Mulish',
           ),
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() {
-                _repeatType = newValue;
-              });
-            }
-          },
-          items: _repeatOptions.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(
-                value.substring(0, 1).toUpperCase() + value.substring(1),
+        ),
+        SizedBox(height: 12.h),
+        Wrap(
+          spacing: 4.w,
+          runSpacing: 4.h,
+          children: List.generate(7, (index) {
+            final dayNumber = index + 1; // 1 = Monday, 7 = Sunday
+            final isSelected = _selectedWeekdays.contains(dayNumber);
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSelected) {
+                    _selectedWeekdays.remove(dayNumber);
+                  } else {
+                    _selectedWeekdays.add(dayNumber);
+                  }
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.fRedBright
+                      : AppColors.fWhiteBackground,
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.fRedBright
+                        : AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  _weekdayNames[index].substring(0, 3), // Mon, Tue, etc.
+                  style: TextStyle(
+                    color: isSelected ? AppColors.fWhite : AppColors.fTextH1,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Mulish',
+                  ),
+                ),
               ),
             );
-          }).toList(),
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMonthlySelectors() {
+    return Row(
+      children: [
+        // Day of Month Selector
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Day of Month',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.fTextH1,
+                  fontFamily: 'Mulish',
+                ),
+              ),
+              SizedBox(height: 12.h),
+              GestureDetector(
+                onTap: () => _showDayPicker(context),
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.fWhiteBackground,
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(
+                      color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        color: AppColors.fIconAndLabelText,
+                        size: 16.sp,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Day $_selectedDay',
+                        style: TextStyle(
+                          color: AppColors.fTextH1,
+                          fontSize: 14.sp,
+                          fontFamily: 'Mulish',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: 12.w),
+        // Time Selector
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Time',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.fTextH1,
+                  fontFamily: 'Mulish',
+                ),
+              ),
+              SizedBox(height: 12.h),
+              GestureDetector(
+                onTap: _selectTime,
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.fWhiteBackground,
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(
+                      color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        color: AppColors.fIconAndLabelText,
+                        size: 16.sp,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        _selectedTime.format(context),
+                        style: TextStyle(
+                          color: AppColors.fTextH1,
+                          fontSize: 14.sp,
+                          fontFamily: 'Mulish',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showDayPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.fWhite,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20.r),
+          height: 400.h,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Text(
+                  'Select Day of Month',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Mulish',
+                    color: AppColors.fTextH1,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    crossAxisSpacing: 8.w,
+                    mainAxisSpacing: 8.h,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: 31,
+                  itemBuilder: (context, index) {
+                    final day = index + 1;
+                    final isSelected = _selectedDay == day;
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedDay = day;
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.fRedBright
+                              : AppColors.fWhiteBackground,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.fRedBright
+                                : AppColors.fIconAndLabelText
+                                    .withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            day.toString(),
+                            style: TextStyle(
+                              color: isSelected
+                                  ? AppColors.fWhite
+                                  : AppColors.fTextH1,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Mulish',
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTimeRow() {
+    // For daily reminders, only show time picker
+    return GestureDetector(
+      onTap: _selectTime,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+        decoration: BoxDecoration(
+          color: AppColors.fWhiteBackground,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(
+            color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.access_time,
+              color: AppColors.fIconAndLabelText,
+              size: 16.sp,
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              _selectedTime.format(context),
+              style: TextStyle(
+                color: AppColors.fTextH1,
+                fontSize: 14.sp,
+                fontFamily: 'Mulish',
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildDateTimeRow() {
+    if (_isRepeating && _repeatType == 'daily') {
+      // For daily reminders, only show time picker
+      return GestureDetector(
+        onTap: _selectTime,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+          decoration: BoxDecoration(
+            color: AppColors.fWhiteBackground,
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(
+              color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.access_time,
+                color: AppColors.fIconAndLabelText,
+                size: 16.sp,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                _selectedTime.format(context),
+                style: TextStyle(
+                  color: AppColors.fTextH1,
+                  fontSize: 14.sp,
+                  fontFamily: 'Mulish',
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // For non-repeating reminders only, show both date and time
     return Row(
       children: [
         Expanded(

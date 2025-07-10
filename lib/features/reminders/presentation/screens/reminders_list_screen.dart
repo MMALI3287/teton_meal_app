@@ -18,6 +18,22 @@ class _RemindersPageState extends State<RemindersPage> {
   final ReminderService _reminderService = ReminderService();
 
   @override
+  void initState() {
+    super.initState();
+    // Clean up expired reminders when the screen loads
+    _cleanupExpiredReminders();
+  }
+
+  Future<void> _cleanupExpiredReminders() async {
+    try {
+      await _reminderService.cleanupExpiredReminders();
+    } catch (e) {
+      // Silently handle errors to avoid disrupting the user experience
+      debugPrint('Error cleaning up expired reminders: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.fWhiteBackground,
@@ -121,7 +137,7 @@ class _RemindersPageState extends State<RemindersPage> {
         }
 
         return ListView.builder(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
           itemCount: reminders.length,
           itemBuilder: (context, index) {
             final reminder = reminders[index];
@@ -305,7 +321,7 @@ class _RemindersPageState extends State<RemindersPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.r),
             ),
-            margin: EdgeInsets.all(16.w),
+            margin: EdgeInsets.all(8.w),
           ),
         );
       }
@@ -325,7 +341,7 @@ class _RemindersPageState extends State<RemindersPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.r),
             ),
-            margin: EdgeInsets.all(16.w),
+            margin: EdgeInsets.all(8.w),
           ),
         );
       }

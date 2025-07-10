@@ -121,6 +121,14 @@ class ReminderService {
     }
   }
 
+  Future<void> markReminderAsTriggered(String reminderId) async {
+    final reminder = await getReminderById(reminderId);
+    if (reminder != null && !reminder.isRepeating) {
+      // Automatically disable non-repeating reminders after they are triggered
+      await toggleReminderStatus(reminderId, false);
+    }
+  }
+
   Future<void> cleanupExpiredReminders() async {
     final now = DateTime.now();
     final expiredReminders = await _remindersCollection
