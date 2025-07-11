@@ -66,7 +66,6 @@ class AuthService {
         throw Exception('incorrect-credentials');
       }
 
-      // Check if user is verified - only allow login if isVerified is explicitly true
       final isVerified = userData['isVerified'];
       if (isVerified != true) {
         throw Exception('account-not-verified');
@@ -107,7 +106,7 @@ class AuthService {
         'displayName': name,
         'department': department,
         'profileImageUrl': profileImageUrl,
-        'isVerified': false, // User registration defaults to false
+        'isVerified': false,
         'createdAt': FieldValue.serverTimestamp(),
       };
 
@@ -127,7 +126,6 @@ class AuthService {
     }
   }
 
-  // Admin registration with pre-verified status
   Future<UserModel> adminRegister(String email, String password, String role,
       {String? name, String? department}) async {
     try {
@@ -150,7 +148,7 @@ class AuthService {
         'role': role,
         'displayName': name,
         'department': department,
-        'isVerified': true, // Admin registration defaults to true
+        'isVerified': true,
         'createdAt': FieldValue.serverTimestamp(),
       };
 

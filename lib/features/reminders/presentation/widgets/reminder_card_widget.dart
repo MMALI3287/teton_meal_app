@@ -59,7 +59,6 @@ class ReminderCardWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Time icon
             Container(
               width: 40.w,
               height: 40.h,
@@ -74,7 +73,6 @@ class ReminderCardWidget extends StatelessWidget {
               ),
             ),
             SizedBox(width: 16.w),
-            // Reminder info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,7 +136,6 @@ class ReminderCardWidget extends StatelessWidget {
               ),
             ),
             SizedBox(width: 16.w),
-            // Toggle switch
             GestureDetector(
               onTap: onToggle,
               child: Container(
@@ -175,7 +172,6 @@ class ReminderCardWidget extends StatelessWidget {
               ),
             ),
             SizedBox(width: 12.w),
-            // Delete button
             GestureDetector(
               onTap: onDelete,
               child: Container(

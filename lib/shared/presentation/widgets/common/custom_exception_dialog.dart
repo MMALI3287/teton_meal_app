@@ -43,7 +43,6 @@ class CustomExceptionDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon
             Container(
               width: 60.w,
               height: 60.h,
@@ -58,8 +57,6 @@ class CustomExceptionDialog extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.h),
-
-            // Title
             Text(
               title,
               style: TextStyle(
@@ -71,8 +68,6 @@ class CustomExceptionDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 12.h),
-
-            // Message
             Text(
               message,
               style: TextStyle(
@@ -84,8 +79,6 @@ class CustomExceptionDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 24.h),
-
-            // Button (conditionally shown)
             if (showButton)
               GestureDetector(
                 onTap: () {
@@ -125,7 +118,6 @@ class CustomExceptionDialog extends StatelessWidget {
     );
   }
 
-  /// Static method to show error dialog
   static Future<void> showError({
     required BuildContext context,
     required String title,
@@ -149,7 +141,6 @@ class CustomExceptionDialog extends StatelessWidget {
     );
   }
 
-  /// Static method to show warning dialog
   static Future<void> showWarning({
     required BuildContext context,
     required String title,
@@ -173,7 +164,6 @@ class CustomExceptionDialog extends StatelessWidget {
     );
   }
 
-  /// Static method to show success dialog
   static Future<void> showSuccess({
     required BuildContext context,
     required String title,
@@ -197,7 +187,6 @@ class CustomExceptionDialog extends StatelessWidget {
     );
   }
 
-  /// Static method to show info dialog
   static Future<void> showInfo({
     required BuildContext context,
     required String title,
@@ -221,7 +210,6 @@ class CustomExceptionDialog extends StatelessWidget {
     );
   }
 
-  /// Static method to show welcome dialog that auto-closes after 3 seconds
   static Future<void> showWelcome({
     required BuildContext context,
     required String userName,
@@ -230,7 +218,6 @@ class CustomExceptionDialog extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        // Auto-close dialog after 1 second for better visibility
         Future.delayed(const Duration(seconds: 1), () {
           if (Navigator.canPop(context)) {
             Navigator.of(context).pop();
@@ -248,7 +235,7 @@ class CustomExceptionDialog extends StatelessWidget {
             iconColor: AppColors.saveGreen,
             buttonText: 'Continue',
             onButtonPressed: null,
-            showButton: false, // Hide the button for auto-close dialog
+            showButton: false,
           ),
         );
       },

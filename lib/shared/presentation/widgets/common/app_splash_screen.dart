@@ -44,10 +44,8 @@ class _SplashScreenState extends State<SplashScreen>
       curve: const Interval(0.2, 0.8, curve: Curves.elasticOut),
     ));
 
-    // Start animation
     _animationController.forward();
 
-    // Navigate to next screen after delay
     Timer(const Duration(milliseconds: 3000), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
@@ -85,8 +83,8 @@ class _SplashScreenState extends State<SplashScreen>
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFFF7A85), // Light coral at top
-              Color(0xFFFF3951), // Deeper red at bottom
+              Color(0xFFFF7A85),
+              Color(0xFFFF3951),
             ],
             stops: [0.0, 1.0],
           ),
@@ -103,7 +101,6 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // App Logo/Icon
                         Container(
                           width: 100.w,
                           height: 100.h,
@@ -122,8 +119,6 @@ class _SplashScreenState extends State<SplashScreen>
                             size: 45.sp,
                           ),
                         ),
-
-                        // Main Title - "Meal Chill"
                         Text(
                           'Meal Chill',
                           style: GoogleFonts.lobster(
@@ -141,10 +136,7 @@ class _SplashScreenState extends State<SplashScreen>
                             ],
                           ),
                         ),
-
                         SizedBox(height: 60.h),
-
-                        // Loading indicator
                         SizedBox(
                           width: 30.w,
                           height: 30.h,

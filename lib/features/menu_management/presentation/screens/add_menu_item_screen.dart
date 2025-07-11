@@ -65,26 +65,32 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.fWhiteBackground,
-      body: Container(
-        width: 393.w,
-        height: 805.h,
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+      body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
-            SizedBox(height: 32.h),
+            Container(
+              height: 1.h,
+              width: double.infinity,
+              color: const Color(0xFFF4F5F7),
+            ),
             Expanded(
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildItemNameField(),
-                    SizedBox(height: 24.h),
-                    _buildSubItemField(),
-                    const Spacer(),
-                    _buildActionButtons(),
-                  ],
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 35.w),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 16.h),
+                      _buildItemNameField(),
+                      SizedBox(height: 12.h),
+                      _buildSubItemField(),
+                      const Spacer(),
+                      _buildActionButtons(),
+                      SizedBox(height: 16.h),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -95,39 +101,36 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
   }
 
   Widget _buildHeader() {
-    return SizedBox(
+    return Container(
+      height: 64.h,
       width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 32.w,
-              height: 32.h,
-              decoration: BoxDecoration(
-                color: AppColors.fYellow,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(
-                Icons.close,
-                color: AppColors.fWhite,
-                size: 18.sp,
-              ),
-            ),
-          ),
           Expanded(
             child: Center(
-              child: Text(
-                'Add New Item',
-                style: TextStyle(
-                  color: AppColors.fTextH1,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w700,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.restaurant,
+                    color: AppColors.fYellow,
+                    size: 18.sp,
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Add New Item',
+                    style: TextStyle(
+                      color: AppColors.fTextH1,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          SizedBox(width: 32.w), // Balance the close button
         ],
       ),
     );
@@ -143,45 +146,63 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
             color: AppColors.fTextH1,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
+            letterSpacing: -0.2,
           ),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 12.h),
         Container(
+          height: 47.h,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.fWhite,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.fTextH2),
+            color: const Color(0xFFF4F5F7),
+            borderRadius: BorderRadius.circular(15.r),
           ),
-          child: TextFormField(
-            controller: _itemNameController,
-            style: TextStyle(
-              color: AppColors.fTextH1,
-              fontSize: 16.sp,
-            ),
-            decoration: InputDecoration(
-              hintText: 'Type item name here to add',
-              hintStyle: TextStyle(
-                color: AppColors.fIconAndLabelText,
-                fontSize: 16.sp,
+          child: Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 12.w, right: 18.w),
+                child: Icon(
+                  Icons.fastfood_outlined,
+                  color: AppColors.fIconAndLabelText,
+                  size: 16.sp,
+                ),
               ),
-              prefixIcon: Icon(
-                Icons.fastfood_outlined,
-                color: AppColors.fIconAndLabelText,
-                size: 20.sp,
+              Expanded(
+                child: TextFormField(
+                  controller: _itemNameController,
+                  style: TextStyle(
+                    color: AppColors.fTextH1,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -0.24,
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: 'Type item name here to add',
+                    hintStyle: TextStyle(
+                      color: AppColors.fIconAndLabelText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: -0.24,
+                    ),
+                    filled: false,
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter an item name';
+                    }
+                    return null;
+                  },
+                ),
               ),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 16.h,
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Please enter an item name';
-              }
-              return null;
-            },
+              SizedBox(width: 12.w),
+            ],
           ),
         ),
       ],
@@ -198,32 +219,42 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
             color: AppColors.fTextH1,
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
+            letterSpacing: -0.2,
           ),
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 14.h),
         Container(
+          height: 44.h,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.fWhite,
-            borderRadius: BorderRadius.circular(12.r),
-            border: Border.all(color: AppColors.fTextH2),
+            color: const Color(0xFFF4F5F7),
+            borderRadius: BorderRadius.circular(15.r),
           ),
           child: TextFormField(
             controller: _subItemController,
             style: TextStyle(
               color: AppColors.fTextH1,
-              fontSize: 16.sp,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              letterSpacing: -0.2,
             ),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Optional',
               hintStyle: TextStyle(
                 color: AppColors.fIconAndLabelText,
-                fontSize: 16.sp,
+                fontSize: 14,
+                letterSpacing: -0.2,
               ),
+              filled: false,
+              fillColor: Colors.transparent,
               border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 16.h,
+                horizontal: 16,
+                vertical: 12,
               ),
             ),
           ),
@@ -233,76 +264,109 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
   }
 
   Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 48.h,
-            child: OutlinedButton(
-              onPressed: _isLoading ? null : () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppColors.fTextH2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 16.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 38.h,
+              decoration: BoxDecoration(
+                color: AppColors.fWhite,
+                borderRadius: BorderRadius.circular(10.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    offset: const Offset(0, 4),
+                    blurRadius: 4,
+                  ),
+                ],
               ),
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: AppColors.fTextH2,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: 16.w),
-        Expanded(
-          child: SizedBox(
-            height: 48.h,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _saveItem,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.saveGreen,
-                foregroundColor: AppColors.fWhite,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              child: _isLoading
-                  ? SizedBox(
-                      width: 20.w,
-                      height: 20.h,
-                      child: const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.fWhite,
+              child: Material(
+                color: AppColors.fTransparent,
+                child: InkWell(
+                  onTap: _isLoading ? null : () => Navigator.pop(context),
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: AppColors.fRedBright,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: -0.172,
                         ),
                       ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.bookmark_outlined,
-                          size: 18.sp,
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'Save',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
                     ),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+          SizedBox(width: 9.w),
+          Expanded(
+            child: Container(
+              height: 38.h,
+              decoration: BoxDecoration(
+                color: AppColors.saveGreen,
+                borderRadius: BorderRadius.circular(10.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    offset: const Offset(0, 4),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: AppColors.fTransparent,
+                child: InkWell(
+                  onTap: _isLoading ? null : _saveItem,
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: _isLoading
+                        ? Center(
+                            child: SizedBox(
+                              width: 16.w,
+                              height: 16.h,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.fWhite,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.bookmark_outlined,
+                                color: AppColors.fWhite,
+                                size: 15.sp,
+                              ),
+                              SizedBox(width: 8.w),
+                              Text(
+                                'Save',
+                                style: TextStyle(
+                                  color: AppColors.fWhite,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: -0.172,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

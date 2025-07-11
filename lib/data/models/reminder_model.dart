@@ -7,7 +7,7 @@ class ReminderModel {
   final DateTime dateTime;
   final bool isActive;
   final bool isRepeating;
-  final String? repeatType; // 'daily', 'weekly', 'monthly'
+  final String? repeatType;
   final String userId;
   final DateTime createdAt;
   final DateTime updatedAt;

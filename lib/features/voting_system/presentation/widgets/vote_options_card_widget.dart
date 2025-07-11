@@ -57,7 +57,6 @@ class _VoteOptionState extends State<VoteOption>
   }
 
   bool isUserSelectedOption(String userId) {
-    // Use proper field access for Firebase
     final votes = widget.allVotes[widget.option];
     return votes != null && (votes as List).contains(userId);
   }
@@ -185,7 +184,6 @@ class _VoteOptionState extends State<VoteOption>
       final pollRef =
           FirebaseFirestore.instance.collection('polls').doc(widget.pollId);
 
-      // Get current poll data to update votes properly
       final pollDoc = await pollRef.get();
       if (!pollDoc.exists) {
         if (kDebugMode) {
@@ -202,7 +200,6 @@ class _VoteOptionState extends State<VoteOption>
       }
 
       if (hasVotedThisOption) {
-        // Remove user from this option
         if (currentVotes.containsKey(widget.option)) {
           final optionVotes =
               List<String>.from(currentVotes[widget.option] ?? []);
@@ -214,7 +211,6 @@ class _VoteOptionState extends State<VoteOption>
           }
         }
       } else {
-        // Remove user from previous option if exists
         if (previousOption != null &&
             currentVotes.containsKey(previousOption)) {
           final prevOptionVotes =
@@ -227,7 +223,6 @@ class _VoteOptionState extends State<VoteOption>
           }
         }
 
-        // Add user to current option
         if (!currentVotes.containsKey(widget.option)) {
           currentVotes[widget.option] = [userId];
         } else {
@@ -240,7 +235,6 @@ class _VoteOptionState extends State<VoteOption>
         }
       }
 
-      // Update the entire votes field
       await pollRef.update({'votes': currentVotes});
 
       if (kDebugMode) {
@@ -314,10 +308,8 @@ class _VoteOptionState extends State<VoteOption>
     final user = AuthService().currentUser;
     final bool isSelected = user != null && isUserSelectedOption(user.uid);
 
-    // Simple: just use the active state passed from parent (already handles time logic)
     final bool canVote = widget.isActive;
 
-    // Debug info
     if (kDebugMode) {
       print(
           'VoteOption build - Option: ${widget.option}, IsActive: ${widget.isActive}, CanVote: $canVote, EndTime: ${widget.endTimeMillis}, CurrentTime: ${DateTime.now().millisecondsSinceEpoch}');

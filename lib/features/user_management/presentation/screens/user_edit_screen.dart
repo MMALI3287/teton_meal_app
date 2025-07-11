@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/data/services/storage_service.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/standard_back_button.dart';
 
 class UserEditScreen extends StatefulWidget {
   final String userId;
@@ -33,7 +34,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
   File? _selectedImageFile;
   final ImagePicker _imagePicker = ImagePicker();
 
-  // Store initial values to detect changes
   late String _initialName;
   late String _initialEmail;
   late String _initialRole;
@@ -54,7 +54,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
     );
     _profileImageUrl = widget.userData['profileImageUrl'];
 
-    // Store initial values
     _initialName = widget.userData['displayName'] ?? '';
     _initialEmail = widget.userData['email'] ?? '';
     _initialRole = widget.userData['role'] ?? 'Diner';
@@ -105,29 +104,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 40.w,
-              height: 40.h,
-              decoration: BoxDecoration(
-                color: AppColors.fWhite,
-                borderRadius: BorderRadius.circular(12.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.fTextH1.withValues(alpha: 0.05),
-                    blurRadius: 4.r,
-                    offset: Offset(0, 2.h),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.arrow_back_ios_new,
-                color: AppColors.fTextH1,
-                size: 18.sp,
-              ),
-            ),
-          ),
+          const StandardBackButton(),
           SizedBox(width: 16.w),
           Expanded(
             child: Text(
@@ -404,7 +381,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
             ),
           ),
         ),
-        // Custom error message outside the text field
         Builder(
           builder: (context) {
             if (validator != null) {
@@ -542,7 +518,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
   Widget _buildActionButtons() {
     return Column(
       children: [
-        // Save and Cancel buttons (side by side)
         Row(
           children: [
             Expanded(
@@ -568,7 +543,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
           ],
         ),
         SizedBox(height: 12.h),
-        // Delete button (full width)
         SizedBox(
           width: double.infinity,
           child: _buildActionButton(
@@ -693,7 +667,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
     try {
       String? imageUrl = _profileImageUrl;
 
-      // Upload new image if selected
       if (_selectedImageFile != null) {
         imageUrl = await StorageService.uploadProfileImage(
           widget.userId,
@@ -701,7 +674,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
         );
       }
 
-      // Update user data in Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userId)
@@ -731,8 +703,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
             ),
           ),
         );
-        Navigator.pop(
-            context, true); // Return true to indicate changes were made
+        Navigator.pop(context, true);
       }
     } catch (e) {
       if (context.mounted) {
@@ -784,17 +755,14 @@ class _UserEditScreenState extends State<UserEditScreen> {
         _isLoading = true;
       });
 
-      // Delete user from Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userId)
           .delete();
 
-      // Note: Profile image will be cleaned up by Firebase Storage rules or separate cleanup job
-
       if (context.mounted) {
-        Navigator.pop(context); // Close edit screen
-        Navigator.pop(context); // Go back to users list
+        Navigator.pop(context);
+        Navigator.pop(context);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -841,7 +809,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
 
   void _handleSaveChanges() {
     if (!_hasChanges()) {
-      // No changes detected
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -861,18 +828,15 @@ class _UserEditScreenState extends State<UserEditScreen> {
       return;
     }
 
-    // Show confirmation dialog for changes
     _showSaveConfirmationDialog();
   }
 
   void _handleCancel() {
     if (!_hasChanges()) {
-      // No changes, just go back
       Navigator.pop(context);
       return;
     }
 
-    // Show confirmation dialog for unsaved changes
     _showCancelConfirmationDialog();
   }
 
@@ -898,7 +862,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Info Icon
                 Container(
                   width: 60.w,
                   height: 60.h,
@@ -913,8 +876,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-
-                // Title
                 Text(
                   'Save Changes',
                   style: TextStyle(
@@ -926,8 +887,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 12.h),
-
-                // Message
                 Text(
                   'Are you sure you want to save these changes to the user profile?',
                   style: TextStyle(
@@ -939,11 +898,8 @@ class _UserEditScreenState extends State<UserEditScreen> {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 32.h),
-
-                // Buttons
                 Row(
                   children: [
-                    // Cancel Button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => Navigator.of(context).pop(false),
@@ -969,8 +925,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
                       ),
                     ),
                     SizedBox(width: 16.w),
-
-                    // Save Button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => Navigator.of(context).pop(true),
@@ -1038,7 +992,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Warning Icon
                 Container(
                   width: 60.w,
                   height: 60.h,
@@ -1053,8 +1006,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-
-                // Title
                 Text(
                   'Unsaved Changes',
                   style: TextStyle(
@@ -1066,8 +1017,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 12.h),
-
-                // Message
                 Text(
                   'You have unsaved changes. Are you sure you want to discard them?',
                   style: TextStyle(
@@ -1079,11 +1028,8 @@ class _UserEditScreenState extends State<UserEditScreen> {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 32.h),
-
-                // Buttons
                 Row(
                   children: [
-                    // Keep Editing Button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => Navigator.of(context).pop(false),
@@ -1109,8 +1055,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
                       ),
                     ),
                     SizedBox(width: 16.w),
-
-                    // Discard Button
                     Expanded(
                       child: GestureDetector(
                         onTap: () => Navigator.of(context).pop(true),
@@ -1161,6 +1105,6 @@ class _UserEditScreenState extends State<UserEditScreen> {
         _emailController.text.trim() != _initialEmail ||
         _selectedRole != _initialRole ||
         _departmentController.text.trim() != _initialDepartment ||
-        _selectedImageFile != null; // New image selected
+        _selectedImageFile != null;
   }
 }

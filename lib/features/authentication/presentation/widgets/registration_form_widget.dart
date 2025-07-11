@@ -22,22 +22,18 @@ class RegistrationFormWidget extends StatefulWidget {
 
 class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   bool showProgress = false;
-  bool _isFormSubmitted =
-      false; // Flag to track if form submission was attempted
+  bool _isFormSubmitted = false;
 
   final _formkey = GlobalKey<FormState>();
   final _authService = AuthService();
 
-  // Method to manually validate all fields and force error display
   void _validateAndShowErrors() {
     setState(() {
       _isFormSubmitted = true;
     });
 
-    // This will trigger validation on all fields
     _formkey.currentState!.validate();
 
-    // Force a rebuild to show errors
     setState(() {});
   }
 
@@ -66,13 +62,11 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   Widget build(BuildContext context) {
     return Form(
       key: _formkey,
-      autovalidateMode:
-          AutovalidateMode.disabled, // Only validate on submission
+      autovalidateMode: AutovalidateMode.disabled,
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Name field
             _buildTextField(
               controller: nameController,
               hint: 'Name :',
@@ -85,8 +79,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               },
             ),
             SizedBox(height: 16.h),
-
-            // Email field
             _buildTextField(
               controller: emailController,
               hint: 'Email :',
@@ -103,8 +95,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               },
             ),
             SizedBox(height: 16.h),
-
-            // Department field
             _buildTextField(
               controller: TextEditingController(
                   text: department ?? 'Select Department'),
@@ -120,8 +110,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               },
             ),
             SizedBox(height: 16.h),
-
-            // Password field
             _buildTextField(
               controller: passwordController,
               hint: 'Password :',
@@ -152,8 +140,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               },
             ),
             SizedBox(height: 16.h),
-
-            // Confirm password field
             _buildTextField(
               controller: confirmpassController,
               hint: 'Confirm Password :',
@@ -184,8 +170,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               },
             ),
             SizedBox(height: 16.h),
-
-            // Account Type field
             _buildTextField(
               controller: TextEditingController(text: role ?? 'Select Role'),
               hint: 'Account Type :',
@@ -200,8 +184,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               },
             ),
             SizedBox(height: 16.h),
-
-            // Terms checkbox
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8.h),
               child: Row(
@@ -273,8 +255,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               ),
             ),
             SizedBox(height: 24.h),
-
-            // Register button
             Container(
               width: 300.w,
               height: 50.h,
@@ -292,10 +272,8 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 onPressed: showProgress
                     ? null
                     : () {
-                        // Manually validate all fields and show errors
                         _validateAndShowErrors();
 
-                        // Only proceed if all validations pass
                         if (_formkey.currentState!.validate()) {
                           signUp(emailController.text, passwordController.text,
                               role);
@@ -342,7 +320,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
       return;
     }
 
-    // Early return if role is null (shouldn't happen due to validation)
     if (roleParam == null || department == null) {
       CustomExceptionDialog.showWarning(
         context: context,
@@ -387,7 +364,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
         showProgress = false;
       });
 
-      // Navigate back to login page after successful registration
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const LoginPage()),
         (Route<dynamic> route) => false,
@@ -415,7 +391,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
     VoidCallback? onTap,
     String? Function(String?)? validator,
   }) {
-    // Create a key to identify the form field
     final fieldKey = GlobalKey<FormFieldState>();
 
     return Column(
@@ -442,8 +417,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
             readOnly: readOnly,
             onTap: onTap,
             validator: validator,
-            autovalidateMode: AutovalidateMode
-                .disabled, // Only validate when form is submitted
+            autovalidateMode: AutovalidateMode.disabled,
             style: TextStyle(
               fontSize: 14.sp,
               fontFamily: 'Mulish',
@@ -457,7 +431,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 fontFamily: 'Mulish',
                 fontWeight: FontWeight.w400,
               ),
-              // Move icon to the right side
               suffixIcon: suffixIcon ??
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 12.w),
@@ -491,7 +464,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                   EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
               filled: true,
               fillColor: AppColors.fWhite,
-              // Hide default error text
               errorStyle: const TextStyle(
                 height: 0,
                 fontSize: 0,
@@ -500,10 +472,8 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
             ),
           ),
         ),
-        // Custom error message outside the text field
         Builder(
           builder: (context) {
-            // Only show error if form submission was attempted
             if (_isFormSubmitted && validator != null) {
               final errorText = validator(controller.text);
               if (errorText != null) {

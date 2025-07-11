@@ -4,9 +4,10 @@ import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/data/services/reminder_service.dart';
 import 'package:teton_meal_app/data/models/reminder_model.dart';
 import 'package:teton_meal_app/features/reminders/presentation/widgets/reminder_form_widget.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/standard_back_button.dart';
 
 class AddReminderPage extends StatefulWidget {
-  final ReminderModel? reminder; // For editing existing reminder
+  final ReminderModel? reminder;
 
   const AddReminderPage({super.key, this.reminder});
 
@@ -49,7 +50,6 @@ class _AddReminderPageState extends State<AddReminderPage> {
 
     try {
       if (_isEditMode) {
-        // Update existing reminder
         final updatedReminder = ReminderModel(
           id: widget.reminder!.id,
           name: name,
@@ -65,7 +65,6 @@ class _AddReminderPageState extends State<AddReminderPage> {
 
         await _reminderService.updateReminder(updatedReminder);
       } else {
-        // Create new reminder
         await _reminderService.createReminder(
           name: name,
           details: details,
@@ -117,22 +116,7 @@ class _AddReminderPageState extends State<AddReminderPage> {
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 40.w,
-              height: 40.h,
-              decoration: BoxDecoration(
-                color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Icon(
-                Icons.arrow_back_ios_new,
-                color: AppColors.fTextH1,
-                size: 20.sp,
-              ),
-            ),
-          ),
+          const StandardBackButton(),
           SizedBox(width: 16.w),
           Expanded(
             child: Text(

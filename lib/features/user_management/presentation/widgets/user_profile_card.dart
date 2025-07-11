@@ -29,7 +29,6 @@ class UserProfileCard extends StatelessWidget {
   Widget _buildProfileHeader() {
     return Column(
       children: [
-        // Profile picture
         Container(
           width: 80.w,
           height: 80.h,
@@ -43,7 +42,6 @@ class UserProfileCard extends StatelessWidget {
                 offset: Offset(0, 4.h),
               ),
             ],
-            // Show actual profile image if available
             image: user?.profileImageUrl != null &&
                     user!.profileImageUrl!.isNotEmpty
                 ? DecorationImage(
@@ -66,33 +64,30 @@ class UserProfileCard extends StatelessWidget {
               : null,
         ),
         SizedBox(height: 8.h),
-        // Name
         Text(
           user?.displayName ?? 'User Name',
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF383A3F), // F_Text_H1
+            color: const Color(0xFF383A3F),
             letterSpacing: -0.28,
           ),
         ),
         SizedBox(height: 4.h),
-        // Email
         Text(
           user?.email ?? 'user@example.com',
           style: TextStyle(
             fontSize: 10.sp,
             fontWeight: FontWeight.w300,
-            color: const Color(0xFF383A3F), // F_Text_H1
+            color: const Color(0xFF383A3F),
             decoration: TextDecoration.underline,
           ),
         ),
         SizedBox(height: 8.h),
-        // Role badge
         Container(
           padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 1.h),
           decoration: BoxDecoration(
-            color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+            color: const Color(0xFFF4F5F7),
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Text(
@@ -100,7 +95,7 @@ class UserProfileCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 10.sp,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF7A869A), // F_Icon& Label_Text
+              color: const Color(0xFF7A869A),
               letterSpacing: -0.24,
             ),
           ),
@@ -113,7 +108,7 @@ class UserProfileCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // F_White
+        color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
@@ -134,7 +129,7 @@ class UserProfileCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF466D5E), // F_Green
+                color: const Color(0xFF466D5E),
                 letterSpacing: -0.2,
               ),
             ),
@@ -144,7 +139,7 @@ class UserProfileCard extends StatelessWidget {
             width: double.infinity,
             height: 1.h,
             margin: EdgeInsets.symmetric(horizontal: 20.w),
-            color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+            color: const Color(0xFFF4F5F7),
           ),
           SizedBox(height: 16.h),
           _buildProfileItem(
@@ -165,14 +160,14 @@ class UserProfileCard extends StatelessWidget {
             icon: Icons.business_outlined,
             title: 'Department',
             value: user?.department ?? 'Not specified',
-            onEdit: null, // Department cannot be edited
+            onEdit: null,
           ),
           _buildDivider(),
           _buildProfileItem(
             icon: Icons.account_circle_outlined,
             title: 'Account Type',
             value: user?.role ?? 'User',
-            onEdit: null, // Account type cannot be edited
+            onEdit: null,
           ),
           SizedBox(height: 16.h),
         ],
@@ -187,10 +182,10 @@ class UserProfileCard extends StatelessWidget {
     VoidCallback? onEdit,
   }) {
     return GestureDetector(
-      onTap: onEdit, // Make the entire row tappable
+      onTap: onEdit,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        color: Colors.transparent, // Ensure tap area is responsive
+        color: Colors.transparent,
         child: Row(
           children: [
             Container(
@@ -199,7 +194,7 @@ class UserProfileCard extends StatelessWidget {
               margin: EdgeInsets.only(left: 8.w, right: 12.w),
               child: Icon(
                 icon,
-                color: const Color(0xFF383A3F), // F_Text_H1
+                color: const Color(0xFF383A3F),
                 size: 18.sp,
               ),
             ),
@@ -212,7 +207,7 @@ class UserProfileCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF383A3F), // F_Text_H1
+                      color: const Color(0xFF383A3F),
                       letterSpacing: -0.2,
                     ),
                   ),
@@ -222,7 +217,7 @@ class UserProfileCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                      color: const Color(0xFF7A869A),
                       letterSpacing: -0.24,
                     ),
                   ),
@@ -231,10 +226,10 @@ class UserProfileCard extends StatelessWidget {
             ),
             if (onEdit != null)
               Container(
-                padding: EdgeInsets.all(8.w), // Larger tap area
+                padding: EdgeInsets.all(8.w),
                 child: Icon(
                   Icons.edit_outlined,
-                  color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                  color: const Color(0xFF7A869A),
                   size: 18.sp,
                 ),
               ),
@@ -250,7 +245,7 @@ class UserProfileCard extends StatelessWidget {
       child: Divider(
         height: 1.h,
         thickness: 1,
-        color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+        color: const Color(0xFFF4F5F7),
       ),
     );
   }

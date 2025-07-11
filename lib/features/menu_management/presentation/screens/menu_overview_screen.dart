@@ -45,7 +45,6 @@ class _MenusPageState extends State<MenusPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Orders title - exact match to Figma
           Text(
             'Orders',
             style: TextStyle(
@@ -56,10 +55,8 @@ class _MenusPageState extends State<MenusPage> {
               letterSpacing: -0.12,
             ),
           ),
-          // History button - exact match to Figma
           GestureDetector(
             onTap: () async {
-              // Navigate to history page with inactive polls
               final inactivePolls = await FirebaseFirestore.instance
                   .collection('polls')
                   .where('isActive', isEqualTo: false)

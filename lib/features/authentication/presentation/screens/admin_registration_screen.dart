@@ -19,7 +19,6 @@ class _RegisterState extends State<Register> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header with back button and title
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Row(
@@ -48,8 +47,6 @@ class _RegisterState extends State<Register> {
                 ],
               ),
             ),
-
-            // Registration form
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),

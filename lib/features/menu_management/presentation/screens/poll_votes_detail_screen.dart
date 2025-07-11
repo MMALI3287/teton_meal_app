@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/standard_back_button.dart';
 
 class PollVotesPage extends StatefulWidget {
   final QueryDocumentSnapshot pollData;
@@ -22,8 +23,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final Map<String, Map<String, dynamic>> _userCache = {};
-  final Map<String, bool> _expandedItems =
-      {}; // Track expanded state for each menu item
+  final Map<String, bool> _expandedItems = {};
 
   @override
   void initState() {
@@ -80,7 +80,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
     return userId.toLowerCase().contains(query);
   }
 
-  // Check if a menu item has any users matching the search query
   Future<bool> _hasMatchingUsers(List<dynamic> optionVotes) async {
     if (_searchQuery.isEmpty) return true;
 
@@ -93,7 +92,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
     return false;
   }
 
-  // Filter menu items to only show those with matching users
   Future<List<MapEntry<String, List<dynamic>>>> _getFilteredVotes(
       Map<String, dynamic> votes) async {
     final filteredEntries = <MapEntry<String, List<dynamic>>>[];
@@ -242,22 +240,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
           automaticallyImplyLeading: false,
           title: Row(
             children: [
-              GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 36.w,
-                  height: 36.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.fTextH1,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    color: AppColors.fWhite,
-                    size: 18.sp,
-                  ),
-                ),
-              ),
+              const StandardBackButton(),
               SizedBox(width: 12.w),
               Text(
                 'Order Details',
@@ -288,22 +271,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
           automaticallyImplyLeading: false,
           title: Row(
             children: [
-              GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 36.w,
-                  height: 36.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.fTextH1,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    color: AppColors.fWhite,
-                    size: 18.sp,
-                  ),
-                ),
-              ),
+              const StandardBackButton(),
               SizedBox(width: 12.w),
               Text(
                 'Order Details',
@@ -341,22 +309,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
         centerTitle: false,
         title: Row(
           children: [
-            GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                width: 36.w,
-                height: 36.h,
-                decoration: BoxDecoration(
-                  color: AppColors.fTextH1,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Icon(
-                  Icons.close,
-                  color: AppColors.fWhite,
-                  size: 18.sp,
-                ),
-              ),
-            ),
+            const StandardBackButton(),
             Expanded(
               child: Center(
                 child: Text(
@@ -370,13 +323,12 @@ class _PollVotesPageState extends State<PollVotesPage> {
                 ),
               ),
             ),
-            SizedBox(width: 36.w), // Balance the left close button
+            SizedBox(width: 40.w),
           ],
         ),
       ),
       body: Column(
         children: [
-          // Date header
           Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -390,7 +342,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
               ),
             ),
           ),
-          // Search bar
           Container(
             margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
@@ -465,7 +416,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
               ],
             ),
           ),
-          // Orders list
           Expanded(
             child: votes.isEmpty
                 ? Center(
@@ -542,12 +492,10 @@ class _PollVotesPageState extends State<PollVotesPage> {
   }
 
   Widget _buildOrderSection(String option, List<dynamic> optionVotes) {
-    // Initialize collapsed state for new items
     if (!_expandedItems.containsKey(option)) {
-      _expandedItems[option] = false; // Start collapsed
+      _expandedItems[option] = false;
     }
 
-    // Auto-expand when searching to show filtered users, or use manual state when not searching
     final isExpanded =
         _searchQuery.isNotEmpty || (_expandedItems[option] ?? false);
 
@@ -567,7 +515,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Food item header (clickable) - Only allow manual toggle when not searching
           InkWell(
             onTap: _searchQuery.isEmpty
                 ? () {
@@ -582,7 +529,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
               padding: EdgeInsets.all(16.w),
               child: Row(
                 children: [
-                  // Food icon
                   Container(
                     width: 32.w,
                     height: 32.h,
@@ -597,7 +543,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                     ),
                   ),
                   SizedBox(width: 12.w),
-                  // Food name
                   Expanded(
                     child: Text(
                       option,
@@ -609,7 +554,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                       ),
                     ),
                   ),
-                  // Order count badge and dropdown arrow
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -634,7 +578,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                           ),
                         ),
                       ),
-                      // Only show dropdown arrow when not searching
                       if (_searchQuery.isEmpty) ...[
                         SizedBox(width: 8.w),
                         AnimatedRotation(
@@ -653,14 +596,11 @@ class _PollVotesPageState extends State<PollVotesPage> {
               ),
             ),
           ),
-          // Expandable content
           if (isExpanded) ...[
-            // Progress bar with percentage on the right
             Container(
               margin: EdgeInsets.symmetric(horizontal: 16.w),
               child: Row(
                 children: [
-                  // Progress bar
                   Expanded(
                     child: Container(
                       height: 4.h,
@@ -683,7 +623,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                     ),
                   ),
                   SizedBox(width: 8.w),
-                  // Percentage
                   Text(
                     '${_totalVotes > 0 ? ((optionVotes.length / _totalVotes) * 100).toStringAsFixed(0) : 0}%',
                     style: TextStyle(
@@ -697,14 +636,12 @@ class _PollVotesPageState extends State<PollVotesPage> {
               ),
             ),
             SizedBox(height: 16.h),
-            // Divider
             if (optionVotes.isNotEmpty)
               Container(
                 height: 1.h,
                 margin: EdgeInsets.symmetric(horizontal: 16.w),
                 color: AppColors.fLineaAndLabelBox,
               ),
-            // User list
             ...optionVotes.asMap().entries.map((entry) {
               final index = entry.key;
               final userId = entry.value;
@@ -716,7 +653,7 @@ class _PollVotesPageState extends State<PollVotesPage> {
                   final userName = userData?['displayName'] ??
                       userData?['name'] ??
                       'Unknown User';
-                  // Filter based on search
+
                   if (!_matchesSearch(userData, userId)) {
                     return const SizedBox.shrink();
                   }
@@ -726,7 +663,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                         EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                     child: Row(
                       children: [
-                        // User avatar
                         Container(
                           width: 32.w,
                           height: 32.h,
@@ -749,7 +685,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                           ),
                         ),
                         SizedBox(width: 12.w),
-                        // User name
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -776,7 +711,6 @@ class _PollVotesPageState extends State<PollVotesPage> {
                             ],
                           ),
                         ),
-                        // Remove button
                         InkWell(
                           onTap: () {
                             _showDeleteConfirmation(

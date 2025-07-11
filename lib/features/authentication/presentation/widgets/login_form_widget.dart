@@ -17,22 +17,19 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   bool _rememberMe = false;
-  bool _isFormSubmitted = false; // Flag to track if form has been submitted
+  bool _isFormSubmitted = false;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _authService = AuthService();
 
-  // Method to manually validate all fields and force error display
   void _validateAndShowErrors() {
     setState(() {
       _isFormSubmitted = true;
     });
 
-    // This will trigger validation on all fields
     _formKey.currentState!.validate();
 
-    // Force a rebuild to show errors
     setState(() {});
   }
 
@@ -47,8 +44,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidateMode:
-          AutovalidateMode.disabled, // Only validate on submission
+      autovalidateMode: AutovalidateMode.disabled,
       child: SizedBox(
         width: 300.w,
         child: Column(
@@ -248,7 +244,6 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     Widget? suffixIcon,
     required FormFieldValidator<String> validator,
   }) {
-    // Create a key to identify the form field
     final fieldKey = GlobalKey<FormFieldState>();
 
     return TweenAnimationBuilder<double>(
@@ -278,8 +273,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               controller: controller,
               obscureText: obscure,
               validator: validator,
-              autovalidateMode: AutovalidateMode
-                  .disabled, // Only validate when form is submitted
+              autovalidateMode: AutovalidateMode.disabled,
               style: TextStyle(fontSize: 14.sp, color: AppColors.fTextH1),
               decoration: InputDecoration(
                 hintText: hint,
@@ -301,7 +295,6 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                 fillColor: AppColors.fTransparent,
                 filled: true,
                 focusedBorder: InputBorder.none,
-                // Hide the default error style by making it transparent
                 errorStyle: const TextStyle(
                   height: 0,
                   fontSize: 0,
@@ -311,10 +304,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
               cursorColor: AppColors.fRedBright,
             ),
           ),
-          // Custom error message outside the text field that only shows after form submission attempt
           Builder(
             builder: (context) {
-              // Only show error message if the form has been submitted and there is an error
               if (_isFormSubmitted) {
                 final errorText = validator(controller.text);
                 if (errorText != null) {
@@ -340,10 +331,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   }
 
   Future<void> _handleLogin() async {
-    // Manually validate all fields and show errors
     _validateAndShowErrors();
 
-    // Only proceed if all validations pass
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -359,16 +348,13 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       );
 
       if (mounted) {
-        // Get the user's display name for the welcome message
         final userName = user?.displayName ?? 'User';
 
-        // Show welcome message that auto-closes after 5 seconds
         await CustomExceptionDialog.showWelcome(
           context: context,
           userName: userName,
         );
 
-        // Navigate to main app after welcome dialog closes
         if (mounted) {
           Navigator.pushReplacement(
             context,

@@ -80,7 +80,6 @@ class _LoginPageState extends State<LoginPage>
                     SizedBox(height: 32.h),
                     const LoginFormWidget(),
                     SizedBox(height: 16.h),
-                    // Registration link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

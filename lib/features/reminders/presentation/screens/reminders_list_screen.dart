@@ -20,7 +20,7 @@ class _RemindersPageState extends State<RemindersPage> {
   @override
   void initState() {
     super.initState();
-    // Clean up expired reminders when the screen loads
+
     _cleanupExpiredReminders();
   }
 
@@ -28,7 +28,6 @@ class _RemindersPageState extends State<RemindersPage> {
     try {
       await _reminderService.cleanupExpiredReminders();
     } catch (e) {
-      // Silently handle errors to avoid disrupting the user experience
       debugPrint('Error cleaning up expired reminders: $e');
     }
   }

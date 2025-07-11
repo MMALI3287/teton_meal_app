@@ -201,16 +201,13 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
 
         final allUsers = snapshot.data?.docs ?? [];
 
-        // Filter users to only include those who need verification
-        // (isVerified is false or missing/null)
         final unverifiedUsers = allUsers.where((user) {
           final userData = user.data() as Map<String, dynamic>;
           final isVerified = userData['isVerified'];
-          // Include users where isVerified is false or missing (null)
+
           return isVerified == false || isVerified == null;
         }).toList();
 
-        // Filter users based on search query
         final filteredUsers = unverifiedUsers.where((user) {
           final userData = user.data() as Map<String, dynamic>;
           final name = (userData['displayName'] ?? userData['name'] ?? '')
@@ -295,7 +292,6 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
         ),
         child: Row(
           children: [
-            // User Avatar with actual profile image (same as user list)
             Container(
               width: 48.w,
               height: 48.h,
@@ -322,7 +318,6 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
                   : null,
             ),
             SizedBox(width: 16.w),
-            // User Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,7 +342,6 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  // Department badge (same as user list)
                   if (department != 'No Department') ...[
                     SizedBox(height: 4.h),
                     Container(
@@ -368,7 +362,6 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
                       ),
                     ),
                   ],
-                  // Time ago (unique to request cards)
                   SizedBox(height: 4.h),
                   Text(
                     'Requested $timeAgo',
@@ -381,7 +374,6 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
                 ],
               ),
             ),
-            // Role Badge (same styling as user list)
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
@@ -407,12 +399,12 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
   Color _getRoleColor(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return AppColors.fRedBright; // Red for admin
+        return AppColors.fRedBright;
       case 'planner':
-        return AppColors.saveGreen; // Green for planner
+        return AppColors.saveGreen;
       case 'diner':
       default:
-        return AppColors.fYellow; // Yellow for diner
+        return AppColors.fYellow;
     }
   }
 

@@ -316,7 +316,6 @@ class _SettingsPageState extends State<SettingsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 12.h),
-          // Section Title
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Text(
@@ -331,7 +330,6 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           SizedBox(height: 8.h),
-          // Divider Line
           Container(
             width: double.infinity,
             height: 1.h,
@@ -339,7 +337,6 @@ class _SettingsPageState extends State<SettingsPage> {
             color: AppColors.fLineaAndLabelBox,
           ),
           SizedBox(height: 8.h),
-          // Section Items
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w),
             child: Column(

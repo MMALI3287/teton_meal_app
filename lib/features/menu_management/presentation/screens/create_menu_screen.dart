@@ -89,56 +89,140 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppColors.fWhite,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              color: AppColors.fTextH1,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          content: Text(
-            message,
-            style: TextStyle(
-              color: AppColors.fTextH2,
-              fontSize: 14.sp,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                cancelText,
-                style: TextStyle(
-                  color: AppColors.fIconAndLabelText,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+        IconData iconData;
+        Color iconColor;
+        Color buttonColor;
+
+        if (title.contains('Cancel')) {
+          iconData = Icons.warning_outlined;
+          iconColor = AppColors.fYellow;
+          buttonColor = AppColors.fRedBright;
+        } else if (title.contains('Remove')) {
+          iconData = Icons.delete_outline;
+          iconColor = AppColors.fRedBright;
+          buttonColor = AppColors.fRedBright;
+        } else {
+          iconData = Icons.restaurant_menu_outlined;
+          iconColor = AppColors.saveGreen;
+          buttonColor = AppColors.saveGreen;
+        }
+
+        return Dialog(
+          backgroundColor: AppColors.fTransparent,
+          child: Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.fTextH1.withValues(alpha: 0.1),
+                  blurRadius: 20.r,
+                  offset: Offset(0, 8.h),
                 ),
-              ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.fRedBright,
-                foregroundColor: AppColors.fWhite,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.r),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 60.w,
+                  height: 60.h,
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    iconData,
+                    color: iconColor,
+                    size: 32.sp,
+                  ),
                 ),
-              ),
-              child: Text(
-                confirmText,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+                SizedBox(height: 20.h),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.fTextH1,
+                    fontFamily: 'Mulish',
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
+                SizedBox(height: 12.h),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.fIconAndLabelText,
+                    fontFamily: 'Mulish',
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 32.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(false),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fIconAndLabelText
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              cancelText,
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fIconAndLabelText,
+                                fontFamily: 'Mulish',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(true),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: buttonColor,
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: buttonColor.withValues(alpha: 0.3),
+                                blurRadius: 8.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              confirmText,
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fWhite,
+                                fontFamily: 'Mulish',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
@@ -180,7 +264,6 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
         throw Exception('User not authenticated');
       }
 
-      // Validate user ID is not empty
       if (user.uid.isEmpty) {
         throw Exception('User ID is invalid');
       }
@@ -200,9 +283,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
       final menuOptions =
           _selectedItems.map((item) => item.toString()).toList();
 
-      // Use a transaction to ensure data consistency
       await FirebaseFirestore.instance.runTransaction((transaction) async {
-        // First, deactivate any existing active polls for today
         final today = DateFormat('dd/MM/yyyy').format(_selectedDate);
         final existingActivePolls = await FirebaseFirestore.instance
             .collection('polls')
@@ -210,15 +291,12 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
             .where('isActive', isEqualTo: true)
             .get();
 
-        // Deactivate existing polls
         for (final doc in existingActivePolls.docs) {
           transaction.update(doc.reference, {'isActive': false});
         }
 
-        // Create the new poll
         final newPollRef = FirebaseFirestore.instance.collection('polls').doc();
 
-        // Initialize votes with empty arrays for each option
         final Map<String, List<String>> initialVotes = {};
         for (String option in menuOptions) {
           initialVotes[option] = [];
@@ -231,7 +309,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
           'isActive': true,
           'createdAt': FieldValue.serverTimestamp(),
           'createdBy': {
-            'uid': user.uid, // This should now be validated to not be empty
+            'uid': user.uid,
             'name': creatorName,
           },
           'date': today,
@@ -253,7 +331,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
     } catch (e) {
       if (kDebugMode) {
         print('Error creating menu: $e');
-      } // For debugging
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -366,7 +444,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
               ),
             ],
           ),
-          SizedBox(width: 21.w), // Balance the close button
+          SizedBox(width: 21.w),
         ],
       ),
     );
@@ -489,7 +567,6 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
           ],
         ),
         SizedBox(height: 12.h),
-        // Dynamic height container for selected items
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -579,7 +656,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
     return GestureDetector(
       onTap: () => _selectTime(context),
       child: Container(
-        height: 47.h,
+        height: 55.h,
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
         decoration: BoxDecoration(
           color: AppColors.fLineaAndLabelBox,
@@ -609,8 +686,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                     ),
                   ),
                   Text(
-                    _selectedTime
-                        .format(context), // This will show 12-hour format
+                    _selectedTime.format(context),
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontFamily: 'DM Sans',

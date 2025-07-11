@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/features/menu_management/presentation/widgets/menu_poll_card_widget.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/standard_back_button.dart';
 
 class PollsByDatePage extends StatefulWidget {
   final List<QueryDocumentSnapshot> polls;
@@ -21,7 +22,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
   @override
   void initState() {
     super.initState();
-    // Set today's date as selected by default
+
     final today = DateTime.now();
     selectedDate = DateTime(today.year, today.month, today.day);
     _filterPollsByDate(selectedDate!);
@@ -31,7 +32,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
     setState(() {
       currentMonth = DateTime(currentMonth.year, currentMonth.month - 1);
       selectedDate = null;
-      filteredPolls = []; // Clear polls when changing month
+      filteredPolls = [];
     });
   }
 
@@ -39,19 +40,18 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
     setState(() {
       currentMonth = DateTime(currentMonth.year, currentMonth.month + 1);
       selectedDate = null;
-      filteredPolls = []; // Clear polls when changing month
+      filteredPolls = [];
     });
   }
 
   void _selectDate(DateTime date) {
     setState(() {
-      // If the same date is selected again, deselect it and clear the list
       if (selectedDate != null &&
           selectedDate!.year == date.year &&
           selectedDate!.month == date.month &&
           selectedDate!.day == date.day) {
         selectedDate = null;
-        filteredPolls = []; // Clear list when deselecting
+        filteredPolls = [];
       } else {
         selectedDate = date;
         _filterPollsByDate(date);
@@ -65,7 +65,6 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
       final pollDateString = pollData['date'] ?? '';
 
       try {
-        // Parse the date string (assuming format: dd/mm/yyyy)
         final parts = pollDateString.split('/');
         if (parts.length == 3) {
           final pollDate = DateTime(
@@ -77,9 +76,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
               pollDate.month == date.month &&
               pollDate.day == date.day;
         }
-      } catch (e) {
-        // If parsing fails, don't include this poll
-      }
+      } catch (e) {}
       return false;
     }).toList();
   }
@@ -108,13 +105,11 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
 
     final List<DateTime> days = [];
 
-    // Add empty cells for days before the first day of the month
-    final firstWeekday = firstDay.weekday % 7; // Convert to 0-6 (Mon-Sun)
+    final firstWeekday = firstDay.weekday % 7;
     for (int i = 0; i < firstWeekday; i++) {
-      days.add(DateTime(0)); // Placeholder for empty cells
+      days.add(DateTime(0));
     }
 
-    // Add all days of the month
     for (int day = 1; day <= lastDay.day; day++) {
       days.add(DateTime(month.year, month.month, day));
     }
@@ -123,7 +118,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
   }
 
   bool _hasOrdersOnDate(DateTime date) {
-    if (date.year == 0) return false; // Empty cell
+    if (date.year == 0) return false;
 
     return widget.polls.any((poll) {
       final pollData = poll.data() as Map<String, dynamic>;
@@ -141,9 +136,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
               pollDate.month == date.month &&
               pollDate.day == date.day;
         }
-      } catch (e) {
-        // If parsing fails, return false
-      }
+      } catch (e) {}
       return false;
     });
   }
@@ -158,32 +151,16 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            // Custom back button with dark background
-            GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                width: 36.w,
-                height: 36.h,
-                decoration: BoxDecoration(
-                  color: AppColors.fTextH1,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  color: AppColors.fWhite,
-                  size: 18.sp,
-                ),
-              ),
-            ),
-            SizedBox(width: 12.w),
-            // History title
+            const StandardBackButton(),
+            SizedBox(width: 16.w),
             Text(
               'History',
               style: TextStyle(
                 color: AppColors.fTextH1,
-                fontSize: 18.sp,
-                fontFamily: 'Inter',
+                fontSize: 20.sp,
+                fontFamily: 'DM Sans',
                 fontWeight: FontWeight.w600,
+                letterSpacing: -0.02,
               ),
             ),
           ],
@@ -191,153 +168,179 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
       ),
       body: Column(
         children: [
-          // Calendar section
           Container(
-            margin: EdgeInsets.all(16.w),
-            padding: EdgeInsets.all(16.w),
+            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             decoration: BoxDecoration(
               color: AppColors.fWhite,
-              borderRadius: BorderRadius.circular(12.r),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.fRedBright,
-                  blurRadius: 4.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(
+                color: const Color(0xFFEEEEEE),
+                width: 1,
+              ),
             ),
-            child: Column(
-              children: [
-                // Month navigation
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: _previousMonth,
-                      icon: Icon(
-                        Icons.chevron_left,
-                        color: AppColors.fTextH1,
-                        size: 24.sp,
-                      ),
-                    ),
-                    Text(
-                      '${_getMonthName(currentMonth.month)} ${currentMonth.year}',
-                      style: TextStyle(
-                        color: AppColors.fTextH1,
-                        fontSize: 16.sp,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: _nextMonth,
-                      icon: Icon(
-                        Icons.chevron_right,
-                        color: AppColors.fTextH1,
-                        size: 24.sp,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.h),
-                // Weekday headers
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                      .map((day) => Container(
-                            width: 32.w,
-                            alignment: Alignment.center,
-                            child: Text(
-                              day,
-                              style: TextStyle(
-                                color: AppColors.fIconAndLabelText,
-                                fontSize: 12.sp,
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w500,
-                              ),
+            child: Padding(
+              padding: EdgeInsets.all(24.w),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: _previousMonth,
+                        child: Container(
+                          width: 40.w,
+                          height: 40.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fWhite,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(
+                              color: const Color(0xFFEEEEEE),
+                              width: 1,
                             ),
-                          ))
-                      .toList(),
-                ),
-                SizedBox(height: 8.h),
-                // Calendar grid
-                ...List.generate(
-                  (_getDaysInMonth(currentMonth).length / 7).ceil(),
-                  (weekIndex) {
-                    final weekStart = weekIndex * 7;
-                    final weekEnd = (weekStart + 7)
-                        .clamp(0, _getDaysInMonth(currentMonth).length);
-                    final weekDays = _getDaysInMonth(currentMonth)
-                        .sublist(weekStart, weekEnd);
-
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 2.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: List.generate(7, (dayIndex) {
-                          if (dayIndex < weekDays.length) {
-                            final date = weekDays[dayIndex];
-                            if (date.year == 0) {
-                              // Empty cell
-                              return SizedBox(
-                                width: 32.w,
-                                height: 32.h,
-                              );
-                            }
-
-                            final hasOrders = _hasOrdersOnDate(date);
-                            final isSelected = selectedDate != null &&
-                                selectedDate!.year == date.year &&
-                                selectedDate!.month == date.month &&
-                                selectedDate!.day == date.day;
-
-                            return GestureDetector(
-                              onTap: () => _selectDate(date),
+                          ),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: const Color(0xFF666666),
+                            size: 16.sp,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '${_getMonthName(currentMonth.month)} ${currentMonth.year}',
+                        style: TextStyle(
+                          color: const Color(0xFF1A1A1A),
+                          fontSize: 18.sp,
+                          fontFamily: 'DM Sans',
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.02,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: _nextMonth,
+                        child: Container(
+                          width: 40.w,
+                          height: 40.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fWhite,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(
+                              color: const Color(0xFFEEEEEE),
+                              width: 1,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_ios,
+                            color: const Color(0xFF666666),
+                            size: 16.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 24.h),
+                  Row(
+                    children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                        .map((day) => Expanded(
                               child: Container(
-                                width: 32.w,
-                                height: 32.h,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.fRedBright
-                                      : hasOrders
-                                          ? AppColors.fRedBright
-                                              .withValues(alpha: 0.1)
-                                          : AppColors.fTransparent,
-                                  shape: BoxShape.circle,
-                                ),
+                                height: 36.h,
                                 alignment: Alignment.center,
                                 child: Text(
-                                  '${date.day}',
+                                  day,
                                   style: TextStyle(
-                                    color: isSelected
-                                        ? AppColors.fWhite
-                                        : hasOrders
-                                            ? AppColors.fRedBright
-                                            : AppColors.fIconAndLabelText,
+                                    color: const Color(0xFF999999),
                                     fontSize: 14.sp,
-                                    fontFamily: 'Inter',
-                                    fontWeight: hasOrders
-                                        ? FontWeight.w600
-                                        : FontWeight.w400,
+                                    fontFamily: 'DM Sans',
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: -0.02,
                                   ),
                                 ),
                               ),
-                            );
-                          } else {
-                            return SizedBox(
-                              width: 32.w,
-                              height: 32.h,
-                            );
-                          }
-                        }),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                            ))
+                        .toList(),
+                  ),
+                  SizedBox(height: 8.h),
+                  ...List.generate(
+                    (_getDaysInMonth(currentMonth).length / 7).ceil(),
+                    (weekIndex) {
+                      final weekStart = weekIndex * 7;
+                      final weekEnd = (weekStart + 7)
+                          .clamp(0, _getDaysInMonth(currentMonth).length);
+                      final weekDays = _getDaysInMonth(currentMonth)
+                          .sublist(weekStart, weekEnd);
+
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 2.h),
+                        child: Row(
+                          children: List.generate(7, (dayIndex) {
+                            if (dayIndex < weekDays.length) {
+                              final date = weekDays[dayIndex];
+                              if (date.year == 0) {
+                                return Expanded(
+                                  child: Container(
+                                    height: 36.h,
+                                    alignment: Alignment.center,
+                                  ),
+                                );
+                              }
+
+                              final hasOrders = _hasOrdersOnDate(date);
+                              final isSelected = selectedDate != null &&
+                                  selectedDate!.year == date.year &&
+                                  selectedDate!.month == date.month &&
+                                  selectedDate!.day == date.day;
+
+                              return Expanded(
+                                child: GestureDetector(
+                                  onTap: () => _selectDate(date),
+                                  child: Container(
+                                    height: 36.h,
+                                    margin:
+                                        EdgeInsets.symmetric(horizontal: 2.w),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.fRedBright
+                                          : hasOrders
+                                              ? AppColors.fRedBright
+                                                  .withValues(alpha: 0.1)
+                                              : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(8.r),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      '${date.day}',
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? AppColors.fWhite
+                                            : hasOrders
+                                                ? AppColors.fRedBright
+                                                : const Color(0xFF1A1A1A),
+                                        fontSize: 14.sp,
+                                        fontFamily: 'DM Sans',
+                                        fontWeight: hasOrders || isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
+                                        letterSpacing: -0.02,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return Expanded(
+                                child: Container(
+                                  height: 36.h,
+                                ),
+                              );
+                            }
+                          }),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
-          // Orders list
           Expanded(
             child: filteredPolls.isEmpty
                 ? Center(
@@ -346,10 +349,10 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                       children: [
                         Icon(
                           selectedDate != null
-                              ? Icons.event_busy
-                              : Icons.history,
+                              ? Icons.event_busy_outlined
+                              : Icons.history_outlined,
                           size: 64.sp,
-                          color: AppColors.fIconAndLabelText,
+                          color: const Color(0xFF999999),
                         ),
                         SizedBox(height: 16.h),
                         Text(
@@ -357,10 +360,11 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                               ? 'No orders on this date'
                               : 'Select a date to view orders',
                           style: TextStyle(
-                            color: AppColors.fTextH2,
-                            fontSize: 16.sp,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF1A1A1A),
+                            fontSize: 18.sp,
+                            fontFamily: 'DM Sans',
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.02,
                           ),
                         ),
                         SizedBox(height: 8.h),
@@ -369,10 +373,11 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                               ? 'Tap the date again to clear selection'
                               : 'Tap on a date to filter orders',
                           style: TextStyle(
-                            color: AppColors.fIconAndLabelText,
+                            color: const Color(0xFF666666),
                             fontSize: 14.sp,
-                            fontFamily: 'Inter',
+                            fontFamily: 'DM Sans',
                             fontWeight: FontWeight.w400,
+                            letterSpacing: -0.02,
                           ),
                         ),
                       ],

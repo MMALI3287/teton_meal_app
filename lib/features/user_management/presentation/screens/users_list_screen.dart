@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/features/user_management/presentation/screens/user_edit_screen.dart';
 
-// Simple User data class for this page
 class UserData {
   final String uid;
   final String email;
@@ -54,7 +53,6 @@ class _UsersPageState extends State<UsersPage> {
         _isLoading = true;
       });
 
-      // Fetch verified users from Firestore
       final querySnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('isVerified', isEqualTo: true)
@@ -93,7 +91,6 @@ class _UsersPageState extends State<UsersPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Row(
@@ -130,9 +127,7 @@ class _UsersPageState extends State<UsersPage> {
                 ],
               ),
             ),
-            // Search Bar
             _buildSearchBar(),
-            // Users List
             Expanded(
               child: _isLoading
                   ? const Center(
@@ -174,7 +169,6 @@ class _UsersPageState extends State<UsersPage> {
                           onRefresh: _loadUsers,
                           child: Builder(
                             builder: (context) {
-                              // Filter users based on search query
                               final filteredUsers = _users.where((user) {
                                 if (_searchQuery.isEmpty) return true;
 
@@ -262,7 +256,6 @@ class _UsersPageState extends State<UsersPage> {
           ),
         );
 
-        // Reload users if changes were made
         if (result == true) {
           _loadUsers();
         }
@@ -283,7 +276,6 @@ class _UsersPageState extends State<UsersPage> {
         ),
         child: Row(
           children: [
-            // User Avatar with actual profile image
             Container(
               width: 48.w,
               height: 48.h,
@@ -312,7 +304,6 @@ class _UsersPageState extends State<UsersPage> {
                       : null,
             ),
             SizedBox(width: 16.w),
-            // User Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,7 +328,6 @@ class _UsersPageState extends State<UsersPage> {
                       fontFamily: 'Mulish',
                     ),
                   ),
-                  // Department badge
                   if (user.department != null &&
                       user.department!.isNotEmpty) ...[
                     SizedBox(height: 4.h),
@@ -362,7 +352,6 @@ class _UsersPageState extends State<UsersPage> {
                 ],
               ),
             ),
-            // Role Badge with different colors
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
@@ -467,12 +456,12 @@ class _UsersPageState extends State<UsersPage> {
   Color _getRoleColor(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return AppColors.fRedBright; // Red for admin
+        return AppColors.fRedBright;
       case 'planner':
-        return AppColors.saveGreen; // Green for planner
+        return AppColors.saveGreen;
       case 'diner':
       default:
-        return AppColors.fYellow; // Yellow for diner
+        return AppColors.fYellow;
     }
   }
 }

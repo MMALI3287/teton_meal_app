@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +24,10 @@ class EditPollDialogState extends State<EditPollDialog> {
   List<MenuItem> _availableItems = [];
   bool _isLoading = false;
 
+  late DateTime _initialDate;
+  late TimeOfDay _initialTime;
+  late List<MenuItem> _initialSelectedItems;
+
   @override
   void initState() {
     super.initState();
@@ -33,7 +38,6 @@ class EditPollDialogState extends State<EditPollDialog> {
   void _initializeData() {
     final data = widget.pollData.data() as Map<String, dynamic>;
 
-    // Parse date
     final dateString = data['date'] ?? '';
     try {
       final parts = dateString.split('/');
@@ -50,7 +54,6 @@ class EditPollDialogState extends State<EditPollDialog> {
       _selectedDate = DateTime.now();
     }
 
-    // Parse time
     final endTimeMillis = data['endTimeMillis'] as int?;
     if (endTimeMillis != null) {
       final endTime = DateTime.fromMillisecondsSinceEpoch(endTimeMillis);
@@ -59,14 +62,12 @@ class EditPollDialogState extends State<EditPollDialog> {
       _selectedTime = const TimeOfDay(hour: 10, minute: 0);
     }
 
-    // Parse selected items
     final options = data['options'] as List? ?? [];
     _selectedItems = options.map((option) {
       final optionStr = option.toString();
       String name = optionStr;
       String? subItem;
 
-      // Parse items with sub-items
       if (optionStr.contains('(With ') && optionStr.endsWith(')')) {
         final parts = optionStr.split('(With ');
         if (parts.length == 2) {
@@ -82,6 +83,10 @@ class EditPollDialogState extends State<EditPollDialog> {
         createdAt: DateTime.now(),
       );
     }).toList();
+
+    _initialDate = _selectedDate;
+    _initialTime = _selectedTime;
+    _initialSelectedItems = List<MenuItem>.from(_selectedItems);
   }
 
   Future<void> _loadAvailableItems() async {
@@ -139,6 +144,127 @@ class EditPollDialogState extends State<EditPollDialog> {
   }
 
   void _removeItem(int index) {
+    _showDeleteConfirmation(index);
+  }
+
+  Future<void> _showDeleteConfirmation(int index) async {
+    final item = _selectedItems[index];
+    final itemName = item.subItem != null
+        ? '${item.name} (With ${item.subItem})'
+        : item.name;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: AppColors.fRed2.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(50.r),
+                  ),
+                  child: Icon(
+                    Icons.delete_outline,
+                    color: AppColors.fRed2,
+                    size: 32.sp,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'Delete Item',
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.fTextH1,
+                    fontFamily: 'DM Sans',
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Are you sure you want to delete "$itemName"? This will remove all votes for this item and allow those users to vote again.',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.fTextH2,
+                    fontFamily: 'DM Sans',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 24.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 44.h,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.fLineaAndLabelBox,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.fTextH1,
+                              fontFamily: 'DM Sans',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Container(
+                        height: 44.h,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _confirmRemoveItem(index);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.fRed2,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                          ),
+                          child: Text(
+                            'Delete',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.fWhite,
+                              fontFamily: 'DM Sans',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmRemoveItem(int index) {
     setState(() {
       _selectedItems.removeAt(index);
     });
@@ -173,12 +299,41 @@ class EditPollDialogState extends State<EditPollDialog> {
       final menuOptions =
           _selectedItems.map((item) => item.toString()).toList();
 
+      final pollDoc = await FirebaseFirestore.instance
+          .collection('polls')
+          .doc(widget.pollData.id)
+          .get();
+
+      final currentData = pollDoc.data() as Map<String, dynamic>;
+      final currentOptions = List<String>.from(currentData['options'] ?? []);
+      final currentVotes =
+          Map<String, dynamic>.from(currentData['votes'] ?? {});
+
+      final removedOptions = currentOptions
+          .where((option) => !menuOptions.contains(option))
+          .toList();
+
+      final updatedVotes = Map<String, dynamic>.from(currentVotes);
+      for (final removedOption in removedOptions) {
+        updatedVotes.remove(removedOption);
+        if (kDebugMode) {
+          print('Removed votes for deleted option: $removedOption');
+        }
+      }
+
+      for (final option in menuOptions) {
+        if (!updatedVotes.containsKey(option)) {
+          updatedVotes[option] = [];
+        }
+      }
+
       await FirebaseFirestore.instance
           .collection('polls')
           .doc(widget.pollData.id)
           .update({
         'question': '$formattedDate - Food menu',
         'options': menuOptions,
+        'votes': updatedVotes,
         'date': DateFormat('dd/MM/yyyy').format(_selectedDate),
         'endTimeMillis': endTime.millisecondsSinceEpoch,
         'selectedItems': _selectedItems.map((item) => item.toMap()).toList(),
@@ -213,69 +368,88 @@ class EditPollDialogState extends State<EditPollDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.fWhiteBackground,
-      body: Container(
-        width: 393.w,
-        height: 805.h,
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 40.h),
-        child: Column(
-          children: [
-            _buildHeader(),
-            SizedBox(height: 32.h),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildDateSelector(),
-                    SizedBox(height: 24.h),
-                    _buildItemsList(),
-                    SizedBox(height: 16.h),
-                    _buildAddItemButton(),
-                    SizedBox(height: 24.h),
-                    _buildEndTimeSelector(),
-                    SizedBox(height: 40.h),
-                    _buildActionButtons(),
-                  ],
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.zero,
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.fWhite,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30.r),
+            topRight: Radius.circular(30.r),
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              children: [
+                _buildHeader(),
+                SizedBox(height: 24.h),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDateSelector(),
+                        SizedBox(height: 24.h),
+                        _buildItemsList(),
+                        SizedBox(height: 16.h),
+                        _buildAddItemButton(),
+                        SizedBox(height: 32.h),
+                        Container(
+                          height: 1.h,
+                          color: AppColors.fLineaAndLabelBox,
+                        ),
+                        SizedBox(height: 32.h),
+                        _buildEndTimeSelector(),
+                        SizedBox(height: 40.h),
+                        _buildActionButtons(),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildHeader() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(
-              color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8.r),
+      height: 72.h,
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 19.w,
+              height: 18.h,
+              child: Image.asset(
+                'assets/images/clock.png',
+                width: 19.w,
+                height: 18.h,
+                color: AppColors.fYellow,
+              ),
             ),
-            child: Icon(
-              Icons.edit,
-              color: AppColors.fIconAndLabelText,
-              size: 20.sp,
+            SizedBox(width: 8.w),
+            Text(
+              'Edit Menu',
+              style: TextStyle(
+                color: AppColors.fTextH1,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'DM Sans',
+                letterSpacing: -0.2,
+              ),
             ),
-          ),
-          SizedBox(width: 12.w),
-          Text(
-            'Edit Menu',
-            style: TextStyle(
-              color: AppColors.fTextH1,
-              fontSize: 24.sp,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Mulish',
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -285,48 +459,36 @@ class EditPollDialogState extends State<EditPollDialog> {
       onTap: _selectDate,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        height: 44.h,
+        padding: EdgeInsets.symmetric(horizontal: 14.w),
         decoration: BoxDecoration(
-          color: AppColors.fWhite,
-          borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.fTextH1.withValues(alpha: 0.05),
-              blurRadius: 4.r,
-              offset: Offset(0, 2.h),
-            ),
-          ],
+          color: AppColors.fLineaAndLabelBox,
+          borderRadius: BorderRadius.circular(15.r),
         ),
         child: Row(
           children: [
-            Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(
-                Icons.calendar_today_outlined,
-                color: AppColors.fIconAndLabelText,
-                size: 18.sp,
-              ),
+            Icon(
+              Icons.calendar_today_outlined,
+              color: AppColors.fTextH1,
+              size: 18.sp,
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 DateFormat('dd/M/yyyy EEEE').format(_selectedDate),
                 style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
                   color: AppColors.fTextH1,
-                  fontFamily: 'Mulish',
+                  fontFamily: 'DM Sans',
+                  letterSpacing: -0.42,
                 ),
               ),
             ),
             Icon(
               Icons.edit,
-              color: AppColors.fIconAndLabelText,
-              size: 18.sp,
+              color: AppColors.fTextH1,
+              size: 16.sp,
             ),
           ],
         ),
@@ -338,7 +500,6 @@ class EditPollDialogState extends State<EditPollDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Generate item entries dynamically based on selected items
         for (int i = 0; i < _selectedItems.length; i++) _buildItemEntry(i),
       ],
     );
@@ -347,7 +508,7 @@ class EditPollDialogState extends State<EditPollDialog> {
   Widget _buildItemEntry(int index) {
     final item = _selectedItems[index];
     return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
+      margin: EdgeInsets.only(bottom: 24.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -357,38 +518,26 @@ class EditPollDialogState extends State<EditPollDialog> {
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
               color: AppColors.fTextH1,
-              fontFamily: 'Mulish',
+              fontFamily: 'DM Sans',
+              letterSpacing: -0.2,
             ),
           ),
           SizedBox(height: 8.h),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            height: 46.h,
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
             decoration: BoxDecoration(
-              color: AppColors.fWhite,
-              borderRadius: BorderRadius.circular(12.r),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.fTextH1.withValues(alpha: 0.05),
-                  blurRadius: 4.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
+              color: AppColors.fLineaAndLabelBox,
+              borderRadius: BorderRadius.circular(15.r),
             ),
             child: Row(
               children: [
-                Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Icon(
-                    Icons.restaurant_menu,
-                    color: AppColors.fIconAndLabelText,
-                    size: 16.sp,
-                  ),
+                Icon(
+                  Icons.restaurant_menu,
+                  color: AppColors.fTextH2,
+                  size: 16.sp,
                 ),
-                SizedBox(width: 16.w),
+                SizedBox(width: 18.w),
                 Expanded(
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<MenuItem>(
@@ -404,15 +553,31 @@ class EditPollDialogState extends State<EditPollDialog> {
                             ? '${item.name} (With ${item.subItem})'
                             : item.name,
                         style: TextStyle(
-                          fontSize: 14.sp,
-                          color: AppColors.fTextH1,
-                          fontFamily: 'Mulish',
+                          fontSize: 13.8.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.fTextH2,
+                          fontFamily: 'DM Sans',
+                          letterSpacing: -0.197,
                         ),
                       ),
-                      icon: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppColors.fIconAndLabelText,
-                        size: 20.sp,
+                      icon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: AppColors.fTextH1,
+                            size: 20.sp,
+                          ),
+                          SizedBox(width: 8.w),
+                          GestureDetector(
+                            onTap: () => _removeItem(index),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: AppColors.fTextH1,
+                              size: 14.sp,
+                            ),
+                          ),
+                        ],
                       ),
                       items: _availableItems.map((MenuItem menuItem) {
                         return DropdownMenuItem<MenuItem>(
@@ -422,9 +587,11 @@ class EditPollDialogState extends State<EditPollDialog> {
                                 ? '${menuItem.name} (With ${menuItem.subItem})'
                                 : menuItem.name,
                             style: TextStyle(
-                              fontSize: 14.sp,
-                              color: AppColors.fTextH1,
-                              fontFamily: 'Mulish',
+                              fontSize: 13.8.sp,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.fTextH2,
+                              fontFamily: 'DM Sans',
+                              letterSpacing: -0.197,
                             ),
                           ),
                         );
@@ -439,18 +606,6 @@ class EditPollDialogState extends State<EditPollDialog> {
                     ),
                   ),
                 ),
-                SizedBox(width: 8.w),
-                GestureDetector(
-                  onTap: () => _removeItem(index),
-                  child: Container(
-                    padding: EdgeInsets.all(6.w),
-                    child: Icon(
-                      Icons.delete_outline,
-                      color: AppColors.fRed2,
-                      size: 18.sp,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -462,120 +617,103 @@ class EditPollDialogState extends State<EditPollDialog> {
   Widget _buildAddItemButton() {
     return Container(
       width: double.infinity,
-      height: 48.h,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.fNameBoxPink.withValues(alpha: 0.3),
-            blurRadius: 8.r,
-            offset: Offset(0, 4.h),
-          ),
-        ],
-      ),
-      child: ElevatedButton.icon(
+      height: 36.h,
+      child: ElevatedButton(
         onPressed: _addNewItem,
-        icon: Container(
-          width: 24.w,
-          height: 24.h,
-          decoration: BoxDecoration(
-            color: AppColors.fWhite.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: Icon(
-            Icons.add,
-            color: AppColors.fWhite,
-            size: 16.sp,
-          ),
-        ),
-        label: Text(
-          'Add Item',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.fWhite,
-            fontFamily: 'Mulish',
-            letterSpacing: 0.3,
-          ),
-        ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.fNameBoxPink,
+          backgroundColor: AppColors.fYellow,
+          elevation: 4,
+          shadowColor: Colors.black.withValues(alpha: 0.25),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
           ),
-          elevation: 0,
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          padding: EdgeInsets.zero,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add,
+              color: AppColors.fWhite,
+              size: 16.sp,
+            ),
+            SizedBox(width: 8.w),
+            Text(
+              'Add Item',
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+                color: AppColors.fWhite,
+                fontFamily: 'DM Sans',
+                letterSpacing: -0.2,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildEndTimeSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'End Time',
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-            color: AppColors.fTextH1,
-            fontFamily: 'Mulish',
-          ),
+    return GestureDetector(
+      onTap: _selectTime,
+      child: Container(
+        width: double.infinity,
+        height: 47.h,
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        decoration: BoxDecoration(
+          color: AppColors.fLineaAndLabelBox,
+          borderRadius: BorderRadius.circular(15.r),
         ),
-        SizedBox(height: 8.h),
-        GestureDetector(
-          onTap: _selectTime,
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-            decoration: BoxDecoration(
-              color: AppColors.fWhite,
-              borderRadius: BorderRadius.circular(12.r),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.fTextH1.withValues(alpha: 0.05),
-                  blurRadius: 4.r,
-                  offset: Offset(0, 2.h),
-                ),
-              ],
+        child: Row(
+          children: [
+            Container(
+              width: 29.w,
+              height: 36.h,
+              child: Image.asset(
+                'assets/images/clock.png',
+                width: 29.w,
+                height: 36.h,
+                fit: BoxFit.contain,
+              ),
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(8.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.fNameBoxPink,
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: Icon(
-                    Icons.access_time,
-                    color: AppColors.fRedBright,
-                    size: 18.sp,
-                  ),
-                ),
-                SizedBox(width: 16.w),
-                Expanded(
-                  child: Text(
-                    _selectedTime.format(context),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'End Time',
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.fTextH1,
-                      fontFamily: 'Mulish',
+                      color: AppColors.fIconAndLabelText,
+                      fontFamily: 'DM Sans',
+                      letterSpacing: -0.2,
                     ),
                   ),
-                ),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  color: AppColors.fIconAndLabelText,
-                  size: 20.sp,
-                ),
-              ],
+                  Text(
+                    _selectedTime.format(context),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.fTextH1,
+                      fontFamily: 'DM Sans',
+                      letterSpacing: -0.24,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+            Icon(
+              Icons.keyboard_arrow_down,
+              color: AppColors.fTextH1,
+              size: 20.sp,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -583,54 +721,378 @@ class EditPollDialogState extends State<EditPollDialog> {
     return Row(
       children: [
         Expanded(
-          child: TextButton(
-            onPressed: _isLoading ? null : () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: AppColors.fIconAndLabelText,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Mulish',
+          child: Container(
+            height: 38.h,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _handleCancel,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.fWhite,
+                elevation: 4,
+                shadowColor: Colors.black.withValues(alpha: 0.25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                padding: EdgeInsets.zero,
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.fRedBright,
+                  fontFamily: 'DM Sans',
+                  letterSpacing: -0.172,
+                ),
               ),
             ),
           ),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: 10.w),
         Expanded(
-          flex: 2,
-          child: SizedBox(
-            height: 48.h,
-            child: ElevatedButton.icon(
-              onPressed:
-                  _isLoading || _selectedItems.isEmpty ? null : _updatePoll,
-              icon: Icon(
-                Icons.save,
-                size: 18.sp,
-                color: AppColors.fWhite,
-              ),
-              label: Text(
-                'Save Changes',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.fWhite,
-                  fontFamily: 'Mulish',
-                ),
-              ),
+          child: Container(
+            height: 38.h,
+            child: ElevatedButton(
+              onPressed: _isLoading || _selectedItems.isEmpty
+                  ? null
+                  : _handleSaveChanges,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.saveGreen,
                 disabledBackgroundColor:
                     AppColors.fIconAndLabelText.withValues(alpha: 0.3),
+                elevation: 4,
+                shadowColor: Colors.black.withValues(alpha: 0.25),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
-                elevation: 0,
+                padding: EdgeInsets.zero,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.save,
+                    size: 15.sp,
+                    color: AppColors.fWhite,
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Save Changes',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.fWhite,
+                      fontFamily: 'DM Sans',
+                      letterSpacing: -0.172,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
       ],
     );
+  }
+
+  bool _hasChanges() {
+    if (_selectedDate != _initialDate) return true;
+
+    if (_selectedTime.hour != _initialTime.hour ||
+        _selectedTime.minute != _initialTime.minute) return true;
+
+    if (_selectedItems.length != _initialSelectedItems.length) return true;
+
+    for (int i = 0; i < _selectedItems.length; i++) {
+      final current = _selectedItems[i];
+      final initial = _initialSelectedItems[i];
+      if (current.name != initial.name || current.subItem != initial.subItem) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  void _handleCancel() {
+    if (!_hasChanges()) {
+      Navigator.pop(context);
+      return;
+    }
+
+    _showCancelConfirmationDialog();
+  }
+
+  void _handleSaveChanges() {
+    if (!_hasChanges()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No changes detected'),
+          backgroundColor: AppColors.fIconAndLabelText,
+        ),
+      );
+      return;
+    }
+
+    _showSaveConfirmationDialog();
+  }
+
+  Future<void> _showSaveConfirmationDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.fTextH1.withValues(alpha: 0.1),
+                  blurRadius: 20.r,
+                  offset: Offset(0, 8.h),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 60.w,
+                  height: 60.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.saveGreen.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.save_outlined,
+                    color: AppColors.saveGreen,
+                    size: 32.sp,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                Text(
+                  'Save Changes',
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.fTextH1,
+                    fontFamily: 'DM Sans',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  'Are you sure you want to save these changes to the menu?',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.fIconAndLabelText,
+                    fontFamily: 'DM Sans',
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 32.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(false),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fIconAndLabelText
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fIconAndLabelText,
+                                fontFamily: 'DM Sans',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(true),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.saveGreen,
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    AppColors.saveGreen.withValues(alpha: 0.3),
+                                blurRadius: 8.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Save',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fWhite,
+                                fontFamily: 'DM Sans',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      _updatePoll();
+    }
+  }
+
+  Future<void> _showCancelConfirmationDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.fTextH1.withValues(alpha: 0.1),
+                  blurRadius: 20.r,
+                  offset: Offset(0, 8.h),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 60.w,
+                  height: 60.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.fYellow.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.warning_outlined,
+                    color: AppColors.fYellow,
+                    size: 32.sp,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                Text(
+                  'Unsaved Changes',
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.fTextH1,
+                    fontFamily: 'DM Sans',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  'You have unsaved changes. Are you sure you want to discard them?',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.fIconAndLabelText,
+                    fontFamily: 'DM Sans',
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 32.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(false),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fIconAndLabelText
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Keep Editing',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fIconAndLabelText,
+                                fontFamily: 'DM Sans',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(true),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fRedBright,
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    AppColors.fRedBright.withValues(alpha: 0.3),
+                                blurRadius: 8.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Discard',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fWhite,
+                                fontFamily: 'DM Sans',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      Navigator.pop(context);
+    }
   }
 }

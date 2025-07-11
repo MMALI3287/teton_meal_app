@@ -35,12 +35,10 @@ class NotificationService {
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
-        // Handle notification tap and mark reminder as triggered if it's a one-time reminder
         if (kDebugMode) {
           print('Notification tapped: ${response.payload}');
         }
 
-        // If the notification has a payload (reminder ID), mark it as triggered
         if (response.payload != null) {
           final reminderService = ReminderService();
           await reminderService.markReminderAsTriggered(response.payload!);
@@ -50,7 +48,6 @@ class NotificationService {
           _backgroundNotificationResponseHandler,
     );
 
-    // Create notification channel for Android
     await _createNotificationChannel();
   }
 
@@ -65,7 +62,7 @@ class NotificationService {
       return granted ?? false;
     }
 
-    return true; // iOS permissions are requested during initialization
+    return true;
   }
 
   Future<void> scheduleReminder(ReminderModel reminder) async {
@@ -96,7 +93,6 @@ class NotificationService {
       iOS: iosNotificationDetails,
     );
 
-    // Cancel existing notification
     await _flutterLocalNotificationsPlugin.cancel(notificationId);
 
     if (!reminder.isActive) {
@@ -132,8 +128,6 @@ class NotificationService {
         print('Scheduled reminder: ${reminder.name} for $scheduledDate');
       }
 
-      // For non-repeating reminders, schedule a cleanup notification a few minutes later
-      // This ensures the reminder gets disabled even if the user doesn't interact with the notification
       if (!reminder.isRepeating) {
         await _scheduleCleanupNotification(reminder.id, scheduledDate);
       }
@@ -161,7 +155,6 @@ class NotificationService {
     final int notificationId = reminderId.hashCode;
     final int cleanupNotificationId = '${reminderId}_cleanup'.hashCode;
 
-    // Cancel both the main reminder and its cleanup notification
     await _flutterLocalNotificationsPlugin.cancel(notificationId);
     await _flutterLocalNotificationsPlugin.cancel(cleanupNotificationId);
 
@@ -226,7 +219,7 @@ class NotificationService {
       return hasPermission ?? false;
     }
 
-    return true; // Assume permission granted on other platforms
+    return true;
   }
 
   Future<void> requestExactAlarmPermission() async {
@@ -239,16 +232,12 @@ class NotificationService {
     }
   }
 
-  // Background notification response handler (static method required)
   static void _backgroundNotificationResponseHandler(
       NotificationResponse response) {
-    // Handle background notification response
     if (kDebugMode) {
       print('Background notification received: ${response.payload}');
     }
 
-    // For background handling, we need to mark the reminder as triggered
-    // This runs in the background so we need to be careful with async operations
     if (response.payload != null) {
       _handleBackgroundReminderTrigger(response.payload!);
     }
@@ -270,12 +259,9 @@ class NotificationService {
 
   Future<void> _scheduleCleanupNotification(
       String reminderId, DateTime originalScheduledDate) async {
-    // Schedule a silent cleanup notification 2 minutes after the original reminder
-    // This ensures non-repeating reminders get disabled even if user doesn't interact
     final cleanupDate = originalScheduledDate.add(const Duration(minutes: 2));
     final cleanupNotificationId = '${reminderId}_cleanup'.hashCode;
 
-    // Only schedule if the cleanup date is in the future
     if (cleanupDate.isBefore(DateTime.now())) {
       return;
     }
@@ -313,11 +299,11 @@ class NotificationService {
     try {
       await _flutterLocalNotificationsPlugin.zonedSchedule(
         cleanupNotificationId,
-        '', // Empty title for silent notification
-        '', // Empty body for silent notification
+        '',
+        '',
         tzCleanupDate,
         notificationDetails,
-        payload: reminderId, // Use the original reminder ID as payload
+        payload: reminderId,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       );
 

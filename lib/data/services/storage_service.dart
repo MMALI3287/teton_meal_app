@@ -5,10 +5,8 @@ import 'package:flutter/foundation.dart';
 class StorageService {
   static final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  // Check if storage permissions are correctly set up
   static Future<bool> checkStoragePermissions() async {
     try {
-      // Try to list items in the storage bucket to verify permissions
       final ListResult result = await _storage.ref('profile_images').listAll();
       if (kDebugMode) {
         print('Storage access successful. Found ${result.items.length} items.');
@@ -22,7 +20,6 @@ class StorageService {
     }
   }
 
-  // Upload a file to Firebase Storage with enhanced error handling
   static Future<String?> uploadFile({
     required String filePath,
     required String fileName,
@@ -33,41 +30,34 @@ class StorageService {
       if (kDebugMode) {
         print('Starting upload of $fileName to $folder');
 
-        // Debug: Check if file exists and has content
         final file = File(filePath);
         final fileExists = await file.exists();
         final fileSize = fileExists ? await file.length() : 0;
         print('File exists: $fileExists, Size: $fileSize bytes');
 
-        // Debug: Check Firebase Storage instance
         print('Storage bucket: ${_storage.bucket}');
       }
 
-      // Create the reference with correct path
       final ref = _storage.ref().child('$folder/$fileName');
       if (kDebugMode) {
         print('Storage reference path: ${ref.fullPath}');
       }
 
-      // Set proper metadata
       final metadata = SettableMetadata(
         contentType: contentType,
         customMetadata: {'uploaded-by': 'teton-meal-app'},
       );
 
-      // Get the file
       final file = File(filePath);
       if (!await file.exists()) {
         throw Exception('File does not exist: $filePath');
       }
 
-      // Start upload task
       final uploadTask = ref.putFile(
         file,
         metadata,
       );
 
-      // Listen for state changes, errors, and completion events
       uploadTask.snapshotEvents.listen(
         (TaskSnapshot snapshot) {
           final progress = snapshot.bytesTransferred / snapshot.totalBytes;
@@ -82,14 +72,12 @@ class StorageService {
         },
       );
 
-      // Wait for the upload to complete
       final snapshot = await uploadTask;
 
       if (kDebugMode) {
         print('Upload completed. Trying to get download URL...');
       }
 
-      // Get the download URL
       final downloadUrl = await snapshot.ref.getDownloadURL();
 
       if (kDebugMode) {
@@ -101,7 +89,6 @@ class StorageService {
       if (kDebugMode) {
         print('Error in uploadFile: $e');
 
-        // More specific error classification
         if (e is FirebaseException) {
           print('Firebase error code: ${e.code}, message: ${e.message}');
 
@@ -120,13 +107,10 @@ class StorageService {
     }
   }
 
-  // Helper to get a file from a path
   static Future<File> getFile(String path) async {
     if (path.startsWith('http')) {
-      // Handle URLs if needed
       throw Exception('URL uploads not yet implemented');
     } else {
-      // Handle file path
       final file = File(path);
       if (!await file.exists()) {
         throw Exception('File does not exist: $path');
@@ -135,7 +119,6 @@ class StorageService {
     }
   }
 
-  // Upload profile image for a user
   static Future<String?> uploadProfileImage(
       String userId, File imageFile) async {
     try {
@@ -155,7 +138,6 @@ class StorageService {
     }
   }
 
-  // Delete profile image for a user
   static Future<bool> deleteProfileImage(String userId) async {
     try {
       final fileName = 'profile_$userId.jpg';

@@ -142,7 +142,6 @@ class MenuPollCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Date header - exact match to Figma
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8.h),
             child: Text(
@@ -155,8 +154,6 @@ class MenuPollCard extends StatelessWidget {
               ),
             ),
           ),
-
-          // Total Orders row - exact match to Figma
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8.h),
             child: Row(
@@ -183,16 +180,11 @@ class MenuPollCard extends StatelessWidget {
               ],
             ),
           ),
-
-          // Divider after Total Orders - exact match to Figma
           Container(
             height: 1.h,
             color: AppColors.fLineaAndLabelBox,
           ),
-
           SizedBox(height: 16.h),
-
-          // Menu items list with exact Figma styling and dividers
           ...options.asMap().entries.map((entry) {
             int index = entry.key;
             String option = entry.value;
@@ -201,8 +193,7 @@ class MenuPollCard extends StatelessWidget {
             return Column(
               children: [
                 _buildOrderItem(option, orderCount),
-                if (index <
-                    options.length - 1) // Add divider except for last item
+                if (index < options.length - 1)
                   Container(
                     height: 1.h,
                     color: AppColors.fLineaAndLabelBox,
@@ -211,16 +202,12 @@ class MenuPollCard extends StatelessWidget {
               ],
             );
           }),
-
           SizedBox(height: 20.h),
-
-          // Action buttons with icons - exact match to Figma
           Padding(
             padding: EdgeInsets.all(8.w),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // View button with eye icon
                 _buildActionButton(
                   text: 'View',
                   icon: Icons.visibility_outlined,
@@ -235,8 +222,6 @@ class MenuPollCard extends StatelessWidget {
                     );
                   },
                 ),
-
-                // Edit or Delete button with appropriate icon
                 _buildActionButton(
                   text: isActive ? 'Edit' : 'Delete',
                   icon: isActive ? Icons.edit_outlined : Icons.delete_outline,
@@ -265,7 +250,6 @@ class MenuPollCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
         children: [
-          // Bullet point - exact match to Figma (black solid circle)
           Container(
             width: 4.w,
             height: 4.h,
@@ -275,8 +259,6 @@ class MenuPollCard extends StatelessWidget {
             ),
           ),
           SizedBox(width: 12.w),
-
-          // Menu item name
           Expanded(
             child: Text(
               option,
@@ -288,8 +270,6 @@ class MenuPollCard extends StatelessWidget {
               ),
             ),
           ),
-
-          // Order count in gray rounded background - exact match to Figma
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
             decoration: BoxDecoration(

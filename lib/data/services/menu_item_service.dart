@@ -6,14 +6,11 @@ class MenuItemService {
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const String _collection = 'menu_items';
 
-  /// Initialize default menu items if the collection is empty
   static Future<void> initializeDefaultItems() async {
     try {
-      // Check if menu_items collection has any documents
       final snapshot = await _firestore.collection(_collection).limit(1).get();
 
       if (snapshot.docs.isEmpty) {
-        // Collection is empty, add default items
         final defaultItems = [
           MenuItem(
             id: '',
@@ -47,7 +44,6 @@ class MenuItemService {
           ),
         ];
 
-        // Add each default item to Firestore
         for (final item in defaultItems) {
           await _firestore.collection(_collection).add(item.toMap());
         }
@@ -63,7 +59,6 @@ class MenuItemService {
     }
   }
 
-  /// Get all menu items
   static Future<List<MenuItem>> getAllMenuItems() async {
     try {
       final snapshot = await _firestore
@@ -82,7 +77,6 @@ class MenuItemService {
     }
   }
 
-  /// Add a new menu item
   static Future<MenuItem?> addMenuItem(String name, String? subItem) async {
     try {
       final newItem = MenuItem(
@@ -109,7 +103,6 @@ class MenuItemService {
     }
   }
 
-  /// Delete a menu item
   static Future<bool> deleteMenuItem(String itemId) async {
     try {
       await _firestore.collection(_collection).doc(itemId).delete();

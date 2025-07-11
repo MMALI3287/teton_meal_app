@@ -8,21 +8,6 @@ import 'package:teton_meal_app/features/menu_management/presentation/screens/cre
 import 'package:teton_meal_app/features/menu_management/presentation/screens/poll_votes_detail_screen.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 
-/*
- * DATABASE MIGRATION NOTE:
- * Existing polls in the database may not have the 'adminOverride' field.
- * The code safely handles this by using null-aware operators (?? false).
- * New polls created through the app will automatically include this field.
- * 
- * If needed, you can run this one-time migration in Firebase Console:
- * 
- * polls.where('adminOverride', '==', null).get().then(snapshot => {
- *   snapshot.docs.forEach(doc => {
- *     doc.ref.update({ adminOverride: false });
- *   });
- * });
- */
-
 class VotesPage extends StatefulWidget {
   const VotesPage({super.key});
 
@@ -35,14 +20,11 @@ class _VotesPageState extends State<VotesPage>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  // Vote optimization: cache and debouncing
   Timer? _voteTimer;
-  final Map<String, String?> _pendingVotes = {}; // pollId -> optionVoted
+  final Map<String, String?> _pendingVotes = {};
   final Duration _votingDelay = const Duration(milliseconds: 300);
-  final Set<String> _autoDisabledPolls =
-      {}; // Track polls that have been auto-disabled
-  final Set<String> _adminOverriddenPolls =
-      {}; // Track polls manually overridden by admin
+  final Set<String> _autoDisabledPolls = {};
+  final Set<String> _adminOverriddenPolls = {};
 
   bool get _isAdminOrPlanner {
     final userRole = AuthService().currentUser?.role;
@@ -80,7 +62,7 @@ class _VotesPageState extends State<VotesPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // F_fWhiteBackground
+      backgroundColor: const Color(0xFFF9F9F9),
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -125,7 +107,6 @@ class _VotesPageState extends State<VotesPage>
                       return _buildEmptyWidget();
                     }
 
-                    // Debug: Print poll info
                     if (polls.isNotEmpty) {
                       final pollData =
                           polls.first.data() as Map<String, dynamic>;
@@ -159,7 +140,7 @@ class _VotesPageState extends State<VotesPage>
                 fontSize: 24.sp,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
-                color: AppColors.fTextH1,
+                color: AppColors.textH1(context),
                 letterSpacing: -0.12,
               ),
             ),
@@ -180,7 +161,7 @@ class _VotesPageState extends State<VotesPage>
                     width: 32.w,
                     height: 32.h,
                     decoration: BoxDecoration(
-                      color: AppColors.fRedBright,
+                      color: AppColors.redBright(context),
                       borderRadius: BorderRadius.circular(8.r),
                       boxShadow: [
                         BoxShadow(
@@ -192,7 +173,7 @@ class _VotesPageState extends State<VotesPage>
                     ),
                     child: Icon(
                       Icons.add,
-                      color: AppColors.fWhite,
+                      color: AppColors.white(context),
                       size: 18.sp,
                     ),
                   ),
@@ -372,7 +353,6 @@ class _VotesPageState extends State<VotesPage>
 
     return Column(
       children: [
-        // Main scrollable content - takes up available space minus end time card
         Expanded(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -382,16 +362,13 @@ class _VotesPageState extends State<VotesPage>
                 _buildMainCard(pollData, formattedDate, options, votes),
                 SizedBox(height: 16.h),
                 _buildIllustration(),
-                SizedBox(
-                    height: 20.h), // Reduced padding since card is now in flow
+                SizedBox(height: 20.h),
               ],
             ),
           ),
         ),
-        // Fixed end time card at bottom with consistent spacing
         Container(
-          margin: EdgeInsets.fromLTRB(
-              16.w, 0, 16.w, 10.h), // Same horizontal margin and bottom space
+          margin: EdgeInsets.fromLTRB(16.w, 0, 16.w, 10.h),
           child: _buildEndTimeCard(endTimeMs, pollData.id),
         ),
       ],
@@ -407,16 +384,14 @@ class _VotesPageState extends State<VotesPage>
     final bool isManuallyActive = data['isActive'] ?? false;
     final bool adminOverride = data['adminOverride'] ?? false;
 
-    // Auto-disable toggle when time is up
     _autoDisableToggleIfTimeUp(pollData, isTimeUp, isManuallyActive);
 
-    // For voting: allow if manually active AND (time not up OR admin override is set)
     final bool effectiveActiveState =
         isManuallyActive && (!isTimeUp || adminOverride);
-    // For UI display: show time up message only if time is up AND toggle is off AND no admin override
+
     final bool showTimeUpMessage =
         isTimeUp && !isManuallyActive && !adminOverride;
-    // Show admin override message if voting is active after time up due to admin override
+
     final bool showAdminOverrideMessage =
         isTimeUp && isManuallyActive && adminOverride;
 
@@ -435,7 +410,6 @@ class _VotesPageState extends State<VotesPage>
       ),
       child: Column(
         children: [
-          // Header with date and toggle - exact match to Figma
           Padding(
             padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
             child: Row(
@@ -451,20 +425,16 @@ class _VotesPageState extends State<VotesPage>
                     letterSpacing: -0.36,
                   ),
                 ),
-                // Only show toggle for Admin and Planner users
                 if (_canControlToggle)
                   SizedBox(
                     width: 36.w,
                     height: 18.h,
                     child: Switch(
                       value: isManuallyActive,
-                      activeColor: AppColors.fWhite, // White thumb when active
-                      activeTrackColor:
-                          AppColors.fTextH1, // Black background when active
-                      inactiveThumbColor:
-                          AppColors.fWhite, // White thumb when inactive
-                      inactiveTrackColor: AppColors
-                          .fIconAndLabelText, // Gray background when inactive
+                      activeColor: AppColors.fWhite,
+                      activeTrackColor: AppColors.fTextH1,
+                      inactiveThumbColor: AppColors.fWhite,
+                      inactiveTrackColor: AppColors.fIconAndLabelText,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       onChanged: (value) => _togglePollStatus(pollData, value),
                     ),
@@ -472,8 +442,6 @@ class _VotesPageState extends State<VotesPage>
               ],
             ),
           ),
-
-          // Time up/admin override messages
           if (showTimeUpMessage)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
@@ -520,10 +488,7 @@ class _VotesPageState extends State<VotesPage>
                 ],
               ),
             ),
-
           SizedBox(height: 16.h),
-
-          // Options list - exact match to Figma
           if (options.isEmpty)
             Center(
               child: Padding(
@@ -559,12 +524,8 @@ class _VotesPageState extends State<VotesPage>
               },
             ),
           ],
-
           SizedBox(height: 16.h),
-
-          // Total Orders section - exact match to Figma
           _buildTotalOrdersSection(votes, pollData),
-
           SizedBox(height: 16.h),
         ],
       ),
@@ -583,7 +544,6 @@ class _VotesPageState extends State<VotesPage>
     final bool hasUserVoted =
         currentUser != null && optionVotes.contains(currentUser.uid);
 
-    // Calculate total votes for percentage
     int totalVotes = 0;
     for (var entry in allVotes.entries) {
       totalVotes += (entry.value as List?)?.length ?? 0;
@@ -592,7 +552,6 @@ class _VotesPageState extends State<VotesPage>
     final double percentage =
         totalVotes > 0 ? (optionVotes.length / totalVotes) * 100 : 0;
 
-    // Food images mapping
     const Map<String, String> foodImages = {
       'Egg Khichuri': 'assets/images/egg.png',
       'Beef & Rice': 'assets/images/beef.png',
@@ -612,7 +571,6 @@ class _VotesPageState extends State<VotesPage>
             children: [
               Row(
                 children: [
-                  // Vote icon - exact match to Figma
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
                     child: SizedBox(
@@ -624,12 +582,12 @@ class _VotesPageState extends State<VotesPage>
                               width: 16.w,
                               height: 16.h,
                               decoration: BoxDecoration(
-                                color: AppColors.fTextH1, // Black background
+                                color: AppColors.fTextH1,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
                                 Icons.check,
-                                color: AppColors.fWhite, // White tick mark
+                                color: AppColors.fWhite,
                                 size: 12.sp,
                               ),
                             )
@@ -650,8 +608,6 @@ class _VotesPageState extends State<VotesPage>
                     ),
                   ),
                   SizedBox(width: 12.w),
-
-                  // Food image with shadow - exact match to Figma
                   Container(
                     width: 37.w,
                     height: 37.h,
@@ -678,8 +634,6 @@ class _VotesPageState extends State<VotesPage>
                     ),
                   ),
                   SizedBox(width: 12.w),
-
-                  // Option name - exact match to Figma
                   Expanded(
                     child: Text(
                       option,
@@ -692,8 +646,6 @@ class _VotesPageState extends State<VotesPage>
                       ),
                     ),
                   ),
-
-                  // Order count in rounded background - exact match to Figma
                   Container(
                     padding:
                         EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
@@ -714,19 +666,15 @@ class _VotesPageState extends State<VotesPage>
                   ),
                 ],
               ),
-
               SizedBox(height: 16.h),
-
-              // Progress bar and percentage - exact match to Figma
               Row(
                 children: [
-                  SizedBox(width: 28.w), // Align with content above
+                  SizedBox(width: 28.w),
                   Expanded(
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         return Stack(
                           children: [
-                            // Background bar
                             Container(
                               height: 3.h,
                               decoration: BoxDecoration(
@@ -734,7 +682,6 @@ class _VotesPageState extends State<VotesPage>
                                 borderRadius: BorderRadius.circular(12.r),
                               ),
                             ),
-                            // Progress bar
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 500),
                               height: 3.h,
@@ -752,7 +699,6 @@ class _VotesPageState extends State<VotesPage>
                     ),
                   ),
                   SizedBox(width: 12.w),
-                  // Percentage text - exact match to Figma
                   SizedBox(
                     width: 28.w,
                     child: AnimatedSwitcher(
@@ -772,7 +718,6 @@ class _VotesPageState extends State<VotesPage>
                   ),
                 ],
               ),
-
               SizedBox(height: 16.h),
             ],
           ),
@@ -908,7 +853,6 @@ class _VotesPageState extends State<VotesPage>
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
           child: Row(
             children: [
-              // Clock icon using the actual image - exact match to Figma
               SizedBox(
                 width: 29.w,
                 height: 40.h,
@@ -975,48 +919,22 @@ class _VotesPageState extends State<VotesPage>
     );
   }
 
-  /*
-   * DATABASE MIGRATION NOTE:
-   * Existing polls in the database may not have the 'adminOverride' field.
-   * The code safely handles this by using null-aware operators (?? false).
-   * New polls created through the app will automatically include this field.
-   * 
-   * If needed, you can run this one-time migration in Firebase Console:
-   * 
-   * polls.where('adminOverride', '==', null).get().then(snapshot => {
-   *   snapshot.docs.forEach(doc => {
-   *     doc.ref.update({ adminOverride: false });
-   *   });
-   * });
-   */
-
-  // Auto-disable toggle when time expires
   void _autoDisableToggleIfTimeUp(
       QueryDocumentSnapshot pollData, bool isTimeUp, bool isManuallyActive) {
     final data = pollData.data() as Map<String, dynamic>;
     final bool adminOverride = data['adminOverride'] ?? false;
 
-    // Don't auto-disable if:
-    // 1. Admin has overridden this poll (database flag)
-    // 2. Poll was already auto-disabled
-    // 3. Time is not up
-    // 4. Poll is already inactive
     if (isTimeUp &&
         isManuallyActive &&
-        !adminOverride && // Check database adminOverride flag
+        !adminOverride &&
         !_autoDisabledPolls.contains(pollData.id) &&
         !_adminOverriddenPolls.contains(pollData.id)) {
-      // Mark as auto-disabled to prevent multiple calls
       _autoDisabledPolls.add(pollData.id);
 
-      // Schedule the toggle to be disabled after the current build cycle
-      // Add a small delay to prevent interference with manual toggles
       Future.delayed(const Duration(milliseconds: 100), () {
-        // Double-check that admin hasn't manually overridden in the meantime
         if (!_adminOverriddenPolls.contains(pollData.id)) {
           _disablePollToggle(pollData.id);
         } else {
-          // Remove from auto-disabled since admin has taken control
           _autoDisabledPolls.remove(pollData.id);
         }
       });
@@ -1027,10 +945,9 @@ class _VotesPageState extends State<VotesPage>
     try {
       await FirebaseFirestore.instance.collection('polls').doc(pollId).update({
         'isActive': false,
-        'adminOverride': false, // Clear admin override when auto-disabling
+        'adminOverride': false,
       });
     } catch (e) {
-      // Remove from auto-disabled set on error so it can be retried
       _autoDisabledPolls.remove(pollId);
     }
   }
@@ -1038,32 +955,24 @@ class _VotesPageState extends State<VotesPage>
   Future<void> _togglePollStatus(
       QueryDocumentSnapshot pollData, bool newStatus) async {
     try {
-      // Clear auto-disabled tracking immediately when admin manually toggles
       _autoDisabledPolls.remove(pollData.id);
 
-      // Check if admin is enabling after time expiry
       final int? endTimeMs = pollData['endTimeMillis'];
       final bool isTimeUp = endTimeMs != null &&
           DateTime.now().millisecondsSinceEpoch > endTimeMs;
 
-      // Prepare the update data
       Map<String, dynamic> updateData = {'isActive': newStatus};
 
-      // Handle admin override logic
       if (newStatus && isTimeUp) {
-        // Admin is enabling voting after time expiry - set admin override
         updateData['adminOverride'] = true;
         _adminOverriddenPolls.add(pollData.id);
       } else if (!newStatus) {
-        // Admin is disabling voting - clear admin override
         updateData['adminOverride'] = false;
         _adminOverriddenPolls.remove(pollData.id);
       } else if (newStatus && !isTimeUp) {
-        // Admin is enabling voting before time expiry - ensure no override flag
         updateData['adminOverride'] = false;
       }
 
-      // Update the database with both isActive and adminOverride
       await FirebaseFirestore.instance
           .collection('polls')
           .doc(pollData.id)
@@ -1079,9 +988,8 @@ class _VotesPageState extends State<VotesPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
-            backgroundColor: newStatus
-                ? const Color(0xFF4CAF50)
-                : const Color(0xFFEF9F27), // Success green or warning yellow
+            backgroundColor:
+                newStatus ? const Color(0xFF4CAF50) : const Color(0xFFEF9F27),
             duration:
                 Duration(milliseconds: isTimeUp && newStatus ? 3000 : 2000),
           ),
@@ -1092,7 +1000,7 @@ class _VotesPageState extends State<VotesPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating menu: $e'),
-            backgroundColor: const Color(0xFFFF3951), // F_Red_Bright
+            backgroundColor: const Color(0xFFFF3951),
           ),
         );
       }
@@ -1179,14 +1087,14 @@ class _VotesPageState extends State<VotesPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('End time updated to ${picked.format(context)}'),
-            backgroundColor: const Color(0xFF4CAF50), // Success green
+            backgroundColor: const Color(0xFF4CAF50),
           ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating end time: $e'),
-            backgroundColor: const Color(0xFFFF3951), // F_Red_Bright
+            backgroundColor: const Color(0xFFFF3951),
           ),
         );
       }
@@ -1194,7 +1102,6 @@ class _VotesPageState extends State<VotesPage>
   }
 
   Widget _buildFoodIcon(String option) {
-    // Map food names to appropriate icons
     IconData iconData = Icons.restaurant;
     if (option.toLowerCase().contains('egg')) {
       iconData = Icons.egg_outlined;
@@ -1208,13 +1115,12 @@ class _VotesPageState extends State<VotesPage>
     return Center(
       child: Icon(
         iconData,
-        color: const Color(0xFF7A869A), // F_Icon& Label_Text
+        color: const Color(0xFF7A869A),
         size: 20.sp,
       ),
     );
   }
 
-  // Optimized fast voting implementation
   Future<void> _voteForOption(String option, String pollId) async {
     final currentUser = AuthService().currentUser;
     if (currentUser == null) {
@@ -1228,28 +1134,21 @@ class _VotesPageState extends State<VotesPage>
       return;
     }
 
-    // Check if there's a pending vote for this pollId
     if (_pendingVotes.containsKey(pollId)) {
-      // If the pending vote is the same as the new vote, cancel the operation
       if (_pendingVotes[pollId] == option) return;
-      // Otherwise, remove the pending vote (user is changing their vote)
+
       _pendingVotes.remove(pollId);
     }
 
-    // Add or update the pending vote
     _pendingVotes[pollId] = option;
 
-    // Cancel the previous timer if it exists
     _voteTimer?.cancel();
 
-    // Start a new timer
     _voteTimer = Timer(_votingDelay, () async {
       try {
-        // Use direct field update with FieldValue operations for speed
         final pollRef =
             FirebaseFirestore.instance.collection('polls').doc(pollId);
 
-        // Get current poll data once
         final pollDoc = await pollRef.get();
         if (!pollDoc.exists) return;
 
@@ -1257,7 +1156,6 @@ class _VotesPageState extends State<VotesPage>
         final allOptions = List<String>.from(data['options'] ?? []);
         final currentVotes = Map<String, dynamic>.from(data['votes'] ?? {});
 
-        // Find user's current vote
         String? currentUserVote;
         for (String optionKey in allOptions) {
           final voters = List<String>.from(currentVotes[optionKey] ?? []);
@@ -1267,11 +1165,9 @@ class _VotesPageState extends State<VotesPage>
           }
         }
 
-        // Prepare batch updates for atomic operation
         final batch = FirebaseFirestore.instance.batch();
         final updates = <String, dynamic>{};
 
-        // Remove from previous option if exists
         if (currentUserVote != null && currentUserVote != option) {
           final prevVoters =
               List<String>.from(currentVotes[currentUserVote] ?? []);
@@ -1279,7 +1175,6 @@ class _VotesPageState extends State<VotesPage>
           updates['votes.$currentUserVote'] = prevVoters;
         }
 
-        // Add to new option (or toggle off if same option)
         if (currentUserVote != option) {
           final newVoters = List<String>.from(currentVotes[option] ?? []);
           if (!newVoters.contains(currentUser.uid)) {
@@ -1288,12 +1183,10 @@ class _VotesPageState extends State<VotesPage>
           updates['votes.$option'] = newVoters;
         }
 
-        // Apply updates if any changes needed
         if (updates.isNotEmpty) {
           batch.update(pollRef, updates);
           await batch.commit();
 
-          // Quick success feedback
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1314,11 +1207,8 @@ class _VotesPageState extends State<VotesPage>
           ),
         );
       } finally {
-        // Remove the pollId from pending votes after the operation
         _pendingVotes.remove(pollId);
       }
     });
   }
-
-  // ...existing methods...
 }

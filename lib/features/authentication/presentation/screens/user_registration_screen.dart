@@ -22,20 +22,16 @@ class _UserRegisterState extends State<UserRegister> {
   bool _isUploading = false;
   String? _uploadedImageUrl;
 
-  // Method to pick image from gallery or camera
   Future<void> _pickImage(ImageSource source) async {
     try {
-      // Initialize ImagePicker
       final ImagePicker picker = ImagePicker();
 
-      // Request permissions before picking image
       if (source == ImageSource.camera) {
         await _requestCameraPermission();
       } else {
         await _requestGalleryPermission();
       }
 
-      // Pick image with reduced settings to avoid memory issues
       final XFile? pickedImage = await picker.pickImage(
         source: source,
         maxWidth: 512,
@@ -48,7 +44,6 @@ class _UserRegisterState extends State<UserRegister> {
           _selectedImage = File(pickedImage.path);
         });
 
-        // Upload image to Firebase Storage
         await _uploadImageToFirebase();
       }
     } catch (e) {
@@ -62,12 +57,8 @@ class _UserRegisterState extends State<UserRegister> {
     }
   }
 
-  // Request camera permission
   Future<void> _requestCameraPermission() async {
-    // This is handled by the image_picker plugin, but adding explicit check
-    // can help with debugging permission issues
     try {
-      // Proceed with camera usage - permissions will be requested by the plugin
       return;
     } catch (e) {
       print('Camera permission error: ${e.toString()}');
@@ -75,12 +66,8 @@ class _UserRegisterState extends State<UserRegister> {
     }
   }
 
-  // Request gallery permission
   Future<void> _requestGalleryPermission() async {
-    // This is handled by the image_picker plugin, but adding explicit check
-    // can help with debugging permission issues
     try {
-      // Proceed with gallery usage - permissions will be requested by the plugin
       return;
     } catch (e) {
       print('Gallery permission error: ${e.toString()}');
@@ -88,7 +75,6 @@ class _UserRegisterState extends State<UserRegister> {
     }
   }
 
-  // Method to upload image to Firebase Storage
   Future<void> _uploadImageToFirebase() async {
     if (_selectedImage == null) return;
 
@@ -99,27 +85,24 @@ class _UserRegisterState extends State<UserRegister> {
     try {
       if (kDebugMode) {
         print('Starting upload process');
-        // Verify file exists and is readable
+
         final fileExists = await _selectedImage!.exists();
         final fileSize = fileExists ? await _selectedImage!.length() : 0;
         print('Selected image exists: $fileExists, size: $fileSize bytes');
       }
 
-      // First check storage permissions
       final hasStorageAccess = await StorageService.checkStoragePermissions();
       if (!hasStorageAccess) {
         throw Exception(
             'Storage access denied. Please check Firebase Storage rules.');
       }
 
-      // Generate a unique filename using UUID
       final String fileName = 'profile_${const Uuid().v4()}.jpg';
 
       if (kDebugMode) {
         print('Uploading file: ${_selectedImage!.path} as $fileName');
       }
 
-      // Use the storage service to upload the file
       final downloadUrl = await StorageService.uploadFile(
         filePath: _selectedImage!.path,
         fileName: fileName,
@@ -147,7 +130,6 @@ class _UserRegisterState extends State<UserRegister> {
       if (kDebugMode) {
         print('Error uploading image: ${e.toString()}');
 
-        // More specific error classification
         if (e is FirebaseException) {
           print('Firebase error code: ${e.code}, message: ${e.message}');
         }
@@ -164,7 +146,6 @@ class _UserRegisterState extends State<UserRegister> {
     }
   }
 
-  // Method to show image source selection dialog
   void _showImageSourceDialog() {
     showDialog(
       context: context,
@@ -193,7 +174,7 @@ class _UserRegisterState extends State<UserRegister> {
               ),
               onTap: () {
                 Navigator.of(context).pop();
-                // Delay slightly to ensure dialog is closed before camera is opened
+
                 Future.delayed(const Duration(milliseconds: 300), () {
                   _pickImage(ImageSource.camera);
                 });
@@ -211,7 +192,7 @@ class _UserRegisterState extends State<UserRegister> {
               ),
               onTap: () {
                 Navigator.of(context).pop();
-                // Delay slightly to ensure dialog is closed before gallery is opened
+
                 Future.delayed(const Duration(milliseconds: 300), () {
                   _pickImage(ImageSource.gallery);
                 });
@@ -230,12 +211,10 @@ class _UserRegisterState extends State<UserRegister> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top navigation bar with back button and title
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
               child: Row(
                 children: [
-                  // Back button with circular dark background
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(
@@ -260,8 +239,6 @@ class _UserRegisterState extends State<UserRegister> {
                 ],
               ),
             ),
-
-            // Profile image section
             Padding(
               padding: EdgeInsets.symmetric(vertical: 16.h),
               child: Column(
@@ -321,8 +298,6 @@ class _UserRegisterState extends State<UserRegister> {
                 ],
               ),
             ),
-
-            // Registration form
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),

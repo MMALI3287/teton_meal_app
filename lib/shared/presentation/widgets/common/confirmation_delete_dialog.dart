@@ -36,7 +36,6 @@ class CustomDeleteDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Warning Icon
             Container(
               width: 60.w,
               height: 60.h,
@@ -51,8 +50,6 @@ class CustomDeleteDialog extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.h),
-
-            // Title
             Text(
               title,
               style: TextStyle(
@@ -64,8 +61,6 @@ class CustomDeleteDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 12.h),
-
-            // Message
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
@@ -89,11 +84,8 @@ class CustomDeleteDialog extends StatelessWidget {
               ),
             ),
             SizedBox(height: 32.h),
-
-            // Buttons
             Row(
               children: [
-                // Cancel Button
                 Expanded(
                   child: GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
@@ -119,8 +111,6 @@ class CustomDeleteDialog extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 16.w),
-
-                // Delete Button
                 Expanded(
                   child: GestureDetector(
                     onTap: () {

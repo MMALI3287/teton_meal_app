@@ -3,8 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 
 class AppFonts {
-  // Heading styles
-
   static TextStyle h1 = TextStyle(
     fontSize: 24.sp,
     fontWeight: FontWeight.w800,
@@ -19,8 +17,6 @@ class AppFonts {
     color: AppColors.fTextH1,
   );
 
-  // Body text styles
-
   static TextStyle bodyRegular = TextStyle(
     fontSize: 14.sp,
     fontWeight: FontWeight.w300,
@@ -34,8 +30,6 @@ class AppFonts {
     fontFamily: 'Mulish',
     color: AppColors.fTextH1,
   );
-
-  // Label styles
 
   static TextStyle labelMedium = TextStyle(
     fontSize: 14.sp,

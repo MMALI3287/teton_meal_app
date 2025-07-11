@@ -9,16 +9,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Splash Screen**
-  - `lib/shared/presentation/widgets/common/app_splash_screen.dart`
-  - Initial splash screen displayed on app launch
+- **Dark/Light Theme System**
+  - Complete dark and light mode implementation with `ThemeMode.system`
+  - Theme-aware color system in `AppColors` class with context-dependent getters
+  - Automatic theme switching based on system preference
+  - Updated `main.dart` with comprehensive dark theme configuration
 
-- **Authentication UI Enhancements**
-  - Updated login and registration flows (`lib/features/authentication/presentation/screens/login_screen.dart`, `lib/features/authentication/presentation/screens/user_registration_screen.dart`)
+- **Standardized Back Button Component**
+  - `lib/shared/presentation/widgets/common/standard_back_button.dart`
+  - Unified back button design matching Figma specifications (node 241:3352)
+  - Rounded rectangle design with 12.r border radius, 40.w x 40.h size
+  - Dark gray background (#383a3f) with white arrow icon
+  - Applied across 7 key screens for consistency
 
-- **Menu & Voting UI Updates**
-  - Improved create new menu page (`lib/features/menu_management/presentation/screens/create_menu_screen.dart`)
-  - Enhanced voting page (`votes_page.dart`)
+- **Enhanced Color Management**
+  - Extended `AppColors` class with dark mode variants (d prefix)
+  - Theme-aware getter methods for dynamic color resolution
+  - Context-dependent color switching: `AppColors.textH1(context)`
+  - Support for both static and theme-aware color usage
+
+### Changed
+
+- **Theme Architecture Overhaul**
+  - Updated `app_theme.dart` with dark mode color constants
+  - Modified all theme-aware widgets to use context-dependent colors
+  - Replaced static color references with dynamic theme-aware getters
+  - Enhanced theming system for comprehensive light/dark mode support
+
+- **Back Button Standardization**
+  - Replaced inconsistent back buttons across all screens
+  - Updated `polls_by_date_screen.dart`, `select_menu_item_screen.dart`, `poll_votes_detail_screen.dart`
+  - Updated `user_edit_screen.dart`, `account_overview_screen.dart`, `user_request_details_screen.dart`
+  - Updated `add_reminder_screen.dart` with standardized back button
+
+### Fixed
+
+- **Theme System Implementation**
+  - Resolved issue where only text boxes responded to theme changes
+  - Fixed static color references preventing proper theme switching
+  - Updated widget color usage to respect system theme settings
+  - Ensured all UI elements respond correctly to light/dark mode changes
+
+- **Design Consistency Issues**
+  - Eliminated back button size variations (30x30, 36x36, 40x40)
+  - Fixed inconsistent shapes (circular vs rounded rectangles)
+  - Standardized color variations across different screens
+  - Unified icon consistency and navigation patterns
+
+### Technical Improvements
+
+- **Code Quality**
+  - Systematic conversion from static to theme-aware color references
+  - Enhanced maintainability with single source of truth for back buttons
+  - Improved responsive design with ScreenUtil integration
+  - Better separation of concerns in theme management
 
 ## [1.2.0] - 2025-01-07
 
@@ -50,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add reminder page with time picker and repeat options
   - Settings page integration for reminder management
 
-### Changed
+### Changed in 1.2.0
 
 - **Replaced Toast Messages**
   - All `Fluttertoast.showToast()` calls replaced with custom dialogs
@@ -71,7 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated app entry logic in `main.dart` to include splash screen routing
 
-### Fixed
+### Fixed in 1.2.0
 
 - **Android Build Issues**
   - Resolved Kotlin version conflicts

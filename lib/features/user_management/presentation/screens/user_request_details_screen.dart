@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/standard_back_button.dart';
 
 class UserDetailPage extends StatelessWidget {
   final String userId;
@@ -47,29 +48,7 @@ class UserDetailPage extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 40.w,
-              height: 40.h,
-              decoration: BoxDecoration(
-                color: AppColors.fWhite,
-                borderRadius: BorderRadius.circular(12.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.fTextH1.withValues(alpha: 0.05),
-                    blurRadius: 4.r,
-                    offset: Offset(0, 2.h),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.arrow_back_ios_new,
-                color: AppColors.fTextH1,
-                size: 18.sp,
-              ),
-            ),
-          ),
+          const StandardBackButton(),
           SizedBox(width: 16.w),
           Expanded(
             child: Text(
@@ -367,7 +346,6 @@ class UserDetailPage extends StatelessWidget {
   }
 
   void _approveUser(BuildContext context) async {
-    // Show confirmation dialog first
     final confirmed = await _showApprovalDialog(context);
 
     if (confirmed != true) return;
@@ -441,7 +419,6 @@ class UserDetailPage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Success Icon
                     Container(
                       width: 60.w,
                       height: 60.h,
@@ -456,8 +433,6 @@ class UserDetailPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 20.h),
-
-                    // Title
                     Text(
                       'Approve User Request',
                       style: TextStyle(
@@ -469,8 +444,6 @@ class UserDetailPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 12.h),
-
-                    // Message
                     RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
@@ -497,11 +470,8 @@ class UserDetailPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 32.h),
-
-                    // Buttons
                     Row(
                       children: [
-                        // Cancel Button
                         Expanded(
                           child: GestureDetector(
                             onTap: () => Navigator.of(context).pop(false),
@@ -527,8 +497,6 @@ class UserDetailPage extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 16.w),
-
-                        // Approve Button
                         Expanded(
                           child: GestureDetector(
                             onTap: () => Navigator.of(context).pop(true),
@@ -590,10 +558,8 @@ class UserDetailPage extends StatelessWidget {
       await FirebaseFirestore.instance.collection('users').doc(userId).delete();
 
       if (context.mounted) {
-        // Navigate back to user requests list first
-        Navigator.pop(context); // Close detail page
+        Navigator.pop(context);
 
-        // Show success message on the list page
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(

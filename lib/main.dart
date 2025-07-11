@@ -32,12 +32,10 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Initialize Firebase with all services
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
 
-    // Explicitly initialize Firebase Storage
     final storage = FirebaseStorage.instance;
     if (kDebugMode) {
       print('Firebase Storage initialized: ${storage.bucket}');
@@ -78,21 +76,17 @@ Future<void> main() async {
     await setupFirebaseMessaging();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // Initialize local notifications
     await NotificationService().initialize();
     await NotificationService().requestPermissions();
 
-    // Check and request exact alarm permissions for Android 12+
     final hasExactAlarmPermission =
         await NotificationService().checkExactAlarmPermission();
     if (!hasExactAlarmPermission) {
       await NotificationService().requestExactAlarmPermission();
     }
 
-    // Initialize default menu items
     await MenuItemService.initializeDefaultItems();
 
-    // Reschedule any existing active reminders after app startup
     try {
       await ReminderService().rescheduleAllActiveReminders();
       if (kDebugMode) {
@@ -104,7 +98,6 @@ Future<void> main() async {
       }
     }
 
-    // Clean up any expired non-repeating reminders
     try {
       await ReminderService().cleanupExpiredReminders();
       if (kDebugMode) {
@@ -183,6 +176,7 @@ class _MyAppState extends State<MyApp> {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Teton Meal App',
+          themeMode: ThemeMode.system,
           theme: ThemeData(
             primaryColor: AppColors.fRedBright,
             colorScheme: ColorScheme.fromSeed(
@@ -265,6 +259,87 @@ class _MyAppState extends State<MyApp> {
               ),
             ),
           ),
+          // darkTheme: ThemeData(
+          //   primaryColor: AppColors.dRedBright,
+          //   colorScheme: ColorScheme.fromSeed(
+          //     seedColor: AppColors.dRedBright,
+          //     primary: AppColors.dRedBright,
+          //     secondary: AppColors.dYellow,
+          //     tertiary: AppColors.dNameBoxYellow,
+          //     error: AppColors.dRed2,
+          //     surface: AppColors.dWhite,
+          //     onPrimary: AppColors.dWhite,
+          //     onSecondary: AppColors.dWhite,
+          //     onSurface: AppColors.dTextH1,
+          //     brightness: Brightness.dark,
+          //   ),
+          //   useMaterial3: true,
+          //   fontFamily: 'Poppins',
+          //   scaffoldBackgroundColor: AppColors.dWhiteBackground,
+          //   cardTheme: CardThemeData(
+          //     elevation: 2,
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(16),
+          //     ),
+          //     color: AppColors.dWhite,
+          //     shadowColor: AppColors.dWhite.withValues(alpha: 0.3),
+          //   ),
+          //   inputDecorationTheme: InputDecorationTheme(
+          //     filled: true,
+          //     fillColor: AppColors.dWhite,
+          //     border: OutlineInputBorder(
+          //       borderRadius: BorderRadius.circular(12),
+          //       borderSide: BorderSide(color: AppColors.dIconAndLabelText),
+          //     ),
+          //     enabledBorder: OutlineInputBorder(
+          //       borderRadius: BorderRadius.circular(12),
+          //       borderSide: BorderSide(color: AppColors.dIconAndLabelText),
+          //     ),
+          //     focusedBorder: OutlineInputBorder(
+          //       borderRadius: BorderRadius.circular(12),
+          //       borderSide: BorderSide(color: AppColors.dRedBright, width: 1.5),
+          //     ),
+          //     contentPadding: const EdgeInsets.all(16),
+          //     hintStyle: const TextStyle(color: AppColors.dNameBoxYellow),
+          //   ),
+          //   elevatedButtonTheme: ElevatedButtonThemeData(
+          //     style: ElevatedButton.styleFrom(
+          //       elevation: 0,
+          //       padding:
+          //           const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          //       backgroundColor: AppColors.dRedBright,
+          //       foregroundColor: AppColors.dWhite,
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(12),
+          //       ),
+          //       textStyle: const TextStyle(
+          //         fontSize: 16,
+          //         fontWeight: FontWeight.w600,
+          //         letterSpacing: 0.5,
+          //       ),
+          //     ),
+          //   ),
+          //   textButtonTheme: TextButtonThemeData(
+          //     style: TextButton.styleFrom(
+          //       padding:
+          //           const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(8),
+          //       ),
+          //     ),
+          //   ),
+          //   appBarTheme: AppBarTheme(
+          //     backgroundColor: AppColors.dRedBright,
+          //     foregroundColor: AppColors.dWhite,
+          //     elevation: 0,
+          //     centerTitle: true,
+          //     titleTextStyle: TextStyle(
+          //       fontSize: 20,
+          //       fontWeight: FontWeight.w600,
+          //       color: AppColors.dWhite,
+          //     ),
+          //   ),
+          // ),
           home: child,
         );
       },
@@ -294,7 +369,6 @@ class AuthCheck extends StatelessWidget {
               userRole == 'Diner') {
             return const Navbar();
           } else {
-            // Show error dialog for invalid user role
             WidgetsBinding.instance.addPostFrameCallback((_) {
               CustomExceptionDialog.showError(
                 context: context,

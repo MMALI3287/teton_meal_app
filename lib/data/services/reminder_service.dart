@@ -43,7 +43,6 @@ class ReminderService {
 
     await _remindersCollection.doc(reminderId).set(reminder.toMap());
 
-    // Schedule notification
     await _notificationService.scheduleReminder(reminder);
 
     return reminderId;
@@ -54,7 +53,6 @@ class ReminderService {
 
     await _remindersCollection.doc(reminder.id).update(updatedReminder.toMap());
 
-    // Update notification
     if (updatedReminder.isActive) {
       await _notificationService.scheduleReminder(updatedReminder);
     } else {
@@ -124,7 +122,6 @@ class ReminderService {
   Future<void> markReminderAsTriggered(String reminderId) async {
     final reminder = await getReminderById(reminderId);
     if (reminder != null && !reminder.isRepeating) {
-      // Automatically disable non-repeating reminders after they are triggered
       await toggleReminderStatus(reminderId, false);
     }
   }

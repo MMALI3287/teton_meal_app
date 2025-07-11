@@ -30,11 +30,9 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
   bool _isRepeating = false;
   String _repeatType = 'daily';
 
-  // For weekly selection
-  final List<int> _selectedWeekdays = []; // 1 = Monday, 7 = Sunday
+  final List<int> _selectedWeekdays = [];
 
-  // For monthly selection
-  int _selectedDay = 1; // Day of month (1-31)
+  int _selectedDay = 1;
 
   final List<String> _repeatOptions = ['daily', 'weekly', 'monthly'];
 
@@ -64,15 +62,12 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
       _isRepeating = reminder.isRepeating;
       _repeatType = reminder.repeatType ?? 'daily';
 
-      // Initialize weekdays and monthly day based on the reminder date
       if (_isRepeating) {
         if (_repeatType == 'weekly') {
-          // Set the weekday based on the reminder date
-          final weekday = reminder.dateTime.weekday; // 1 = Monday, 7 = Sunday
+          final weekday = reminder.dateTime.weekday;
           _selectedWeekdays.clear();
           _selectedWeekdays.add(weekday);
         } else if (_repeatType == 'monthly') {
-          // Set the day of month based on the reminder date
           _selectedDay = reminder.dateTime.day;
         }
       }
@@ -155,7 +150,6 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
       return;
     }
 
-    // Validate weekly reminders have at least one day selected
     if (_isRepeating && _repeatType == 'weekly' && _selectedWeekdays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -281,7 +275,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
           ),
           child: TextField(
             controller: _detailsController,
-            maxLines: 2, // Reduced from 3 to 2
+            maxLines: 2,
             decoration: InputDecoration(
               hintText: 'Add additional details...',
               hintStyle: TextStyle(
@@ -292,7 +286,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16.w,
-                vertical: 12.h, // Reduced vertical padding
+                vertical: 12.h,
               ),
             ),
             style: TextStyle(
@@ -485,7 +479,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
                     onTap: () {
                       setState(() {
                         _repeatType = option;
-                        // Reset selections when changing repeat type
+
                         _selectedWeekdays.clear();
                         _selectedDay = 1;
                       });
@@ -520,7 +514,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
           spacing: 4.w,
           runSpacing: 4.h,
           children: List.generate(7, (index) {
-            final dayNumber = index + 1; // 1 = Monday, 7 = Sunday
+            final dayNumber = index + 1;
             final isSelected = _selectedWeekdays.contains(dayNumber);
 
             return GestureDetector(
@@ -548,7 +542,7 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
                   ),
                 ),
                 child: Text(
-                  _weekdayNames[index].substring(0, 3), // Mon, Tue, etc.
+                  _weekdayNames[index].substring(0, 3),
                   style: TextStyle(
                     color: isSelected ? AppColors.fWhite : AppColors.fTextH1,
                     fontSize: 12.sp,
@@ -567,7 +561,6 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
   Widget _buildMonthlySelectors() {
     return Row(
       children: [
-        // Day of Month Selector
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,7 +613,6 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
           ),
         ),
         SizedBox(width: 12.w),
-        // Time Selector
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -762,7 +754,6 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
   }
 
   Widget _buildTimeRow() {
-    // For daily reminders, only show time picker
     return GestureDetector(
       onTap: _selectTime,
       child: Container(
@@ -800,7 +791,6 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
 
   Widget _buildDateTimeRow() {
     if (_isRepeating && _repeatType == 'daily') {
-      // For daily reminders, only show time picker
       return GestureDetector(
         onTap: _selectTime,
         child: Container(
@@ -836,7 +826,6 @@ class _ReminderFormWidgetState extends State<ReminderFormWidget> {
       );
     }
 
-    // For non-repeating reminders only, show both date and time
     return Row(
       children: [
         Expanded(

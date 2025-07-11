@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/data/services/menu_item_service.dart';
-import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
 import 'package:teton_meal_app/data/models/menu_item_model.dart';
 import 'package:teton_meal_app/features/menu_management/presentation/screens/add_menu_item_screen.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/standard_back_button.dart';
 
 class SelectItemPage extends StatefulWidget {
   final List<MenuItem> initialSelectedItems;
@@ -86,32 +86,33 @@ class _SelectItemPageState extends State<SelectItemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.fWhiteBackground,
-      body: Container(
-        width: 393.w,
-        height: 805.h,
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+      body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
-            SizedBox(height: 24.h),
-            if (_isLoading)
-              const Expanded(
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.fRedBright,
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: Column(
-                  children: [
-                    Expanded(child: _buildItemsList()),
-                    SizedBox(height: 16.h),
-                    _buildActionButtons(),
-                  ],
-                ),
-              ),
+            Container(
+              height: 1.h,
+              width: double.infinity,
+              color: const Color(0xFFF4F5F7),
+            ),
+            Expanded(
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.fRedBright,
+                      ),
+                    )
+                  : Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 35.w),
+                      child: Column(
+                        children: [
+                          Expanded(child: _buildItemsList()),
+                          _buildActionButtons(),
+                          SizedBox(height: 16.h),
+                        ],
+                      ),
+                    ),
+            ),
           ],
         ),
       ),
@@ -119,39 +120,27 @@ class _SelectItemPageState extends State<SelectItemPage> {
   }
 
   Widget _buildHeader() {
-    return SizedBox(
+    return Container(
+      height: 64.h,
       width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 32.w,
-              height: 32.h,
-              decoration: BoxDecoration(
-                color: AppColors.fYellow,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(
-                Icons.close,
-                color: AppColors.fWhite,
-                size: 18.sp,
-              ),
-            ),
-          ),
+          const StandardBackButton(),
           Expanded(
             child: Center(
               child: Text(
                 'Select Item',
                 style: TextStyle(
                   color: AppColors.fTextH1,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.2,
                 ),
               ),
             ),
           ),
-          SizedBox(width: 32.w), // Balance the close button
+          SizedBox(width: 20.w),
         ],
       ),
     );
@@ -189,40 +178,36 @@ class _SelectItemPageState extends State<SelectItemPage> {
     }
 
     return ListView.builder(
+      padding: EdgeInsets.only(top: 16.h),
       itemCount: _availableItems.length,
       itemBuilder: (context, index) {
         final item = _availableItems[index];
         final isSelected = _selectedItems.contains(item);
 
         return Container(
-          margin: EdgeInsets.only(bottom: 12.h),
+          margin: EdgeInsets.only(bottom: 16.h),
           child: Material(
             color: AppColors.fTransparent,
             child: InkWell(
               onTap: () => _toggleItemSelection(item),
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(20.r),
               child: Container(
-                padding: EdgeInsets.all(16.w),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
                 decoration: BoxDecoration(
-                  color: AppColors.fWhite,
-                  borderRadius: BorderRadius.circular(12.r),
-                  border: Border.all(
-                    color:
-                        isSelected ? AppColors.fRedBright : AppColors.fTextH2,
-                    width: isSelected ? 2 : 1,
-                  ),
+                  color: const Color(0xFFF4F5F7),
+                  borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 20.w,
-                      height: 20.h,
+                      width: 16.w,
+                      height: 16.h,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isSelected
                               ? AppColors.fRedBright
-                              : AppColors.fTextH2,
+                              : AppColors.fIconAndLabelText,
                           width: 2,
                         ),
                         color: isSelected
@@ -233,11 +218,11 @@ class _SelectItemPageState extends State<SelectItemPage> {
                           ? Icon(
                               Icons.check,
                               color: AppColors.fWhite,
-                              size: 12.sp,
+                              size: 10.sp,
                             )
                           : null,
                     ),
-                    SizedBox(width: 16.w),
+                    SizedBox(width: 8.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,63 +231,200 @@ class _SelectItemPageState extends State<SelectItemPage> {
                             item.name,
                             style: TextStyle(
                               color: AppColors.fTextH1,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: -0.24,
                             ),
                           ),
                           if (item.subItem != null && item.subItem!.isNotEmpty)
                             Padding(
-                              padding: EdgeInsets.only(top: 4.h),
+                              padding: EdgeInsets.only(top: 5.h),
                               child: Text(
                                 'With ${item.subItem}',
                                 style: TextStyle(
-                                  color: AppColors.fTextH2,
-                                  fontSize: 14.sp,
+                                  color: AppColors.fIconAndLabelText,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: -0.24,
                                 ),
                               ),
                             ),
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         showDialog(
                           context: context,
-                          builder: (context) => CustomDeleteDialog(
-                            title: 'Delete Menu Item',
-                            message: 'Are you sure you want to delete ',
-                            itemName: item.name,
-                            onDelete: () async {
-                              try {
-                                final success =
-                                    await MenuItemService.deleteMenuItem(
-                                        item.id);
-                                if (success) {
-                                  setState(() {
-                                    _availableItems.remove(item);
-                                    _selectedItems.remove(item);
-                                  });
-                                } else {
-                                  throw Exception('Failed to delete item');
-                                }
-                              } catch (e) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('Error deleting item: $e'),
-                                      backgroundColor: AppColors.fRed2,
+                          builder: (context) => Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24.r),
+                            ),
+                            child: Container(
+                              padding: EdgeInsets.all(24.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.fWhite,
+                                borderRadius: BorderRadius.circular(24.r),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 56.w,
+                                    height: 56.h,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFFF5F5),
+                                      shape: BoxShape.circle,
                                     ),
-                                  );
-                                }
-                              }
-                            },
+                                    child: Icon(
+                                      Icons.delete_outline,
+                                      color: AppColors.fRedBright,
+                                      size: 24.sp,
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Text(
+                                    'Delete Menu Item',
+                                    style: TextStyle(
+                                      color: AppColors.fTextH1,
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  RichText(
+                                    textAlign: TextAlign.center,
+                                    text: TextSpan(
+                                      style: TextStyle(
+                                        color: AppColors.fIconAndLabelText,
+                                        fontSize: 14.sp,
+                                        height: 1.5,
+                                      ),
+                                      children: [
+                                        const TextSpan(
+                                            text:
+                                                'Are you sure you want to delete '),
+                                        TextSpan(
+                                          text: item.name,
+                                          style: TextStyle(
+                                            color: AppColors.fTextH1,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const TextSpan(text: '?'),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 24.h),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          height: 48.h,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: const Color(0xFFE5E7EB),
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(12.r),
+                                          ),
+                                          child: TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            style: TextButton.styleFrom(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12.r),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                color: AppColors.fTextH1,
+                                                fontSize: 16.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 12.w),
+                                      Expanded(
+                                        child: Container(
+                                          height: 48.h,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.fRedBright,
+                                            borderRadius:
+                                                BorderRadius.circular(12.r),
+                                          ),
+                                          child: TextButton(
+                                            onPressed: () async {
+                                              Navigator.pop(context);
+                                              try {
+                                                final success =
+                                                    await MenuItemService
+                                                        .deleteMenuItem(
+                                                            item.id);
+                                                if (success) {
+                                                  setState(() {
+                                                    _availableItems
+                                                        .remove(item);
+                                                    _selectedItems.remove(item);
+                                                  });
+                                                } else {
+                                                  throw Exception(
+                                                      'Failed to delete item');
+                                                }
+                                              } catch (e) {
+                                                if (mounted) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content: Text(
+                                                          'Error deleting item: $e'),
+                                                      backgroundColor:
+                                                          AppColors.fRed2,
+                                                    ),
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            style: TextButton.styleFrom(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12.r),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Delete',
+                                              style: TextStyle(
+                                                color: AppColors.fWhite,
+                                                fontSize: 16.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         );
                       },
-                      icon: Icon(
-                        Icons.delete_outline,
-                        color: AppColors.fIconAndLabelText,
-                        size: 20.sp,
+                      child: Container(
+                        width: 14.w,
+                        height: 16.h,
+                        decoration: const BoxDecoration(
+                          color: AppColors.fTransparent,
+                        ),
+                        child: Icon(
+                          Icons.delete_outline,
+                          color: AppColors.fIconAndLabelText,
+                          size: 16.sp,
+                        ),
                       ),
                     ),
                   ],
@@ -316,85 +438,105 @@ class _SelectItemPageState extends State<SelectItemPage> {
   }
 
   Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 48.h,
-            child: OutlinedButton(
-              onPressed: _addNewItem,
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppColors.fRedBright),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.add,
-                    color: AppColors.fRedBright,
-                    size: 18.sp,
-                  ),
-                  SizedBox(width: 8.w),
-                  Flexible(
-                    child: Text(
-                      'Add New Item',
-                      style: TextStyle(
-                        color: AppColors.fRedBright,
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 16.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 38.h,
+              decoration: BoxDecoration(
+                color: AppColors.fRedBright,
+                borderRadius: BorderRadius.circular(10.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    offset: const Offset(0, 4),
+                    blurRadius: 4,
                   ),
                 ],
               ),
-            ),
-          ),
-        ),
-        SizedBox(width: 16.w),
-        Expanded(
-          child: SizedBox(
-            height: 48.h,
-            child: ElevatedButton(
-              onPressed: _selectedItems.isNotEmpty ? _saveSelection : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.saveGreen,
-                foregroundColor: AppColors.fWhite,
-                disabledBackgroundColor: AppColors.fRedBright,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.r),
+              child: Material(
+                color: AppColors.fTransparent,
+                child: InkWell(
+                  onTap: _addNewItem,
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.add,
+                          color: AppColors.fWhite,
+                          size: 16.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Add New Item',
+                          style: TextStyle(
+                            color: AppColors.fWhite,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.172,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.bookmark_outlined,
-                    size: 18.sp,
-                  ),
-                  SizedBox(width: 8.w),
-                  Flexible(
-                    child: Text(
-                      'Save',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+            ),
+          ),
+          SizedBox(width: 9.w),
+          Expanded(
+            child: Container(
+              height: 38.h,
+              decoration: BoxDecoration(
+                color: AppColors.saveGreen,
+                borderRadius: BorderRadius.circular(10.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    offset: const Offset(0, 4),
+                    blurRadius: 4,
                   ),
                 ],
               ),
+              child: Material(
+                color: AppColors.fTransparent,
+                child: InkWell(
+                  onTap: _selectedItems.isNotEmpty ? _saveSelection : null,
+                  borderRadius: BorderRadius.circular(10.r),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.bookmark_outlined,
+                          color: AppColors.fWhite,
+                          size: 15.sp,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'Save',
+                          style: TextStyle(
+                            color: AppColors.fWhite,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: -0.172,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

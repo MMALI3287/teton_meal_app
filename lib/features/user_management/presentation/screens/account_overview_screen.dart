@@ -4,6 +4,7 @@ import 'package:teton_meal_app/data/models/user_model.dart';
 import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/features/user_management/presentation/widgets/user_profile_card.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/standard_back_button.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -24,13 +25,10 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<void> _loadUserData() async {
     try {
-      // Get fresh user data from auth service
       final authService = AuthService();
       user = authService.currentUser;
 
-      // If user data is not available, try to refresh it
       if (user == null) {
-        // Force a state refresh if needed
         await Future.delayed(const Duration(milliseconds: 100));
         user = authService.currentUser;
       }
@@ -45,7 +43,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF9F9F9), // F_fWhiteBackground
+        backgroundColor: Color(0xFFF9F9F9),
         body: Center(
           child: CircularProgressIndicator(
             color: AppColors.fRedBright,
@@ -55,7 +53,7 @@ class _AccountPageState extends State<AccountPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), // F_fWhiteBackground
+      backgroundColor: const Color(0xFFF9F9F9),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -72,7 +70,6 @@ class _AccountPageState extends State<AccountPage> {
                         _showEditDialog('Name', user?.displayName ?? ''),
                     onEditEmail: () =>
                         _showEditDialog('Email', user?.email ?? ''),
-                    // Removed onEditAccountType to prevent users from changing their role
                   ),
                 ),
               ),
@@ -86,25 +83,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget _buildHeader() {
     return Row(
       children: [
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            width: 40.w,
-            height: 40.h,
-            decoration: BoxDecoration(
-              color: AppColors.fWhite,
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: AppColors.fTextH2.withValues(alpha: 0.5),
-              ),
-            ),
-            child: Icon(
-              Icons.arrow_back_ios_new,
-              color: AppColors.fTextH1,
-              size: 20.sp,
-            ),
-          ),
-        ),
+        const StandardBackButton(),
         Expanded(
           child: Center(
             child: Text(
@@ -112,13 +91,13 @@ class _AccountPageState extends State<AccountPage> {
               style: TextStyle(
                 fontSize: 24.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF383A3F), // F_Text_H1
+                color: const Color(0xFF383A3F),
                 letterSpacing: -0.12,
               ),
             ),
           ),
         ),
-        SizedBox(width: 40.w), // Balance the back button
+        SizedBox(width: 40.w),
       ],
     );
   }
@@ -146,7 +125,6 @@ class _AccountPageState extends State<AccountPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -178,8 +156,6 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                 ),
                 SizedBox(height: 24.h),
-
-                // Input field
                 Container(
                   decoration: BoxDecoration(
                     color: AppColors.fLineaAndLabelBox,
@@ -214,8 +190,6 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ),
                 SizedBox(height: 32.h),
-
-                // Action buttons
                 Row(
                   children: [
                     Expanded(
@@ -248,7 +222,6 @@ class _AccountPageState extends State<AccountPage> {
                           if (user != null &&
                               controller.text.trim().isNotEmpty) {
                             try {
-                              // Update user profile in Firebase
                               if (field == 'Name') {
                                 await AuthService().updateUserProfile(
                                   uid: user!.uid,
@@ -261,7 +234,6 @@ class _AccountPageState extends State<AccountPage> {
                                 );
                               }
 
-                              // Reload user data to reflect changes
                               await _loadUserData();
 
                               Navigator.of(context).pop();
