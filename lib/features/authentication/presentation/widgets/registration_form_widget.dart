@@ -8,8 +8,13 @@ import 'package:teton_meal_app/features/authentication/presentation/screens/logi
 
 class RegistrationFormWidget extends StatefulWidget {
   final String? profileImageUrl;
+  final bool isAdminRegistration;
 
-  const RegistrationFormWidget({super.key, this.profileImageUrl});
+  const RegistrationFormWidget({
+    super.key,
+    this.profileImageUrl,
+    this.isAdminRegistration = false,
+  });
 
   @override
   State<RegistrationFormWidget> createState() => _RegistrationFormWidgetState();
@@ -351,20 +356,31 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
       showProgress = true;
     });
     try {
-      await _authService.register(
-        email,
-        password,
-        roleParam,
-        name: nameController.text.trim(),
-        department: department!,
-        profileImageUrl: widget.profileImageUrl,
-      );
+      if (widget.isAdminRegistration) {
+        await _authService.adminRegister(
+          email,
+          password,
+          roleParam,
+          name: nameController.text.trim(),
+          department: department!,
+        );
+      } else {
+        await _authService.register(
+          email,
+          password,
+          roleParam,
+          name: nameController.text.trim(),
+          department: department!,
+          profileImageUrl: widget.profileImageUrl,
+        );
+      }
 
       CustomExceptionDialog.showSuccess(
         context: context,
         title: "Success",
-        message:
-            "Account created successfully! Please wait for admin approval before logging in.",
+        message: widget.isAdminRegistration
+            ? "Admin account created successfully! You can now log in."
+            : "Account created successfully! Please wait for admin approval before logging in.",
       );
 
       setState(() {

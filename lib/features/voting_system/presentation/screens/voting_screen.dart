@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:teton_meal_app/data/services/auth_service.dart';
 import 'package:teton_meal_app/features/menu_management/presentation/screens/create_menu_screen.dart';
+import 'package:teton_meal_app/features/menu_management/presentation/screens/poll_votes_detail_screen.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 
 /*
@@ -156,8 +157,9 @@ class _VotesPageState extends State<VotesPage>
               'Today\'s Lunch Menu',
               style: TextStyle(
                 fontSize: 24.sp,
+                fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF383A3F), // F_Text_H1
+                color: AppColors.fTextH1,
                 letterSpacing: -0.12,
               ),
             ),
@@ -178,13 +180,13 @@ class _VotesPageState extends State<VotesPage>
                     width: 32.w,
                     height: 32.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF3951), // F_Red_Bright
+                      color: AppColors.fRedBright,
                       borderRadius: BorderRadius.circular(8.r),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.fTextH1.withValues(alpha: 0.1),
-                          blurRadius: 2.92.r,
-                          offset: Offset(0, 2.92.h),
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 3.r,
+                          offset: Offset(0, 3.h),
                         ),
                       ],
                     ),
@@ -200,7 +202,8 @@ class _VotesPageState extends State<VotesPage>
                   'New Menu',
                   style: TextStyle(
                     fontSize: 10.sp,
-                    color: const Color(0xFF585F6A), // F_Text_H2
+                    fontFamily: 'Inter',
+                    color: AppColors.fTextH2,
                   ),
                 ),
               ],
@@ -420,11 +423,11 @@ class _VotesPageState extends State<VotesPage>
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // F_fWhite
+        color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.fTextH1.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),
@@ -432,96 +435,103 @@ class _VotesPageState extends State<VotesPage>
       ),
       child: Column(
         children: [
-          // Header with date and toggle
-          Container(
-            padding: EdgeInsets.all(16.w),
-            child: Column(
+          // Header with date and toggle - exact match to Figma
+          Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      formattedDate,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: const Color(0xFFEF9F27), // F_Yellow
-                        letterSpacing: -0.36,
-                      ),
-                    ),
-                    // Only show toggle for Admin and Planner users
-                    if (_canControlToggle)
-                      Switch(
-                        value:
-                            isManuallyActive, // Show the actual database state, not effective state
-                        activeColor: const Color(0xFF383A3F), // F_Text_H1
-                        inactiveThumbColor: const Color(0xFFFFFFFF), // F_fWhite
-                        inactiveTrackColor:
-                            const Color(0xFF7A869A), // F_Icon& Label_Text
-                        onChanged: (value) => _togglePollStatus(
-                            pollData, value), // Pass the new value
-                      ),
-                  ],
-                ),
-                // Time up indicator - show only when time has passed AND toggle is off AND no admin override
-                if (showTimeUpMessage)
-                  Padding(
-                    padding: EdgeInsets.only(top: 8.h),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.access_time_filled,
-                          color: const Color(0xFFFF3951), // F_Red_Bright
-                          size: 14.sp,
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          'Voting time has ended',
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            color: const Color(0xFFFF3951), // F_Red_Bright
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
+                Text(
+                  formattedDate,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontFamily: 'DM Sans',
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.fYellow,
+                    letterSpacing: -0.36,
                   ),
-                // Admin override indicator - show when voting is extended by admin
-                if (showAdminOverrideMessage)
-                  Padding(
-                    padding: EdgeInsets.only(top: 8.h),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.admin_panel_settings,
-                          color: const Color(0xFF4CAF50), // Success green
-                          size: 14.sp,
-                        ),
-                        SizedBox(width: 4.w),
-                        Expanded(
-                          child: Text(
-                            'Voting extended by admin - employees can still vote',
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              color: const Color(0xFF4CAF50), // Success green
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
+                ),
+                // Only show toggle for Admin and Planner users
+                if (_canControlToggle)
+                  SizedBox(
+                    width: 36.w,
+                    height: 18.h,
+                    child: Switch(
+                      value: isManuallyActive,
+                      activeColor: AppColors.fWhite, // White thumb when active
+                      activeTrackColor:
+                          AppColors.fTextH1, // Black background when active
+                      inactiveThumbColor:
+                          AppColors.fWhite, // White thumb when inactive
+                      inactiveTrackColor: AppColors
+                          .fIconAndLabelText, // Gray background when inactive
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      onChanged: (value) => _togglePollStatus(pollData, value),
                     ),
                   ),
               ],
             ),
           ),
-          // Options list
+
+          // Time up/admin override messages
+          if (showTimeUpMessage)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.access_time_filled,
+                    color: AppColors.fRedBright,
+                    size: 14.sp,
+                  ),
+                  SizedBox(width: 4.w),
+                  Text(
+                    'Voting time has ended',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: AppColors.fRedBright,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          if (showAdminOverrideMessage)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.admin_panel_settings,
+                    color: const Color(0xFF4CAF50),
+                    size: 14.sp,
+                  ),
+                  SizedBox(width: 4.w),
+                  Expanded(
+                    child: Text(
+                      'Voting extended by admin - employees can still vote',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        color: const Color(0xFF4CAF50),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          SizedBox(height: 16.h),
+
+          // Options list - exact match to Figma
           if (options.isEmpty)
             Center(
               child: Padding(
                 padding: EdgeInsets.all(16.w),
-                child: const Text(
+                child: Text(
                   'No options available',
                   style: TextStyle(
-                    color: Color(0xFF7A869A), // F_Icon& Label_Text
+                    color: AppColors.fIconAndLabelText,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -534,8 +544,8 @@ class _VotesPageState extends State<VotesPage>
               itemCount: options.length,
               separatorBuilder: (context, index) => Container(
                 height: 1.h,
-                margin: EdgeInsets.symmetric(horizontal: 16.w),
-                color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
+                margin: EdgeInsets.symmetric(horizontal: 20.w),
+                color: AppColors.fLineaAndLabelBox,
               ),
               itemBuilder: (context, index) {
                 return _buildVoteOption(
@@ -543,20 +553,18 @@ class _VotesPageState extends State<VotesPage>
                   pollData.id,
                   votes,
                   pollData['endTimeMillis'],
-                  effectiveActiveState, // Use effective state instead of direct isActive
+                  effectiveActiveState,
                   index,
                 );
               },
             ),
-            // Add separator before Total Orders
-            Container(
-              height: 1.h,
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
-              color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
-            ),
           ],
-          // Total Orders section inside main card (always show)
-          _buildTotalOrdersSection(votes),
+
+          SizedBox(height: 16.h),
+
+          // Total Orders section - exact match to Figma
+          _buildTotalOrdersSection(votes, pollData),
+
           SizedBox(height: 16.h),
         ],
       ),
@@ -597,23 +605,14 @@ class _VotesPageState extends State<VotesPage>
         onTap: isActive && currentUser != null
             ? () => _voteForOption(option, pollId)
             : null,
-        borderRadius: BorderRadius.circular(12.r),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: hasUserVoted
-                ? const Color(0xFFF0F8FF)
-                : (isActive
-                    ? AppColors.fTransparent
-                    : AppColors.fTextH2.withValues(alpha: 0.1)),
-            borderRadius: BorderRadius.circular(12.r),
-          ),
+        borderRadius: BorderRadius.circular(0),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
           child: Column(
             children: [
               Row(
                 children: [
-                  // Vote icon with smooth animation
+                  // Vote icon - exact match to Figma
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 250),
                     child: SizedBox(
@@ -621,31 +620,47 @@ class _VotesPageState extends State<VotesPage>
                       width: 16.w,
                       height: 16.h,
                       child: hasUserVoted
-                          ? Icon(
-                              Icons.check_circle,
-                              color: const Color(0xFF4CAF50),
-                              size: 16.sp,
+                          ? Container(
+                              width: 16.w,
+                              height: 16.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.fTextH1, // Black background
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.check,
+                                color: AppColors.fWhite, // White tick mark
+                                size: 12.sp,
+                              ),
                             )
-                          : Icon(
-                              Icons.add_circle_outline,
-                              color: isActive
-                                  ? const Color(0xFF7A869A)
-                                  : Colors.grey,
-                              size: 16.sp,
+                          : Container(
+                              width: 16.w,
+                              height: 16.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.fTransparent,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isActive
+                                      ? AppColors.fIconAndLabelText
+                                      : Colors.grey,
+                                  width: 1.5,
+                                ),
+                              ),
                             ),
                     ),
                   ),
                   SizedBox(width: 12.w),
-                  // Food image
+
+                  // Food image with shadow - exact match to Figma
                   Container(
-                    width: 38.w,
-                    height: 38.h,
+                    width: 37.w,
+                    height: 37.h,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFFFF),
+                      color: AppColors.fWhite,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.fTextH1.withValues(alpha: 0.25),
+                          color: Colors.black.withValues(alpha: 0.25),
                           blurRadius: 4.r,
                           offset: Offset(0, 4.h),
                         ),
@@ -663,105 +678,83 @@ class _VotesPageState extends State<VotesPage>
                     ),
                   ),
                   SizedBox(width: 12.w),
-                  // Option name and vote count
+
+                  // Option name - exact match to Figma
                   Expanded(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            option,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: isActive
-                                  ? const Color(0xFF585F6A)
-                                  : Colors.grey,
-                              letterSpacing: -0.2,
-                            ),
-                          ),
-                        ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 8.w, vertical: 2.h),
-                          decoration: BoxDecoration(
-                            color: hasUserVoted
-                                ? const Color(0xFFE8F5E8)
-                                : const Color(0xFFF4F5F7),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Text(
-                            '${optionVotes.length} order${optionVotes.length == 1 ? '' : 's'}',
-                            style: TextStyle(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.w500,
-                              color: hasUserVoted
-                                  ? const Color(0xFF4CAF50)
-                                  : const Color(0xFF7A869A),
-                              letterSpacing: -0.24,
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      option,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.fTextH2,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                  ),
+
+                  // Order count in rounded background - exact match to Figma
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.fLineaAndLabelBox,
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Text(
+                      '${optionVotes.length} order${optionVotes.length == 1 ? '' : 's'}',
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.fIconAndLabelText,
+                        letterSpacing: -0.24,
+                      ),
                     ),
                   ),
                 ],
               ),
-              if (!isActive)
-                Padding(
-                  padding: EdgeInsets.only(top: 8.h),
-                  child: Text(
-                    'Poll is closed',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: AppColors.fRedBright,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              if (currentUser == null)
-                Padding(
-                  padding: EdgeInsets.only(top: 8.h),
-                  child: Text(
-                    'Please log in to vote',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: AppColors.fYellow,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
+
               SizedBox(height: 16.h),
-              // Animated progress bar
+
+              // Progress bar and percentage - exact match to Figma
               Row(
                 children: [
-                  SizedBox(width: 28.w),
+                  SizedBox(width: 28.w), // Align with content above
                   Expanded(
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: 3.h,
-                          width: 283.w,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF4F5F7),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                        ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 500),
-                          height: 3.h,
-                          width: (percentage / 100) * 283.w,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF7686),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                        ),
-                      ],
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Stack(
+                          children: [
+                            // Background bar
+                            Container(
+                              height: 3.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.fLineaAndLabelBox,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                            ),
+                            // Progress bar
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 500),
+                              height: 3.h,
+                              width: percentage > 0
+                                  ? (percentage / 100) * constraints.maxWidth
+                                  : 0,
+                              decoration: BoxDecoration(
+                                color: AppColors.fRed2,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                   SizedBox(width: 12.w),
+                  // Percentage text - exact match to Figma
                   SizedBox(
-                    width: 20.w,
+                    width: 28.w,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: Text(
@@ -769,8 +762,9 @@ class _VotesPageState extends State<VotesPage>
                         key: ValueKey(percentage),
                         style: TextStyle(
                           fontSize: 8.sp,
+                          fontFamily: 'DM Sans',
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFFEF9F27),
+                          color: AppColors.fYellow,
                           letterSpacing: -0.24,
                         ),
                       ),
@@ -778,6 +772,8 @@ class _VotesPageState extends State<VotesPage>
                   ),
                 ],
               ),
+
+              SizedBox(height: 16.h),
             ],
           ),
         ),
@@ -785,90 +781,94 @@ class _VotesPageState extends State<VotesPage>
     );
   }
 
-  Widget _buildTotalOrdersSection(Map<String, dynamic> votes) {
+  Widget _buildTotalOrdersSection(
+      Map<String, dynamic> votes, QueryDocumentSnapshot pollData) {
     int totalVotes = 0;
     for (var entry in votes.entries) {
       totalVotes += (entry.value as List?)?.length ?? 0;
     }
 
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // F_fWhite
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.fTextH1.withValues(alpha: 0.05),
-            blurRadius: 4.r,
-            offset: Offset(0, 2.h),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PollVotesPage(pollData: pollData),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 18.w,
-            height: 12.h,
-            child: Icon(
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 8.w),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: AppColors.fWhite,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4.r,
+              offset: Offset(0, 4.h),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(
               Icons.visibility_outlined,
-              size: 12.sp,
-              color: const Color(0xFF7A869A), // F_Icon& Label_Text
+              size: 14.sp,
+              color: AppColors.fIconAndLabelText,
             ),
-          ),
-          SizedBox(width: 12.w),
-          Text(
-            'Total Orders',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF585F6A), // F_Text_H2
-              letterSpacing: -0.28,
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(
+                'Total Orders',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontFamily: 'DM Sans',
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.fTextH2,
+                  letterSpacing: -0.28,
+                ),
+              ),
             ),
-          ),
-          const Spacer(),
-          Text(
-            totalVotes.toString(),
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFFFF7686), // F_Red_2
-              letterSpacing: -0.28,
+            Text(
+              totalVotes.toString(),
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontFamily: 'DM Sans',
+                fontWeight: FontWeight.w500,
+                color: AppColors.fRed2,
+                letterSpacing: -0.28,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildIllustration() {
-    return SizedBox(
+    return Container(
       height: 158.h,
       width: 341.w,
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Center(
-        child: Container(
+        child: SizedBox(
           height: 118.h,
           width: 177.w,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12.r),
-            child: Image.asset(
-              'assets/images/man_confused_lunch.png',
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4F5F7), // F_Linea_&_LabelBox
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.restaurant_menu,
-                    size: 60.sp,
-                    color: const Color(0xFF7A869A).withValues(
-                        alpha: 0.5), // F_Icon& Label_Text with opacity
-                  ),
+          child: Image.asset(
+            'assets/images/votes.png',
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) => Container(
+              decoration: BoxDecoration(
+                color: AppColors.fLineaAndLabelBox,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.restaurant_menu,
+                  size: 60.sp,
+                  color: AppColors.fIconAndLabelText.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -888,13 +888,13 @@ class _VotesPageState extends State<VotesPage>
 
     return Container(
       width: 345.w,
-      height: 50.h,
+      height: 55.h,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF), // F_fWhite
+        color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.fTextH1.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),
@@ -908,25 +908,28 @@ class _VotesPageState extends State<VotesPage>
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
           child: Row(
             children: [
-              Container(
+              // Clock icon using the actual image - exact match to Figma
+              SizedBox(
                 width: 29.w,
-                height: 36.h,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF0F0), // Light red background
+                height: 40.h,
+                child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.r),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.fTextH1.withValues(alpha: 0.25),
-                      blurRadius: 4.r,
-                      offset: Offset(0, 4.h),
+                  child: Image.asset(
+                    'assets/images/clock.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF0F0),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.access_time,
+                          color: AppColors.fRedBright,
+                          size: 16.sp,
+                        ),
+                      ),
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.access_time,
-                    color: const Color(0xFFFF3951), // F_Red_Bright
-                    size: 16.sp,
                   ),
                 ),
               ),
@@ -940,8 +943,9 @@ class _VotesPageState extends State<VotesPage>
                       'End Time',
                       style: TextStyle(
                         fontSize: 10.sp,
+                        fontFamily: 'DM Sans',
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                        color: AppColors.fIconAndLabelText,
                         letterSpacing: -0.2,
                       ),
                     ),
@@ -949,8 +953,9 @@ class _VotesPageState extends State<VotesPage>
                       formattedEndTime,
                       style: TextStyle(
                         fontSize: 14.sp,
+                        fontFamily: 'DM Sans',
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF383A3F), // F_Text_H1
+                        color: AppColors.fTextH1,
                         letterSpacing: -0.24,
                       ),
                     ),
@@ -960,7 +965,7 @@ class _VotesPageState extends State<VotesPage>
               if (_isAdminOrPlanner)
                 Icon(
                   Icons.keyboard_arrow_down,
-                  color: const Color(0xFF7A869A), // F_Icon& Label_Text
+                  color: AppColors.fIconAndLabelText,
                   size: 14.sp,
                 ),
             ],

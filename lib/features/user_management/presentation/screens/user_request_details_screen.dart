@@ -28,9 +28,9 @@ class UserDetailPage extends StatelessWidget {
                 child: Column(
                   children: [
                     _buildUserAvatar(),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 20.h),
                     _buildUserInfo(),
-                    SizedBox(height: 24.h),
+                    SizedBox(height: 20.h),
                     _buildActionButtons(context),
                   ],
                 ),
@@ -93,8 +93,8 @@ class UserDetailPage extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 120.w,
-          height: 120.h,
+          width: 100.w,
+          height: 100.h,
           decoration: BoxDecoration(
             color: AppColors.fNameBoxPink,
             shape: BoxShape.circle,
@@ -110,7 +110,7 @@ class UserDetailPage extends StatelessWidget {
             child: Text(
               name.isNotEmpty ? name[0].toUpperCase() : 'U',
               style: TextStyle(
-                fontSize: 48.sp,
+                fontSize: 40.sp,
                 fontWeight: FontWeight.w700,
                 color: AppColors.fRedBright,
                 fontFamily: 'Mulish',
@@ -118,29 +118,29 @@ class UserDetailPage extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 16.h),
+        SizedBox(height: 12.h),
         Text(
           name,
           style: TextStyle(
-            fontSize: 24.sp,
+            fontSize: 20.sp,
             fontWeight: FontWeight.w700,
             color: AppColors.fTextH1,
             fontFamily: 'Mulish',
           ),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: 6.h),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
           decoration: BoxDecoration(
             color: _getRoleColor(userData['role'] ?? 'Diner')
                 .withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           child: Text(
             userData['role'] ?? 'Diner',
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
               color: _getRoleColor(userData['role'] ?? 'Diner'),
               fontFamily: 'Mulish',
@@ -153,7 +153,7 @@ class UserDetailPage extends StatelessWidget {
 
   Widget _buildUserInfo() {
     return Container(
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(16.r),
@@ -171,28 +171,28 @@ class UserDetailPage extends StatelessWidget {
           Text(
             'Request Information',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w700,
               color: AppColors.fTextH1,
               fontFamily: 'Mulish',
             ),
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 16.h),
           _buildInfoRow(
               Icons.email_outlined, 'Email', userData['email'] ?? 'No email'),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           _buildInfoRow(Icons.business_outlined, 'Department',
               userData['department'] ?? 'No department'),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           _buildInfoRow(
               Icons.person_outline, 'Role', userData['role'] ?? 'Diner'),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           _buildInfoRow(
             Icons.schedule_outlined,
             'Requested',
             _formatDate(userData['createdAt'] as Timestamp?),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           _buildInfoRow(
             Icons.verified_outlined,
             'Status',
@@ -210,19 +210,19 @@ class UserDetailPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 40.w,
-          height: 40.h,
+          width: 32.w,
+          height: 32.h,
           decoration: BoxDecoration(
             color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: Icon(
             icon,
             color: AppColors.fIconAndLabelText,
-            size: 20.sp,
+            size: 16.sp,
           ),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: 12.w),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,17 +230,17 @@ class UserDetailPage extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: 11.sp,
                   fontWeight: FontWeight.w500,
                   color: AppColors.fIconAndLabelText,
                   fontFamily: 'Mulish',
                 ),
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: 2.h),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 16.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColors.fTextH1,
                   fontFamily: 'Mulish',
@@ -298,8 +298,8 @@ class UserDetailPage extends StatelessWidget {
           child: _buildActionButton(
             context,
             'Reject',
-            AppColors.fIconAndLabelText,
-            AppColors.fIconAndLabelText.withValues(alpha: 0.1),
+            AppColors.fWhite,
+            AppColors.fRedBright,
             Icons.close,
             () => _showRejectDialog(context),
           ),
@@ -367,6 +367,11 @@ class UserDetailPage extends StatelessWidget {
   }
 
   void _approveUser(BuildContext context) async {
+    // Show confirmation dialog first
+    final confirmed = await _showApprovalDialog(context);
+
+    if (confirmed != true) return;
+
     try {
       await FirebaseFirestore.instance
           .collection('users')
@@ -414,6 +419,158 @@ class UserDetailPage extends StatelessWidget {
     }
   }
 
+  Future<bool> _showApprovalDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              backgroundColor: AppColors.fTransparent,
+              child: Container(
+                padding: EdgeInsets.all(24.w),
+                decoration: BoxDecoration(
+                  color: AppColors.fWhite,
+                  borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.fTextH1.withValues(alpha: 0.1),
+                      blurRadius: 20.r,
+                      offset: Offset(0, 8.h),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Success Icon
+                    Container(
+                      width: 60.w,
+                      height: 60.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.saveGreen.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.check_circle_outlined,
+                        color: AppColors.saveGreen,
+                        size: 32.sp,
+                      ),
+                    ),
+                    SizedBox(height: 20.h),
+
+                    // Title
+                    Text(
+                      'Approve User Request',
+                      style: TextStyle(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.fTextH1,
+                        fontFamily: 'Mulish',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 12.h),
+
+                    // Message
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: AppColors.fIconAndLabelText,
+                          fontFamily: 'Mulish',
+                          height: 1.4,
+                        ),
+                        children: [
+                          const TextSpan(
+                              text: 'Are you sure you want to approve '),
+                          TextSpan(
+                            text: '"${userData['name'] ?? 'Unknown User'}"',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.fTextH1,
+                            ),
+                          ),
+                          const TextSpan(
+                              text:
+                                  '?\n\nThis will grant them access to the app.'),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 32.h),
+
+                    // Buttons
+                    Row(
+                      children: [
+                        // Cancel Button
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).pop(false),
+                            child: Container(
+                              height: 48.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.fIconAndLabelText
+                                    .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.fIconAndLabelText,
+                                    fontFamily: 'Mulish',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16.w),
+
+                        // Approve Button
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).pop(true),
+                            child: Container(
+                              height: 48.h,
+                              decoration: BoxDecoration(
+                                color: AppColors.saveGreen,
+                                borderRadius: BorderRadius.circular(12.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.saveGreen
+                                        .withValues(alpha: 0.3),
+                                    blurRadius: 8.r,
+                                    offset: Offset(0, 4.h),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Approve',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.fWhite,
+                                    fontFamily: 'Mulish',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ) ??
+        false;
+  }
+
   void _showRejectDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -433,9 +590,10 @@ class UserDetailPage extends StatelessWidget {
       await FirebaseFirestore.instance.collection('users').doc(userId).delete();
 
       if (context.mounted) {
-        Navigator.pop(context); // Close dialog
+        // Navigate back to user requests list first
         Navigator.pop(context); // Close detail page
 
+        // Show success message on the list page
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -455,8 +613,6 @@ class UserDetailPage extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        Navigator.pop(context); // Close dialog
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(

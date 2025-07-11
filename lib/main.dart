@@ -104,6 +104,18 @@ Future<void> main() async {
       }
     }
 
+    // Clean up any expired non-repeating reminders
+    try {
+      await ReminderService().cleanupExpiredReminders();
+      if (kDebugMode) {
+        print('Expired reminders cleaned up');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error cleaning up expired reminders: $e');
+      }
+    }
+
     runApp(const MyApp());
   } catch (e) {
     if (kDebugMode) {

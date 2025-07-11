@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage>
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10.r),
                             child: Image.asset(
-                              'assets/images/food-delivery.png',
+                              'assets/images/login.png',
                             ),
                           ),
                         ),

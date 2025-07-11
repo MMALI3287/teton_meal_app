@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
 
 class PollVotesPage extends StatefulWidget {
   final QueryDocumentSnapshot pollData;
@@ -21,6 +22,8 @@ class _PollVotesPageState extends State<PollVotesPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final Map<String, Map<String, dynamic>> _userCache = {};
+  final Map<String, bool> _expandedItems =
+      {}; // Track expanded state for each menu item
 
   @override
   void initState() {
@@ -75,6 +78,34 @@ class _PollVotesPageState extends State<PollVotesPage> {
     }
 
     return userId.toLowerCase().contains(query);
+  }
+
+  // Check if a menu item has any users matching the search query
+  Future<bool> _hasMatchingUsers(List<dynamic> optionVotes) async {
+    if (_searchQuery.isEmpty) return true;
+
+    for (final userId in optionVotes) {
+      final userData = await _getUserData(userId);
+      if (_matchesSearch(userData, userId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Filter menu items to only show those with matching users
+  Future<List<MapEntry<String, List<dynamic>>>> _getFilteredVotes(
+      Map<String, dynamic> votes) async {
+    final filteredEntries = <MapEntry<String, List<dynamic>>>[];
+
+    for (final entry in votes.entries) {
+      final hasMatching = await _hasMatchingUsers(entry.value);
+      if (hasMatching) {
+        filteredEntries.add(MapEntry(entry.key, entry.value));
+      }
+    }
+
+    return filteredEntries;
   }
 
   String _formatDate(String dateString) {
@@ -181,6 +212,23 @@ class _PollVotesPageState extends State<PollVotesPage> {
         ),
       );
     }
+  }
+
+  void _showDeleteConfirmation(
+      BuildContext context, String userName, String userId, String option) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDeleteDialog(
+          title: 'Remove Order',
+          message: 'Are you sure you want to remove',
+          itemName: '$userName\'s order',
+          onDelete: () {
+            _removeVote(context, userId, option);
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -311,25 +359,14 @@ class _PollVotesPageState extends State<PollVotesPage> {
             ),
             Expanded(
               child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.close,
-                      color: AppColors.fYellow,
-                      size: 20.sp,
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'Order Details',
-                      style: TextStyle(
-                        color: AppColors.fTextH1,
-                        fontSize: 18.sp,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Order Details',
+                  style: TextStyle(
+                    color: AppColors.fTextH1,
+                    fontSize: 18.sp,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -407,6 +444,24 @@ class _PollVotesPageState extends State<PollVotesPage> {
                     ),
                   ),
                 ),
+                if (_searchQuery.isNotEmpty)
+                  InkWell(
+                    onTap: () {
+                      _searchController.clear();
+                      setState(() {
+                        _searchQuery = '';
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(12.r),
+                    child: Container(
+                      padding: EdgeInsets.all(8.w),
+                      child: Icon(
+                        Icons.clear,
+                        color: AppColors.fIconAndLabelText,
+                        size: 18.sp,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -423,14 +478,62 @@ class _PollVotesPageState extends State<PollVotesPage> {
                       ),
                     ),
                   )
-                : ListView(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    children: votes.entries.map((entry) {
-                      String option = entry.key;
-                      List<dynamic> optionVotes = entry.value;
+                : FutureBuilder<List<MapEntry<String, List<dynamic>>>>(
+                    future: _getFilteredVotes(votes),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.fRedBright,
+                          ),
+                        );
+                      }
 
-                      return _buildOrderSection(option, optionVotes);
-                    }).toList(),
+                      final filteredVotes = snapshot.data ?? [];
+
+                      if (filteredVotes.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.search_off,
+                                size: 64.sp,
+                                color: AppColors.fIconAndLabelText,
+                              ),
+                              SizedBox(height: 16.h),
+                              Text(
+                                'No Results Found',
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.fTextH1,
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              Text(
+                                'No menu items have users matching your search',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.fIconAndLabelText,
+                                  fontFamily: 'Inter',
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return ListView(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        children: filteredVotes.map((entry) {
+                          String option = entry.key;
+                          List<dynamic> optionVotes = entry.value;
+                          return _buildOrderSection(option, optionVotes);
+                        }).toList(),
+                      );
+                    },
                   ),
           ),
         ],
@@ -439,6 +542,15 @@ class _PollVotesPageState extends State<PollVotesPage> {
   }
 
   Widget _buildOrderSection(String option, List<dynamic> optionVotes) {
+    // Initialize collapsed state for new items
+    if (!_expandedItems.containsKey(option)) {
+      _expandedItems[option] = false; // Start collapsed
+    }
+
+    // Auto-expand when searching to show filtered users, or use manual state when not searching
+    final isExpanded =
+        _searchQuery.isNotEmpty || (_expandedItems[option] ?? false);
+
     return Container(
       margin: EdgeInsets.only(bottom: 24.h),
       decoration: BoxDecoration(
@@ -455,225 +567,248 @@ class _PollVotesPageState extends State<PollVotesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Food item header
-          Container(
-            padding: EdgeInsets.all(16.w),
-            child: Row(
-              children: [
-                // Food icon
-                Container(
-                  width: 32.w,
-                  height: 32.h,
-                  decoration: BoxDecoration(
-                    color: AppColors.fYellow,
-                    borderRadius: BorderRadius.circular(6.r),
+          // Food item header (clickable) - Only allow manual toggle when not searching
+          InkWell(
+            onTap: _searchQuery.isEmpty
+                ? () {
+                    setState(() {
+                      _expandedItems[option] =
+                          !(_expandedItems[option] ?? false);
+                    });
+                  }
+                : null,
+            borderRadius: BorderRadius.circular(8.r),
+            child: Container(
+              padding: EdgeInsets.all(16.w),
+              child: Row(
+                children: [
+                  // Food icon
+                  Container(
+                    width: 32.w,
+                    height: 32.h,
+                    decoration: BoxDecoration(
+                      color: AppColors.fYellow,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Icon(
+                      Icons.restaurant,
+                      color: AppColors.fWhite,
+                      size: 16.sp,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.restaurant,
-                    color: AppColors.fWhite,
-                    size: 16.sp,
+                  SizedBox(width: 12.w),
+                  // Food name
+                  Expanded(
+                    child: Text(
+                      option,
+                      style: TextStyle(
+                        color: AppColors.fTextH1,
+                        fontSize: 16.sp,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                ),
-                SizedBox(width: 12.w),
-                // Food name
-                Expanded(
-                  child: Text(
-                    option,
+                  // Order count badge and dropdown arrow
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 8.h),
+                        decoration: BoxDecoration(
+                          color: AppColors.fRedBright.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(16.r),
+                          border: Border.all(
+                            color: AppColors.fRedBright.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Text(
+                          '${optionVotes.length} order${optionVotes.length != 1 ? 's' : ''}',
+                          style: TextStyle(
+                            color: AppColors.fRedBright,
+                            fontSize: 12.sp,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      // Only show dropdown arrow when not searching
+                      if (_searchQuery.isEmpty) ...[
+                        SizedBox(width: 8.w),
+                        AnimatedRotation(
+                          turns: isExpanded ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(
+                            Icons.keyboard_arrow_down,
+                            color: AppColors.fIconAndLabelText,
+                            size: 20.sp,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Expandable content
+          if (isExpanded) ...[
+            // Progress bar with percentage on the right
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
+                children: [
+                  // Progress bar
+                  Expanded(
+                    child: Container(
+                      height: 4.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.fLineaAndLabelBox,
+                        borderRadius: BorderRadius.circular(2.r),
+                      ),
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: _totalVotes > 0
+                            ? optionVotes.length / _totalVotes
+                            : 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.fRedBright,
+                            borderRadius: BorderRadius.circular(2.r),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  // Percentage
+                  Text(
+                    '${_totalVotes > 0 ? ((optionVotes.length / _totalVotes) * 100).toStringAsFixed(0) : 0}%',
                     style: TextStyle(
-                      color: AppColors.fTextH1,
-                      fontSize: 16.sp,
+                      color: AppColors.fRedBright,
+                      fontSize: 12.sp,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
-                // Order count badge and dropdown arrow
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-                      decoration: BoxDecoration(
-                        color:
-                            AppColors.fIconAndLabelText.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.fTextH1.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        '${optionVotes.length} order${optionVotes.length != 1 ? 's' : ''}',
-                        style: TextStyle(
-                          color: AppColors.fIconAndLabelText,
-                          fontSize: 12.sp,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      color: AppColors.fIconAndLabelText,
-                      size: 20.sp,
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // Progress bar with percentage on the right
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Row(
-              children: [
-                // Progress bar
-                Expanded(
-                  child: Container(
-                    height: 4.h,
-                    decoration: BoxDecoration(
-                      color: AppColors.fLineaAndLabelBox,
-                      borderRadius: BorderRadius.circular(2.r),
-                    ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: _totalVotes > 0
-                          ? optionVotes.length / _totalVotes
-                          : 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.fRedBright,
-                          borderRadius: BorderRadius.circular(2.r),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                // Percentage
-                Text(
-                  '${_totalVotes > 0 ? ((optionVotes.length / _totalVotes) * 100).toStringAsFixed(0) : 0}%',
-                  style: TextStyle(
-                    color: AppColors.fRedBright,
-                    fontSize: 12.sp,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16.h),
-          // Divider
-          if (optionVotes.isNotEmpty)
-            Container(
-              height: 1.h,
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
-              color: AppColors.fLineaAndLabelBox,
-            ),
-          // User list
-          ...optionVotes.asMap().entries.map((entry) {
-            final index = entry.key;
-            final userId = entry.value;
+            SizedBox(height: 16.h),
+            // Divider
+            if (optionVotes.isNotEmpty)
+              Container(
+                height: 1.h,
+                margin: EdgeInsets.symmetric(horizontal: 16.w),
+                color: AppColors.fLineaAndLabelBox,
+              ),
+            // User list
+            ...optionVotes.asMap().entries.map((entry) {
+              final index = entry.key;
+              final userId = entry.value;
 
-            return FutureBuilder<Map<String, dynamic>?>(
-              future: _getUserData(userId),
-              builder: (context, snapshot) {
-                final userData = snapshot.data;
-                final userName = userData?['displayName'] ??
-                    userData?['name'] ??
-                    'Unknown User';
-                // Filter based on search
-                if (!_matchesSearch(userData, userId)) {
-                  return const SizedBox.shrink();
-                }
+              return FutureBuilder<Map<String, dynamic>?>(
+                future: _getUserData(userId),
+                builder: (context, snapshot) {
+                  final userData = snapshot.data;
+                  final userName = userData?['displayName'] ??
+                      userData?['name'] ??
+                      'Unknown User';
+                  // Filter based on search
+                  if (!_matchesSearch(userData, userId)) {
+                    return const SizedBox.shrink();
+                  }
 
-                return Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-                  child: Row(
-                    children: [
-                      // User avatar
-                      Container(
-                        width: 32.w,
-                        height: 32.h,
-                        decoration: BoxDecoration(
-                          color: _getAvatarColor(index),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            userName.isNotEmpty
-                                ? userName[0].toUpperCase()
-                                : 'U',
-                            style: TextStyle(
-                              color: AppColors.fWhite,
-                              fontSize: 14.sp,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                            ),
+                  return Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                    child: Row(
+                      children: [
+                        // User avatar
+                        Container(
+                          width: 32.w,
+                          height: 32.h,
+                          decoration: BoxDecoration(
+                            color: _getAvatarColor(index),
+                            shape: BoxShape.circle,
                           ),
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      // User name
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              userName,
+                          child: Center(
+                            child: Text(
+                              userName.isNotEmpty
+                                  ? userName[0].toUpperCase()
+                                  : 'U',
                               style: TextStyle(
-                                color: AppColors.fTextH1,
+                                color: AppColors.fWhite,
                                 fontSize: 14.sp,
                                 fontFamily: 'Inter',
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            if (userData != null && userData['email'] != null)
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        // User name
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                userData['email'],
+                                userName,
                                 style: TextStyle(
-                                  color: AppColors.fIconAndLabelText,
-                                  fontSize: 12.sp,
+                                  color: AppColors.fTextH1,
+                                  fontSize: 14.sp,
                                   fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w400,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                          ],
+                              if (userData != null && userData['email'] != null)
+                                Text(
+                                  userData['email'],
+                                  style: TextStyle(
+                                    color: AppColors.fIconAndLabelText,
+                                    fontSize: 12.sp,
+                                    fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                      // Remove button
-                      GestureDetector(
-                        onTap: () => _removeVote(context, userId, option),
-                        child: Container(
-                          width: 24.w,
-                          height: 24.h,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.fIconAndLabelText,
-                              width: 1,
+                        // Remove button
+                        InkWell(
+                          onTap: () {
+                            _showDeleteConfirmation(
+                                context, userName, userId, option);
+                          },
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: Container(
+                            padding: EdgeInsets.all(8.w),
+                            decoration: BoxDecoration(
+                              color:
+                                  AppColors.fRedBright.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(
+                                color:
+                                    AppColors.fRedBright.withValues(alpha: 0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: AppColors.fRedBright,
+                              size: 16.sp,
                             ),
                           ),
-                          child: Icon(
-                            Icons.remove,
-                            color: AppColors.fIconAndLabelText,
-                            size: 16.sp,
-                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          }),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }),
+          ],
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/data/services/storage_service.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
 
 class UserEditScreen extends StatefulWidget {
   final String userId;
@@ -32,6 +33,12 @@ class _UserEditScreenState extends State<UserEditScreen> {
   File? _selectedImageFile;
   final ImagePicker _imagePicker = ImagePicker();
 
+  // Store initial values to detect changes
+  late String _initialName;
+  late String _initialEmail;
+  late String _initialRole;
+  late String _initialDepartment;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +53,12 @@ class _UserEditScreenState extends State<UserEditScreen> {
       text: widget.userData['department'] ?? '',
     );
     _profileImageUrl = widget.userData['profileImageUrl'];
+
+    // Store initial values
+    _initialName = widget.userData['displayName'] ?? '';
+    _initialEmail = widget.userData['email'] ?? '';
+    _initialRole = widget.userData['role'] ?? 'Diner';
+    _initialDepartment = widget.userData['department'] ?? '';
   }
 
   @override
@@ -66,15 +79,15 @@ class _UserEditScreenState extends State<UserEditScreen> {
             _buildHeader(),
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(20.w),
+                padding: EdgeInsets.all(16.w),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     children: [
                       _buildProfileImage(),
-                      SizedBox(height: 32.h),
+                      SizedBox(height: 24.h),
                       _buildFormFields(),
-                      SizedBox(height: 32.h),
+                      SizedBox(height: 24.h),
                       _buildActionButtons(),
                     ],
                   ),
@@ -138,16 +151,16 @@ class _UserEditScreenState extends State<UserEditScreen> {
         GestureDetector(
           onTap: _pickImage,
           child: Container(
-            width: 120.w,
-            height: 120.h,
+            width: 100.w,
+            height: 100.h,
             decoration: BoxDecoration(
               color: AppColors.fNameBoxPink,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
                   color: AppColors.fRedBright.withValues(alpha: 0.2),
-                  blurRadius: 20.r,
-                  offset: Offset(0, 8.h),
+                  blurRadius: 16.r,
+                  offset: Offset(0, 6.h),
                 ),
               ],
               image: _getImageProvider(),
@@ -155,56 +168,51 @@ class _UserEditScreenState extends State<UserEditScreen> {
             child: _getImageProvider() == null
                 ? Center(
                     child: _selectedImageFile == null
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.camera_alt,
-                                color: AppColors.fRedBright,
-                                size: 32.sp,
-                              ),
-                              SizedBox(height: 4.h),
-                              Text(
-                                'Add Photo',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.fRedBright,
-                                  fontFamily: 'Mulish',
-                                ),
-                              ),
-                            ],
+                        ? Icon(
+                            Icons.camera_alt,
+                            color: AppColors.fRedBright,
+                            size: 20.sp,
                           )
                         : null,
                   )
                 : Stack(
                     children: [
                       Positioned(
-                        right: 0,
-                        bottom: 0,
+                        right: 2.w,
+                        bottom: 2.h,
                         child: Container(
-                          width: 32.w,
-                          height: 32.h,
+                          width: 24.w,
+                          height: 24.h,
                           decoration: BoxDecoration(
                             color: AppColors.fWhite,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
                                 color: AppColors.fTextH1.withValues(alpha: 0.1),
-                                blurRadius: 4.r,
-                                offset: Offset(0, 2.h),
+                                blurRadius: 3.r,
+                                offset: Offset(0, 1.h),
                               ),
                             ],
                           ),
                           child: Icon(
                             Icons.edit,
                             color: AppColors.fTextH1,
-                            size: 16.sp,
+                            size: 12.sp,
                           ),
                         ),
                       ),
                     ],
                   ),
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Text(
+          'Tap to edit',
+          style: TextStyle(
+            fontSize: 11.sp,
+            color: AppColors.fIconAndLabelText,
+            fontFamily: 'Mulish',
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -228,7 +236,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
 
   Widget _buildFormFields() {
     return Container(
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(16.r),
@@ -246,13 +254,13 @@ class _UserEditScreenState extends State<UserEditScreen> {
           Text(
             'User Information',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: 16.sp,
               fontWeight: FontWeight.w700,
               color: AppColors.fTextH1,
               fontFamily: 'Mulish',
             ),
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 16.h),
           _buildTextField(
             controller: _nameController,
             hint: 'Display Name :',
@@ -264,7 +272,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
               return null;
             },
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           _buildTextField(
             controller: _emailController,
             hint: 'Email :',
@@ -280,7 +288,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
               return null;
             },
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           _buildTextField(
             controller: _departmentController,
             hint: 'Department :',
@@ -294,7 +302,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
               return null;
             },
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
           _buildTextField(
             controller: TextEditingController(text: _selectedRole),
             hint: 'Account Type :',
@@ -532,25 +540,43 @@ class _UserEditScreenState extends State<UserEditScreen> {
   }
 
   Widget _buildActionButtons() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildActionButton(
-            'Cancel',
-            AppColors.fIconAndLabelText,
-            AppColors.fIconAndLabelText.withValues(alpha: 0.1),
-            Icons.close,
-            () => Navigator.pop(context),
-          ),
+        // Save and Cancel buttons (side by side)
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionButton(
+                'Cancel',
+                AppColors.fTextH1,
+                AppColors.fWhite,
+                Icons.close,
+                _handleCancel,
+                hasBorder: true,
+              ),
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: _buildActionButton(
+                'Save Changes',
+                AppColors.fWhite,
+                AppColors.saveGreen,
+                Icons.check,
+                _handleSaveChanges,
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 16.w),
-        Expanded(
+        SizedBox(height: 12.h),
+        // Delete button (full width)
+        SizedBox(
+          width: double.infinity,
           child: _buildActionButton(
-            'Save Changes',
+            'Delete User',
             AppColors.fWhite,
-            AppColors.saveGreen,
-            Icons.check,
-            _saveChanges,
+            AppColors.fRedBright,
+            Icons.delete_outline,
+            () => _showDeleteUserDialog(),
           ),
         ),
       ],
@@ -562,8 +588,9 @@ class _UserEditScreenState extends State<UserEditScreen> {
     Color textColor,
     Color backgroundColor,
     IconData icon,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    bool hasBorder = false,
+  }) {
     return GestureDetector(
       onTap: _isLoading ? null : onTap,
       child: Container(
@@ -571,13 +598,27 @@ class _UserEditScreenState extends State<UserEditScreen> {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12.r),
-          boxShadow: [
-            BoxShadow(
-              color: backgroundColor.withValues(alpha: 0.3),
-              blurRadius: 8.r,
-              offset: Offset(0, 4.h),
-            ),
-          ],
+          border: hasBorder
+              ? Border.all(
+                  color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+                  width: 1.5,
+                )
+              : null,
+          boxShadow: hasBorder
+              ? [
+                  BoxShadow(
+                    color: AppColors.fTextH1.withValues(alpha: 0.05),
+                    blurRadius: 4.r,
+                    offset: Offset(0, 2.h),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: backgroundColor.withValues(alpha: 0.3),
+                    blurRadius: 8.r,
+                    offset: Offset(0, 4.h),
+                  ),
+                ],
         ),
         child: _isLoading && text == 'Save Changes'
             ? Center(
@@ -717,5 +758,409 @@ class _UserEditScreenState extends State<UserEditScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  void _showDeleteUserDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomDeleteDialog(
+          title: 'Delete User',
+          message: 'Are you sure you want to delete',
+          itemName: widget.userData['displayName'] ??
+              widget.userData['name'] ??
+              'this user',
+          onDelete: () {
+            _deleteUser();
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteUser() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Delete user from Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.userId)
+          .delete();
+
+      // Note: Profile image will be cleaned up by Firebase Storage rules or separate cleanup job
+
+      if (context.mounted) {
+        Navigator.pop(context); // Close edit screen
+        Navigator.pop(context); // Go back to users list
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: AppColors.fWhite),
+                SizedBox(width: 8.w),
+                Text('User deleted successfully'),
+              ],
+            ),
+            backgroundColor: AppColors.fRedBright,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error, color: AppColors.fWhite),
+                SizedBox(width: 8.w),
+                Text('Error deleting user: $e'),
+              ],
+            ),
+            backgroundColor: AppColors.fRedBright,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+          ),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _handleSaveChanges() {
+    if (!_hasChanges()) {
+      // No changes detected
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.info, color: AppColors.fWhite),
+              SizedBox(width: 8.w),
+              Text('No changes detected'),
+            ],
+          ),
+          backgroundColor: AppColors.fIconAndLabelText,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Show confirmation dialog for changes
+    _showSaveConfirmationDialog();
+  }
+
+  void _handleCancel() {
+    if (!_hasChanges()) {
+      // No changes, just go back
+      Navigator.pop(context);
+      return;
+    }
+
+    // Show confirmation dialog for unsaved changes
+    _showCancelConfirmationDialog();
+  }
+
+  Future<void> _showSaveConfirmationDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: AppColors.fTransparent,
+          child: Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.fTextH1.withValues(alpha: 0.1),
+                  blurRadius: 20.r,
+                  offset: Offset(0, 8.h),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Info Icon
+                Container(
+                  width: 60.w,
+                  height: 60.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.saveGreen.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.save_outlined,
+                    color: AppColors.saveGreen,
+                    size: 32.sp,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+
+                // Title
+                Text(
+                  'Save Changes',
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.fTextH1,
+                    fontFamily: 'Mulish',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 12.h),
+
+                // Message
+                Text(
+                  'Are you sure you want to save these changes to the user profile?',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.fIconAndLabelText,
+                    fontFamily: 'Mulish',
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 32.h),
+
+                // Buttons
+                Row(
+                  children: [
+                    // Cancel Button
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(false),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fIconAndLabelText
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fIconAndLabelText,
+                                fontFamily: 'Mulish',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+
+                    // Save Button
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(true),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.saveGreen,
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    AppColors.saveGreen.withValues(alpha: 0.3),
+                                blurRadius: 8.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Save',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fWhite,
+                                fontFamily: 'Mulish',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      _saveChanges();
+    }
+  }
+
+  Future<void> _showCancelConfirmationDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: AppColors.fTransparent,
+          child: Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: AppColors.fWhite,
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.fTextH1.withValues(alpha: 0.1),
+                  blurRadius: 20.r,
+                  offset: Offset(0, 8.h),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Warning Icon
+                Container(
+                  width: 60.w,
+                  height: 60.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.fYellow.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.warning_outlined,
+                    color: AppColors.fYellow,
+                    size: 32.sp,
+                  ),
+                ),
+                SizedBox(height: 20.h),
+
+                // Title
+                Text(
+                  'Unsaved Changes',
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.fTextH1,
+                    fontFamily: 'Mulish',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 12.h),
+
+                // Message
+                Text(
+                  'You have unsaved changes. Are you sure you want to discard them?',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.fIconAndLabelText,
+                    fontFamily: 'Mulish',
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 32.h),
+
+                // Buttons
+                Row(
+                  children: [
+                    // Keep Editing Button
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(false),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fIconAndLabelText
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Keep Editing',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fIconAndLabelText,
+                                fontFamily: 'Mulish',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16.w),
+
+                    // Discard Button
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(true),
+                        child: Container(
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            color: AppColors.fRedBright,
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    AppColors.fRedBright.withValues(alpha: 0.3),
+                                blurRadius: 8.r,
+                                offset: Offset(0, 4.h),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Discard',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.fWhite,
+                                fontFamily: 'Mulish',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      Navigator.pop(context);
+    }
+  }
+
+  bool _hasChanges() {
+    return _nameController.text.trim() != _initialName ||
+        _emailController.text.trim() != _initialEmail ||
+        _selectedRole != _initialRole ||
+        _departmentController.text.trim() != _initialDepartment ||
+        _selectedImageFile != null; // New image selected
   }
 }

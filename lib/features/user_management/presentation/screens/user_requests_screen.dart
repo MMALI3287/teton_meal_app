@@ -161,6 +161,24 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
               ),
             ),
           ),
+          if (_searchQuery.isNotEmpty)
+            InkWell(
+              onTap: () {
+                _searchController.clear();
+                setState(() {
+                  _searchQuery = '';
+                });
+              },
+              borderRadius: BorderRadius.circular(12.r),
+              child: Container(
+                padding: EdgeInsets.all(8.w),
+                child: Icon(
+                  Icons.clear,
+                  color: AppColors.fIconAndLabelText,
+                  size: 18.sp,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -231,6 +249,7 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
     final department = userData['department'] ?? 'No Department';
     final role = userData['role'] ?? 'Diner';
     final createdAt = userData['createdAt'] as Timestamp?;
+    final profileImageUrl = userData['profileImageUrl'] as String?;
 
     String timeAgo = 'Unknown';
     if (createdAt != null) {
@@ -248,148 +267,139 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
       }
     }
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.fWhite,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.fTextH1.withValues(alpha: 0.05),
-            blurRadius: 4.r,
-            offset: Offset(0, 2.h),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Avatar
-          Container(
-            width: 48.w,
-            height: 48.h,
-            decoration: BoxDecoration(
-              color: AppColors.fNameBoxPink,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.fRedBright,
-                  fontFamily: 'Mulish',
-                ),
-              ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UserDetailPage(
+              userId: userId,
+              userData: userData,
             ),
           ),
-          SizedBox(width: 16.w),
-          // User Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.fTextH1,
-                    fontFamily: 'Mulish',
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 4.h),
-                // Role Badge - positioned below the name
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                    decoration: BoxDecoration(
-                      color: _getRoleColor(role).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                        color: _getRoleColor(role).withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      role,
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w500,
-                        color: _getRoleColor(role),
-                        fontFamily: 'Mulish',
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                Text(
-                  email,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    color: AppColors.fIconAndLabelText,
-                    fontFamily: 'Mulish',
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 2.h),
-                Text(
-                  department,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: AppColors.fIconAndLabelText,
-                    fontFamily: 'Mulish',
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  timeAgo,
-                  style: TextStyle(
-                    fontSize: 11.sp,
-                    color: AppColors.fIconAndLabelText.withValues(alpha: 0.7),
-                    fontFamily: 'Mulish',
-                  ),
-                ),
-              ],
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: AppColors.fWhite,
+          borderRadius: BorderRadius.circular(12.r),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.fTextH1.withValues(alpha: 0.05),
+              blurRadius: 4.r,
+              offset: Offset(0, 2.h),
             ),
-          ),
-          SizedBox(width: 16.w),
-          // View Button
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UserDetailPage(
-                    userId: userId,
-                    userData: userData,
-                  ),
-                ),
-              );
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          ],
+        ),
+        child: Row(
+          children: [
+            // User Avatar with actual profile image (same as user list)
+            Container(
+              width: 48.w,
+              height: 48.h,
               decoration: BoxDecoration(
-                color: AppColors.fRedBright,
-                borderRadius: BorderRadius.circular(20.r),
+                color: AppColors.fWhiteBackground,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.fIconAndLabelText.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+                image: profileImageUrl != null && profileImageUrl.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(profileImageUrl),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              child: profileImageUrl == null || profileImageUrl.isEmpty
+                  ? Icon(
+                      Icons.person_outline,
+                      color: AppColors.fIconAndLabelText,
+                      size: 24.sp,
+                    )
+                  : null,
+            ),
+            SizedBox(width: 16.w),
+            // User Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.fTextH1,
+                      fontFamily: 'Mulish',
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    email,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: AppColors.fIconAndLabelText,
+                      fontFamily: 'Mulish',
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  // Department badge (same as user list)
+                  if (department != 'No Department') ...[
+                    SizedBox(height: 4.h),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.fCyan.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        department,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.fCyan,
+                          fontFamily: 'Mulish',
+                        ),
+                      ),
+                    ),
+                  ],
+                  // Time ago (unique to request cards)
+                  SizedBox(height: 4.h),
+                  Text(
+                    'Requested $timeAgo',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: AppColors.fIconAndLabelText.withValues(alpha: 0.7),
+                      fontFamily: 'Mulish',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Role Badge (same styling as user list)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: _getRoleColor(role).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6.r),
               ),
               child: Text(
-                'View',
+                role,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: 10.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.fWhite,
+                  color: _getRoleColor(role),
                   fontFamily: 'Mulish',
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -397,12 +407,12 @@ class _UserRequestsPageState extends State<UserRequestsPage> {
   Color _getRoleColor(String role) {
     switch (role.toLowerCase()) {
       case 'admin':
-        return AppColors.fRedBright;
+        return AppColors.fRedBright; // Red for admin
       case 'planner':
-        return const Color(0xFF2196F3); // Blue for planner
+        return AppColors.saveGreen; // Green for planner
       case 'diner':
       default:
-        return const Color(0xFF4CAF50); // Green for diner
+        return AppColors.fYellow; // Yellow for diner
     }
   }
 

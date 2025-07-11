@@ -22,17 +22,14 @@ class _MenusPageState extends State<MenusPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.fWhiteBackground,
-      body: Container(
-        width: 393.w,
-        height: 805.h,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
+      body: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 50.h),
+            SizedBox(height: 16.h),
             _buildHeaderSection(),
+            SizedBox(height: 20.h),
+            _buildIllustrationSection(),
+            SizedBox(height: 20.h),
             _buildOrdersList(),
           ],
         ),
@@ -43,12 +40,12 @@ class _MenusPageState extends State<MenusPage> {
   Widget _buildHeaderSection() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(8.w),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Orders title
+          // Orders title - exact match to Figma
           Text(
             'Orders',
             style: TextStyle(
@@ -59,7 +56,7 @@ class _MenusPageState extends State<MenusPage> {
               letterSpacing: -0.12,
             ),
           ),
-          // Right side with calendar icon
+          // History button - exact match to Figma
           GestureDetector(
             onTap: () async {
               // Navigate to history page with inactive polls
@@ -81,28 +78,26 @@ class _MenusPageState extends State<MenusPage> {
             },
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 36.w,
                   height: 36.h,
-                  decoration: ShapeDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.fRedBright,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    shadows: [
+                    borderRadius: BorderRadius.circular(8.r),
+                    boxShadow: [
                       BoxShadow(
-                        color: AppColors.fRedBright,
-                        blurRadius: 2.92.r,
-                        offset: Offset(0, 2.92.h),
-                        spreadRadius: 0,
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 3.r,
+                        offset: Offset(0, 3.h),
                       )
                     ],
                   ),
                   child: Icon(
-                    Icons.calendar_today_outlined,
+                    Icons.calendar_today_rounded,
                     color: AppColors.fWhite,
-                    size: 18.sp,
+                    size: 16.sp,
                   ),
                 ),
                 SizedBox(height: 4.h),
@@ -112,13 +107,28 @@ class _MenusPageState extends State<MenusPage> {
                     color: AppColors.fTextH2,
                     fontSize: 10.sp,
                     fontFamily: 'Inter',
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildIllustrationSection() {
+    return Container(
+      height: 140.h,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h),
+      child: Center(
+        child: Image.asset(
+          'assets/images/orders.png',
+          height: 111.h,
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }
@@ -150,17 +160,50 @@ class _MenusPageState extends State<MenusPage> {
 
           final polls = snapshot.data!.docs;
 
-          return Container(
-            height: 589.55.h,
-            padding: EdgeInsets.only(top: 7.89.h),
-            clipBehavior: Clip.antiAlias,
-            decoration: const BoxDecoration(),
-            child: ListView.builder(
-              itemCount: polls.length,
-              itemBuilder: (context, index) {
-                return MenuPollCard(pollData: polls[index]);
-              },
-            ),
+          if (polls.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.restaurant_menu_outlined,
+                    size: 64.sp,
+                    color: AppColors.fIconAndLabelText,
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    'No orders yet',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.fTextH1,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Orders will appear here when menus are created',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.fIconAndLabelText,
+                      fontFamily: 'Inter',
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 22.w),
+            itemCount: polls.length,
+            itemBuilder: (context, index) {
+              return Container(
+                margin: EdgeInsets.only(bottom: 8.h),
+                child: MenuPollCard(pollData: polls[index]),
+              );
+            },
           );
         },
       ),

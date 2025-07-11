@@ -33,6 +33,14 @@ class UsersPage extends StatefulWidget {
 class _UsersPageState extends State<UsersPage> {
   bool _isLoading = true;
   List<UserData> _users = [];
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -122,6 +130,8 @@ class _UsersPageState extends State<UsersPage> {
                 ],
               ),
             ),
+            // Search Bar
+            _buildSearchBar(),
             // Users List
             Expanded(
               child: _isLoading
@@ -162,12 +172,67 @@ class _UsersPageState extends State<UsersPage> {
                         )
                       : RefreshIndicator(
                           onRefresh: _loadUsers,
-                          child: ListView.builder(
-                            padding: EdgeInsets.all(16.w),
-                            itemCount: _users.length,
-                            itemBuilder: (context, index) {
-                              final user = _users[index];
-                              return _buildUserCard(user);
+                          child: Builder(
+                            builder: (context) {
+                              // Filter users based on search query
+                              final filteredUsers = _users.where((user) {
+                                if (_searchQuery.isEmpty) return true;
+
+                                final name =
+                                    (user.displayName ?? '').toLowerCase();
+                                final email = user.email.toLowerCase();
+                                final department =
+                                    (user.department ?? '').toLowerCase();
+                                final role = user.role.toLowerCase();
+
+                                return name.contains(_searchQuery) ||
+                                    email.contains(_searchQuery) ||
+                                    department.contains(_searchQuery) ||
+                                    role.contains(_searchQuery);
+                              }).toList();
+
+                              if (filteredUsers.isEmpty) {
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.search_off,
+                                        size: 64.sp,
+                                        color: AppColors.fIconAndLabelText,
+                                      ),
+                                      SizedBox(height: 16.h),
+                                      Text(
+                                        'No Results Found',
+                                        style: TextStyle(
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.fTextH1,
+                                          fontFamily: 'Mulish',
+                                        ),
+                                      ),
+                                      SizedBox(height: 8.h),
+                                      Text(
+                                        'No users match your search criteria',
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          color: AppColors.fIconAndLabelText,
+                                          fontFamily: 'Mulish',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+
+                              return ListView.builder(
+                                padding: EdgeInsets.all(16.w),
+                                itemCount: filteredUsers.length,
+                                itemBuilder: (context, index) {
+                                  final user = filteredUsers[index];
+                                  return _buildUserCard(user);
+                                },
+                              );
                             },
                           ),
                         ),
@@ -316,6 +381,85 @@ class _UsersPageState extends State<UsersPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: AppColors.fWhite,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: AppColors.fIconAndLabelText.withValues(alpha: 0.1),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.fTextH1.withValues(alpha: 0.05),
+            blurRadius: 4.r,
+            offset: Offset(0, 2.h),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.search,
+            color: AppColors.fIconAndLabelText,
+            size: 20.sp,
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Search users...',
+                hintStyle: TextStyle(
+                  color: AppColors.fIconAndLabelText,
+                  fontSize: 14.sp,
+                  fontFamily: 'Mulish',
+                ),
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+              ),
+              style: TextStyle(
+                color: AppColors.fTextH1,
+                fontSize: 14.sp,
+                fontFamily: 'Mulish',
+              ),
+            ),
+          ),
+          if (_searchQuery.isNotEmpty)
+            InkWell(
+              onTap: () {
+                _searchController.clear();
+                setState(() {
+                  _searchQuery = '';
+                });
+              },
+              borderRadius: BorderRadius.circular(12.r),
+              child: Container(
+                padding: EdgeInsets.all(8.w),
+                child: Icon(
+                  Icons.clear,
+                  color: AppColors.fIconAndLabelText,
+                  size: 18.sp,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
