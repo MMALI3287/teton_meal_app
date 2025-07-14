@@ -93,7 +93,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
             Container(
               height: 1.h,
               width: double.infinity,
-              color: const Color(0xFFF4F5F7),
+              color: AppColors.fWhiteBackground,
             ),
             Expanded(
               child: _isLoading
@@ -194,7 +194,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF4F5F7),
+                  color: AppColors.fWhiteBackground,
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Row(
@@ -272,8 +272,8 @@ class _SelectItemPageState extends State<SelectItemPage> {
                                   Container(
                                     width: 56.w,
                                     height: 56.h,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFFFF5F5),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.fWhiteBackground,
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -323,7 +323,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                                           height: 48.h,
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                              color: const Color(0xFFE5E7EB),
+                                              color: AppColors.fWhiteIcon,
                                             ),
                                             borderRadius:
                                                 BorderRadius.circular(12.r),
@@ -450,7 +450,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                 borderRadius: BorderRadius.circular(10.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: AppColors.fTextH1.withValues(alpha: 0.25),
                     offset: const Offset(0, 4),
                     blurRadius: 4,
                   ),
@@ -497,7 +497,7 @@ class _SelectItemPageState extends State<SelectItemPage> {
                 borderRadius: BorderRadius.circular(10.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: AppColors.fTextH1.withValues(alpha: 0.25),
                     offset: const Offset(0, 4),
                     blurRadius: 4,
                   ),

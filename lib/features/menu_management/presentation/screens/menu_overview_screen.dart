@@ -85,7 +85,7 @@ class _MenusPageState extends State<MenusPage> {
                     borderRadius: BorderRadius.circular(8.r),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: AppColors.fTextH1.withValues(alpha: 0.1),
                         blurRadius: 3.r,
                         offset: Offset(0, 3.h),
                       )

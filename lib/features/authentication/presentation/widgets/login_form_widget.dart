@@ -298,7 +298,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                 errorStyle: const TextStyle(
                   height: 0,
                   fontSize: 0,
-                  color: Colors.transparent,
+                  color: AppColors.fTransparent,
                 ),
               ),
               cursorColor: AppColors.fRedBright,

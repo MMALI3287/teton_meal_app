@@ -69,7 +69,7 @@ class UserProfileCard extends StatelessWidget {
           style: TextStyle(
             fontSize: 16.sp,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF383A3F),
+            color: AppColors.fTextH1,
             letterSpacing: -0.28,
           ),
         ),
@@ -79,7 +79,7 @@ class UserProfileCard extends StatelessWidget {
           style: TextStyle(
             fontSize: 10.sp,
             fontWeight: FontWeight.w300,
-            color: const Color(0xFF383A3F),
+            color: AppColors.fTextH1,
             decoration: TextDecoration.underline,
           ),
         ),
@@ -87,7 +87,7 @@ class UserProfileCard extends StatelessWidget {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 1.h),
           decoration: BoxDecoration(
-            color: const Color(0xFFF4F5F7),
+            color: AppColors.fWhiteBackground,
             borderRadius: BorderRadius.circular(12.r),
           ),
           child: Text(
@@ -95,7 +95,7 @@ class UserProfileCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 10.sp,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF7A869A),
+              color: AppColors.fTextH2,
               letterSpacing: -0.24,
             ),
           ),
@@ -108,7 +108,7 @@ class UserProfileCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
+        color: AppColors.fWhite,
         borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
@@ -129,7 +129,7 @@ class UserProfileCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF466D5E),
+                color: AppColors.fGreen,
                 letterSpacing: -0.2,
               ),
             ),
@@ -139,7 +139,7 @@ class UserProfileCard extends StatelessWidget {
             width: double.infinity,
             height: 1.h,
             margin: EdgeInsets.symmetric(horizontal: 20.w),
-            color: const Color(0xFFF4F5F7),
+            color: AppColors.fWhiteBackground,
           ),
           SizedBox(height: 16.h),
           _buildProfileItem(
@@ -185,7 +185,7 @@ class UserProfileCard extends StatelessWidget {
       onTap: onEdit,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        color: Colors.transparent,
+        color: AppColors.fTransparent,
         child: Row(
           children: [
             Container(
@@ -194,7 +194,7 @@ class UserProfileCard extends StatelessWidget {
               margin: EdgeInsets.only(left: 8.w, right: 12.w),
               child: Icon(
                 icon,
-                color: const Color(0xFF383A3F),
+                color: AppColors.fTextH1,
                 size: 18.sp,
               ),
             ),
@@ -207,7 +207,7 @@ class UserProfileCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF383A3F),
+                      color: AppColors.fTextH1,
                       letterSpacing: -0.2,
                     ),
                   ),
@@ -217,7 +217,7 @@ class UserProfileCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF7A869A),
+                      color: AppColors.fTextH2,
                       letterSpacing: -0.24,
                     ),
                   ),
@@ -229,7 +229,7 @@ class UserProfileCard extends StatelessWidget {
                 padding: EdgeInsets.all(8.w),
                 child: Icon(
                   Icons.edit_outlined,
-                  color: const Color(0xFF7A869A),
+                  color: AppColors.fTextH2,
                   size: 18.sp,
                 ),
               ),
@@ -245,7 +245,7 @@ class UserProfileCard extends StatelessWidget {
       child: Divider(
         height: 1.h,
         thickness: 1,
-        color: const Color(0xFFF4F5F7),
+        color: AppColors.fWhiteBackground,
       ),
     );
   }

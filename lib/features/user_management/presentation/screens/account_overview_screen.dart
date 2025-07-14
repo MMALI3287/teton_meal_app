@@ -43,7 +43,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF9F9F9),
+        backgroundColor: AppColors.fWhiteBackground,
         body: Center(
           child: CircularProgressIndicator(
             color: AppColors.fRedBright,
@@ -53,7 +53,7 @@ class _AccountPageState extends State<AccountPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: AppColors.fWhiteBackground,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -91,7 +91,7 @@ class _AccountPageState extends State<AccountPage> {
               style: TextStyle(
                 fontSize: 24.sp,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF383A3F),
+                color: AppColors.fTextH1,
                 letterSpacing: -0.12,
               ),
             ),

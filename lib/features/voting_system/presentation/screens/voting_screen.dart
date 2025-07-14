@@ -62,7 +62,7 @@ class _VotesPageState extends State<VotesPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: AppColors.fWhiteBackground,
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -140,7 +140,7 @@ class _VotesPageState extends State<VotesPage>
                 fontSize: 24.sp,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
-                color: AppColors.textH1(context),
+                color: AppColors.fTextH1,
                 letterSpacing: -0.12,
               ),
             ),
@@ -159,13 +159,13 @@ class _VotesPageState extends State<VotesPage>
                   },
                   child: Container(
                     width: 32.w,
-                    height: 32.h,
+                    height: 32.w,
                     decoration: BoxDecoration(
-                      color: AppColors.redBright(context),
+                      color: AppColors.fRedBright,
                       borderRadius: BorderRadius.circular(8.r),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: AppColors.fTextH1.withValues(alpha: 0.1),
                           blurRadius: 3.r,
                           offset: Offset(0, 3.h),
                         ),
@@ -173,7 +173,7 @@ class _VotesPageState extends State<VotesPage>
                     ),
                     child: Icon(
                       Icons.add,
-                      color: AppColors.white(context),
+                      color: AppColors.fWhite,
                       size: 18.sp,
                     ),
                   ),
@@ -402,7 +402,7 @@ class _VotesPageState extends State<VotesPage>
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.fTextH1.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),
@@ -471,7 +471,7 @@ class _VotesPageState extends State<VotesPage>
                 children: [
                   Icon(
                     Icons.admin_panel_settings,
-                    color: const Color(0xFF4CAF50),
+                    color: AppColors.saveGreen,
                     size: 14.sp,
                   ),
                   SizedBox(width: 4.w),
@@ -480,7 +480,7 @@ class _VotesPageState extends State<VotesPage>
                       'Voting extended by admin - employees can still vote',
                       style: TextStyle(
                         fontSize: 11.sp,
-                        color: const Color(0xFF4CAF50),
+                        color: AppColors.saveGreen,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -600,7 +600,7 @@ class _VotesPageState extends State<VotesPage>
                                 border: Border.all(
                                   color: isActive
                                       ? AppColors.fIconAndLabelText
-                                      : Colors.grey,
+                                      : AppColors.fWhiteIcon,
                                   width: 1.5,
                                 ),
                               ),
@@ -616,7 +616,7 @@ class _VotesPageState extends State<VotesPage>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.25),
+                          color: AppColors.fTextH1.withValues(alpha: 0.25),
                           blurRadius: 4.r,
                           offset: Offset(0, 4.h),
                         ),
@@ -750,7 +750,7 @@ class _VotesPageState extends State<VotesPage>
           borderRadius: BorderRadius.circular(12.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: AppColors.fTextH1.withValues(alpha: 0.05),
               blurRadius: 4.r,
               offset: Offset(0, 4.h),
             ),
@@ -839,7 +839,7 @@ class _VotesPageState extends State<VotesPage>
         borderRadius: BorderRadius.circular(15.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: AppColors.fTextH1.withValues(alpha: 0.05),
             blurRadius: 4.r,
             offset: Offset(0, 4.h),
           ),
@@ -863,7 +863,7 @@ class _VotesPageState extends State<VotesPage>
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFFF0F0),
+                        color: AppColors.fRed2,
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Center(
@@ -989,7 +989,7 @@ class _VotesPageState extends State<VotesPage>
           SnackBar(
             content: Text(message),
             backgroundColor:
-                newStatus ? const Color(0xFF4CAF50) : const Color(0xFFEF9F27),
+                newStatus ? AppColors.saveGreen : AppColors.fYellow,
             duration:
                 Duration(milliseconds: isTimeUp && newStatus ? 3000 : 2000),
           ),
@@ -1000,7 +1000,7 @@ class _VotesPageState extends State<VotesPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating menu: $e'),
-            backgroundColor: const Color(0xFFFF3951),
+            backgroundColor: AppColors.fRedBright,
           ),
         );
       }
@@ -1087,14 +1087,14 @@ class _VotesPageState extends State<VotesPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('End time updated to ${picked.format(context)}'),
-            backgroundColor: const Color(0xFF4CAF50),
+            backgroundColor: AppColors.saveGreen,
           ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating end time: $e'),
-            backgroundColor: const Color(0xFFFF3951),
+            backgroundColor: AppColors.fRedBright,
           ),
         );
       }
@@ -1115,7 +1115,7 @@ class _VotesPageState extends State<VotesPage>
     return Center(
       child: Icon(
         iconData,
-        color: const Color(0xFF7A869A),
+        color: AppColors.fIconAndLabelText,
         size: 20.sp,
       ),
     );
@@ -1127,7 +1127,7 @@ class _VotesPageState extends State<VotesPage>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please log in to vote'),
-          backgroundColor: Color(0xFFFF3951),
+          backgroundColor: AppColors.fRedBright,
           duration: Duration(seconds: 1),
         ),
       );
@@ -1193,7 +1193,7 @@ class _VotesPageState extends State<VotesPage>
               content: Text(currentUserVote == option
                   ? 'Vote removed'
                   : 'Voted for $option'),
-              backgroundColor: const Color(0xFF4CAF50),
+              backgroundColor: AppColors.saveGreen,
               duration: const Duration(milliseconds: 800),
             ),
           );
@@ -1202,7 +1202,7 @@ class _VotesPageState extends State<VotesPage>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Failed to vote. Please try again.'),
-            backgroundColor: Color(0xFFFF3951),
+            backgroundColor: AppColors.fRedBright,
             duration: Duration(seconds: 1),
           ),
         );

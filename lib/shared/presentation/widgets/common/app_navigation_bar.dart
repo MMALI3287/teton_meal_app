@@ -188,7 +188,7 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey[700],
+                  color: AppColors.fWhiteIcon,
                 ),
               ),
             ],
@@ -213,15 +213,15 @@ class _NavbarState extends State<Navbar> with SingleTickerProviderStateMixin {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18.w),
           ),
-          shadows: const [
+          shadows: [
             BoxShadow(
-              color: Color(0x19000000),
+              color: AppColors.fTextH1.withValues(alpha: 0.1),
               blurRadius: 4,
               offset: Offset(0, 2),
               spreadRadius: 0,
             ),
             BoxShadow(
-              color: Color(0x19000000),
+              color: AppColors.fTextH1.withValues(alpha: 0.1),
               blurRadius: 4,
               offset: Offset(2, -2),
               spreadRadius: 0,

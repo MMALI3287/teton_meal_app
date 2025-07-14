@@ -174,7 +174,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
               color: AppColors.fWhite,
               borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
-                color: const Color(0xFFEEEEEE),
+                color: AppColors.fWhiteBackground,
                 width: 1,
               ),
             ),
@@ -194,13 +194,13 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                             color: AppColors.fWhite,
                             borderRadius: BorderRadius.circular(8.r),
                             border: Border.all(
-                              color: const Color(0xFFEEEEEE),
+                              color: AppColors.fWhiteBackground,
                               width: 1,
                             ),
                           ),
                           child: Icon(
                             Icons.arrow_back_ios_new,
-                            color: const Color(0xFF666666),
+                            color: AppColors.fWhiteIcon,
                             size: 16.sp,
                           ),
                         ),
@@ -208,7 +208,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                       Text(
                         '${_getMonthName(currentMonth.month)} ${currentMonth.year}',
                         style: TextStyle(
-                          color: const Color(0xFF1A1A1A),
+                          color: AppColors.fTextH1,
                           fontSize: 18.sp,
                           fontFamily: 'DM Sans',
                           fontWeight: FontWeight.w600,
@@ -224,13 +224,13 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                             color: AppColors.fWhite,
                             borderRadius: BorderRadius.circular(8.r),
                             border: Border.all(
-                              color: const Color(0xFFEEEEEE),
+                              color: AppColors.fWhiteBackground,
                               width: 1,
                             ),
                           ),
                           child: Icon(
                             Icons.arrow_forward_ios,
-                            color: const Color(0xFF666666),
+                            color: AppColors.fWhiteBackground,
                             size: 16.sp,
                           ),
                         ),
@@ -247,7 +247,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                                 child: Text(
                                   day,
                                   style: TextStyle(
-                                    color: const Color(0xFF999999),
+                                    color: AppColors.fWhiteIcon,
                                     fontSize: 14.sp,
                                     fontFamily: 'DM Sans',
                                     fontWeight: FontWeight.w500,
@@ -302,7 +302,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                                           : hasOrders
                                               ? AppColors.fRedBright
                                                   .withValues(alpha: 0.1)
-                                              : Colors.transparent,
+                                              : AppColors.fTransparent,
                                       borderRadius: BorderRadius.circular(8.r),
                                     ),
                                     alignment: Alignment.center,
@@ -313,7 +313,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                                             ? AppColors.fWhite
                                             : hasOrders
                                                 ? AppColors.fRedBright
-                                                : const Color(0xFF1A1A1A),
+                                                : AppColors.fTextH1,
                                         fontSize: 14.sp,
                                         fontFamily: 'DM Sans',
                                         fontWeight: hasOrders || isSelected
@@ -352,7 +352,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                               ? Icons.event_busy_outlined
                               : Icons.history_outlined,
                           size: 64.sp,
-                          color: const Color(0xFF999999),
+                          color: AppColors.fWhiteIcon,
                         ),
                         SizedBox(height: 16.h),
                         Text(
@@ -360,7 +360,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                               ? 'No orders on this date'
                               : 'Select a date to view orders',
                           style: TextStyle(
-                            color: const Color(0xFF1A1A1A),
+                            color: AppColors.fTextH1,
                             fontSize: 18.sp,
                             fontFamily: 'DM Sans',
                             fontWeight: FontWeight.w600,
@@ -373,7 +373,7 @@ class _PollsByDatePageState extends State<PollsByDatePage> {
                               ? 'Tap the date again to clear selection'
                               : 'Tap on a date to filter orders',
                           style: TextStyle(
-                            color: const Color(0xFF666666),
+                            color: AppColors.fWhiteBackground,
                             fontSize: 14.sp,
                             fontFamily: 'DM Sans',
                             fontWeight: FontWeight.w400,

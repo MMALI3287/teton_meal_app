@@ -315,7 +315,7 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                                           meal
                                                       ? theme
                                                           .colorScheme.primary
-                                                      : Colors.grey[400],
+                                                      : AppColors.fWhiteIcon,
                                                   size: 18,
                                                 ),
                                                 const SizedBox(width: 8),
@@ -331,7 +331,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                                                               meal
                                                           ? theme.colorScheme
                                                               .primary
-                                                          : Colors.grey[800],
+                                                          : AppColors
+                                                              .fWhiteIcon,
                                                       fontWeight:
                                                           _selectedMeals[
                                                                       index] ==
@@ -489,8 +490,8 @@ class CreatePollDialogState extends State<CreatePollDialog> {
                     OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.grey[700],
-                        side: BorderSide(color: Colors.grey[300]!),
+                        foregroundColor: AppColors.fWhiteIcon,
+                        side: BorderSide(color: AppColors.fWhiteIcon),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12),
                         shape: RoundedRectangleBorder(

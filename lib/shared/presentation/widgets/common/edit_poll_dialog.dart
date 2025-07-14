@@ -157,7 +157,7 @@ class EditPollDialogState extends State<EditPollDialog> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.fTransparent,
           child: Container(
             padding: EdgeInsets.all(24.w),
             decoration: BoxDecoration(
@@ -369,7 +369,7 @@ class EditPollDialogState extends State<EditPollDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.fTransparent,
       insetPadding: EdgeInsets.zero,
       child: Container(
         width: double.infinity,
@@ -623,7 +623,7 @@ class EditPollDialogState extends State<EditPollDialog> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.fYellow,
           elevation: 4,
-          shadowColor: Colors.black.withValues(alpha: 0.25),
+          shadowColor: AppColors.fTextH1.withValues(alpha: 0.25),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.r),
           ),
@@ -728,7 +728,7 @@ class EditPollDialogState extends State<EditPollDialog> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.fWhite,
                 elevation: 4,
-                shadowColor: Colors.black.withValues(alpha: 0.25),
+                shadowColor: AppColors.fTextH1.withValues(alpha: 0.25),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),
@@ -760,7 +760,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                 disabledBackgroundColor:
                     AppColors.fIconAndLabelText.withValues(alpha: 0.3),
                 elevation: 4,
-                shadowColor: Colors.black.withValues(alpha: 0.25),
+                shadowColor: AppColors.fTextH1.withValues(alpha: 0.25),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),
@@ -841,7 +841,7 @@ class EditPollDialogState extends State<EditPollDialog> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.fTransparent,
           child: Container(
             padding: EdgeInsets.all(24.w),
             decoration: BoxDecoration(
@@ -971,7 +971,7 @@ class EditPollDialogState extends State<EditPollDialog> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColors.fTransparent,
           child: Container(
             padding: EdgeInsets.all(24.w),
             decoration: BoxDecoration(

@@ -83,8 +83,8 @@ class _SplashScreenState extends State<SplashScreen>
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFFF7A85),
-              Color(0xFFFF3951),
+              AppColors.fRedProgressbar,
+              AppColors.fRedBright,
             ],
             stops: [0.0, 1.0],
           ),

@@ -467,7 +467,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               errorStyle: const TextStyle(
                 height: 0,
                 fontSize: 0,
-                color: Colors.transparent,
+                color: AppColors.fTransparent,
               ),
             ),
           ),

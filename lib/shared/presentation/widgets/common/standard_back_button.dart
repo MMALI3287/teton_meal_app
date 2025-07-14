@@ -22,12 +22,12 @@ class StandardBackButton extends StatelessWidget {
         width: buttonSize,
         height: buttonSize,
         decoration: BoxDecoration(
-          color: AppColors.textH1(context),
+          color: AppColors.fTextH1,
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Icon(
           Icons.arrow_back_ios_new,
-          color: AppColors.white(context),
+          color: AppColors.fWhite,
           size: (buttonSize * 0.45).sp,
         ),
       ),

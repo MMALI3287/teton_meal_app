@@ -72,7 +72,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
             Container(
               height: 1.h,
               width: double.infinity,
-              color: const Color(0xFFF4F5F7),
+              color: AppColors.fWhiteBackground,
             ),
             Expanded(
               child: Padding(
@@ -154,7 +154,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
           height: 47.h,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: const Color(0xFFF4F5F7),
+            color: AppColors.fWhiteBackground,
             borderRadius: BorderRadius.circular(15.r),
           ),
           child: Row(
@@ -185,7 +185,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                       letterSpacing: -0.24,
                     ),
                     filled: false,
-                    fillColor: Colors.transparent,
+                    fillColor: AppColors.fTransparent,
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
                     enabledBorder: InputBorder.none,
@@ -227,7 +227,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
           height: 44.h,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: const Color(0xFFF4F5F7),
+            color: AppColors.fWhiteBackground,
             borderRadius: BorderRadius.circular(15.r),
           ),
           child: TextFormField(
@@ -246,7 +246,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                 letterSpacing: -0.2,
               ),
               filled: false,
-              fillColor: Colors.transparent,
+              fillColor: AppColors.fTransparent,
               border: InputBorder.none,
               focusedBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
@@ -276,7 +276,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                 borderRadius: BorderRadius.circular(10.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: AppColors.fTextH1.withValues(alpha: 0.25),
                     offset: const Offset(0, 4),
                     blurRadius: 4,
                   ),
@@ -314,7 +314,7 @@ class _AddNewItemPageState extends State<AddNewItemPage> {
                 borderRadius: BorderRadius.circular(10.r),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: AppColors.fTextH1.withValues(alpha: 0.25),
                     offset: const Offset(0, 4),
                     blurRadius: 4,
                   ),
