@@ -203,7 +203,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                 Row(
                   children: [
                     Expanded(
-                      child: Container(
+                      child: SizedBox(
                         height: 44.h,
                         child: ElevatedButton(
                           onPressed: () => Navigator.pop(context),
@@ -228,7 +228,7 @@ class EditPollDialogState extends State<EditPollDialog> {
                     ),
                     SizedBox(width: 12.w),
                     Expanded(
-                      child: Container(
+                      child: SizedBox(
                         height: 44.h,
                         child: ElevatedButton(
                           onPressed: () {
@@ -420,14 +420,14 @@ class EditPollDialogState extends State<EditPollDialog> {
   }
 
   Widget _buildHeader() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 72.h,
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               width: 19.w,
               height: 18.h,
               child: Image.asset(
@@ -615,7 +615,7 @@ class EditPollDialogState extends State<EditPollDialog> {
   }
 
   Widget _buildAddItemButton() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: 36.h,
       child: ElevatedButton(
@@ -667,7 +667,7 @@ class EditPollDialogState extends State<EditPollDialog> {
         ),
         child: Row(
           children: [
-            Container(
+            SizedBox(
               width: 29.w,
               height: 36.h,
               child: Image.asset(
@@ -721,7 +721,7 @@ class EditPollDialogState extends State<EditPollDialog> {
     return Row(
       children: [
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 38.h,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _handleCancel,
@@ -749,7 +749,7 @@ class EditPollDialogState extends State<EditPollDialog> {
         ),
         SizedBox(width: 10.w),
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 38.h,
             child: ElevatedButton(
               onPressed: _isLoading || _selectedItems.isEmpty
@@ -798,7 +798,9 @@ class EditPollDialogState extends State<EditPollDialog> {
     if (_selectedDate != _initialDate) return true;
 
     if (_selectedTime.hour != _initialTime.hour ||
-        _selectedTime.minute != _initialTime.minute) return true;
+        _selectedTime.minute != _initialTime.minute) {
+      return true;
+    }
 
     if (_selectedItems.length != _initialSelectedItems.length) return true;
 

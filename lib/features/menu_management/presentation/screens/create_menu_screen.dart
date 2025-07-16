@@ -413,7 +413,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
         children: [
           GestureDetector(
             onTap: _handleCancel,
-            child: Container(
+            child: SizedBox(
               width: 21.w,
               height: 20.h,
               child: Icon(
