@@ -93,64 +93,34 @@ class _SplashScreenState extends State<SplashScreen>
           child: AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
-              return Center(
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 100.w,
-                          height: 100.h,
-                          margin: EdgeInsets.only(bottom: 50.h),
-                          decoration: BoxDecoration(
-                            color: AppColors.fWhite.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.fWhite.withValues(alpha: 0.3),
-                              width: 2,
+              return Column(
+                children: [
+                  const Spacer(flex: 2),
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: Text(
+                        'Meal Chill',
+                        style: GoogleFonts.lobster(
+                          fontSize: 52.sp,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.fWhite,
+                          letterSpacing: 2.5,
+                          height: 1.1,
+                          shadows: [
+                            Shadow(
+                              color: AppColors.fTextH1.withValues(alpha: 0.2),
+                              offset: Offset(0, 4.h),
+                              blurRadius: 8.r,
                             ),
-                          ),
-                          child: Icon(
-                            Icons.restaurant,
-                            color: AppColors.fWhite,
-                            size: 45.sp,
-                          ),
+                          ],
                         ),
-                        Text(
-                          'Meal Chill',
-                          style: GoogleFonts.lobster(
-                            fontSize: 52.sp,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.fWhite,
-                            letterSpacing: 2.5,
-                            height: 1.1,
-                            shadows: [
-                              Shadow(
-                                color: AppColors.fTextH1.withValues(alpha: 0.2),
-                                offset: Offset(0, 4.h),
-                                blurRadius: 8.r,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 60.h),
-                        SizedBox(
-                          width: 30.w,
-                          height: 30.h,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColors.fWhite.withValues(alpha: 0.8),
-                            ),
-                            strokeWidth: 2.5,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                  const Spacer(flex: 3),
+                ],
               );
             },
           ),

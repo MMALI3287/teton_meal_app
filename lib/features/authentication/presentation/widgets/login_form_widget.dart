@@ -124,40 +124,53 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             SizedBox(height: 16.h),
             Container(
               width: 296.w,
-              padding: EdgeInsets.symmetric(horizontal: 8.w),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 12.w,
-                        height: 12.h,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColors.fIconAndLabelText,
-                            width: 1.w,
+                      Transform.scale(
+                        scale: 0.8,
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            // Only override what's necessary
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
                           ),
-                          borderRadius: BorderRadius.circular(3.r),
-                        ),
-                        child: Checkbox(
-                          value: _rememberMe,
-                          onChanged: (value) {
-                            setState(() {
-                              _rememberMe = value ?? false;
-                            });
-                          },
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                          activeColor: AppColors.fIconAndLabelText,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(3.r),
+                          child: Checkbox(
+                            value: _rememberMe,
+                            onChanged: (value) {
+                              setState(() {
+                                _rememberMe = value ?? false;
+                              });
+                            },
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                            activeColor: AppColors.fIconAndLabelText,
+                            checkColor: Colors.white,
+                            fillColor: WidgetStateProperty.resolveWith<Color>(
+                                (states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return AppColors.fIconAndLabelText;
+                              }
+                              return Colors.transparent;
+                            }),
+                            side: WidgetStateBorderSide.resolveWith((states) {
+                              if (states.contains(WidgetState.selected)) {
+                                return BorderSide(
+                                    color: AppColors.fIconAndLabelText,
+                                    width: 2);
+                              }
+                              return BorderSide(color: Colors.grey, width: 2);
+                            }),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(3.r),
+                            ),
                           ),
                         ),
                       ),
-                      SizedBox(width: 5.w),
                       Text(
                         'Remember me',
                         style: AppFonts.labelSmall,
@@ -167,8 +180,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                   GestureDetector(
                     onTap: () {},
                     child: Text(
-                      'Forget password ?',
-                      style: AppFonts.linkSmall,
+                      'Forget password?',
+                      style: AppFonts.linkRegular,
                     ),
                   ),
                 ],
@@ -225,7 +238,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                         )
                       : Text(
                           "Sign In",
-                          style: AppFonts.buttonLarge,
+                          style: AppFonts.buttonMedium,
                         ),
                 ),
               ),
@@ -286,7 +299,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                         child: Icon(
                           icon,
                           color: AppColors.fIconAndLabelText,
-                          size: 18.sp,
+                          size: 20.sp,
                         ),
                       ),
                 border: InputBorder.none,

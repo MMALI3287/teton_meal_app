@@ -7,6 +7,7 @@ import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/data/services/menu_item_service.dart';
 import 'package:teton_meal_app/data/models/menu_item_model.dart';
 import 'package:teton_meal_app/features/menu_management/presentation/screens/select_menu_item_screen.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/confirmation_delete_dialog.dart';
 
 class EditPollDialog extends StatefulWidget {
   final QueryDocumentSnapshot pollData;
@@ -156,109 +157,11 @@ class EditPollDialogState extends State<EditPollDialog> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: AppColors.fTransparent,
-          child: Container(
-            padding: EdgeInsets.all(24.w),
-            decoration: BoxDecoration(
-              color: AppColors.fWhite,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: AppColors.fRed2.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(50.r),
-                  ),
-                  child: Icon(
-                    Icons.delete_outline,
-                    color: AppColors.fRed2,
-                    size: 32.sp,
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  'Delete Item',
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.fTextH1,
-                    fontFamily: 'DM Sans',
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Are you sure you want to delete "$itemName"? This will remove all votes for this item and allow those users to vote again.',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: AppColors.fTextH2,
-                    fontFamily: 'DM Sans',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 24.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 44.h,
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.fLineaAndLabelBox,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.fTextH1,
-                              fontFamily: 'DM Sans',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: SizedBox(
-                        height: 44.h,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            _confirmRemoveItem(index);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.fRed2,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                          ),
-                          child: Text(
-                            'Delete',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.fWhite,
-                              fontFamily: 'DM Sans',
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+        return CustomDeleteDialog(
+          title: 'Delete Item',
+          message: 'Are you sure you want to delete',
+          itemName: itemName,
+          onDelete: () => _confirmRemoveItem(index),
         );
       },
     );
@@ -568,13 +471,16 @@ class EditPollDialogState extends State<EditPollDialog> {
                             color: AppColors.fTextH1,
                             size: 20.sp,
                           ),
-                          SizedBox(width: 8.w),
-                          GestureDetector(
-                            onTap: () => _removeItem(index),
-                            child: Icon(
-                              Icons.delete_outline,
-                              color: AppColors.fTextH1,
-                              size: 14.sp,
+                          SizedBox(width: 16.w),
+                          Container(
+                            padding: EdgeInsets.all(8.w),
+                            child: GestureDetector(
+                              onTap: () => _removeItem(index),
+                              child: Icon(
+                                Icons.delete_outline,
+                                color: AppColors.fRedBright,
+                                size: 16.sp,
+                              ),
                             ),
                           ),
                         ],

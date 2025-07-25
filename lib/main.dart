@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/app_navigation_bar.dart';
 import 'package:teton_meal_app/features/authentication/presentation/screens/login_screen.dart';
 import 'package:teton_meal_app/shared/presentation/widgets/common/app_splash_screen.dart';
-import 'package:teton_meal_app/core/firebase_options.dart';
+import 'package:teton_meal_app/firebase_options.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:teton_meal_app/data/models/user_model.dart';
@@ -32,9 +32,7 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp();
 
     final storage = FirebaseStorage.instance;
     if (kDebugMode) {
@@ -54,7 +52,7 @@ Future<void> main() async {
     );
 
     if (kDebugMode) {
-      print('Permission granted: ${settings.authorizationStatus}');
+      // print('Permission granted: ${settings.authorizationStatus}');
     }
     const vapidKey =
         "BDclHqth8ixTjMFYKUj3WjXpXEkpULwD84XPLqBM100gFmetTQGaokvfyQl-V6G9TPFlZGOzpmgtGPItEbgGhxI";
@@ -62,9 +60,7 @@ Future<void> main() async {
     String? token;
 
     if (DefaultFirebaseOptions.currentPlatform == DefaultFirebaseOptions.web) {
-      token = await messaging.getToken(
-        vapidKey: vapidKey,
-      );
+      token = await messaging.getToken(vapidKey: vapidKey);
     } else {
       token = await messaging.getToken();
     }
@@ -130,10 +126,7 @@ Future<void> setupFirebaseMessaging() async {
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
-            .update({
-          'fcm_token': token,
-          'notifications_enabled': true,
-        });
+            .update({'fcm_token': token, 'notifications_enabled': true});
       }
     }
 
@@ -143,9 +136,7 @@ Future<void> setupFirebaseMessaging() async {
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
-            .update({
-          'fcm_token': newToken,
-        });
+            .update({'fcm_token': newToken});
       }
     });
   } catch (e) {
@@ -215,8 +206,10 @@ class _MyAppState extends State<MyApp> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppColors.fRedBright, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.fRedBright,
+                  width: 1.5,
+                ),
               ),
               contentPadding: const EdgeInsets.all(16),
               hintStyle: const TextStyle(color: AppColors.fNameBoxYellow),
@@ -224,8 +217,10 @@ class _MyAppState extends State<MyApp> {
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ElevatedButton.styleFrom(
                 elevation: 0,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 24,
+                ),
                 backgroundColor: AppColors.fRedBright,
                 foregroundColor: AppColors.fWhite,
                 shape: RoundedRectangleBorder(
@@ -240,8 +235,10 @@ class _MyAppState extends State<MyApp> {
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -358,9 +355,7 @@ class AuthCheck extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData && snapshot.data != null) {
           final userRole = snapshot.data!.role;

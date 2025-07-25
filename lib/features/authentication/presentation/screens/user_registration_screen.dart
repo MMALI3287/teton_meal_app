@@ -9,6 +9,7 @@ import 'package:teton_meal_app/app/app_theme.dart';
 import 'package:teton_meal_app/app/app_fonts.dart';
 import 'package:teton_meal_app/data/services/storage_service.dart';
 import 'package:teton_meal_app/features/authentication/presentation/widgets/registration_form_widget.dart';
+import 'package:teton_meal_app/shared/presentation/widgets/common/standard_back_button.dart';
 
 class UserRegister extends StatefulWidget {
   const UserRegister({super.key});
@@ -215,22 +216,7 @@ class _UserRegisterState extends State<UserRegister> {
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
               child: Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      width: 42.w,
-                      height: 42.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.fTextH1,
-                        borderRadius: BorderRadius.circular(21.r),
-                      ),
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: AppColors.fWhite,
-                        size: 18.sp,
-                      ),
-                    ),
-                  ),
+                  StandardBackButton(),
                   SizedBox(width: 16.w),
                   Text(
                     'Create New Account',

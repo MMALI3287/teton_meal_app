@@ -6,8 +6,8 @@ class AppColors {
   static const Color fTextH1 = Color(0xFF383A3F);
   static const Color fTextH2 = Color(0xFF585F6A);
   static const Color fWhiteIcon = Color(0xFF949597);
-  static const Color fLineaAndLabelBox = Color(0xFFF4F5F7);
-  static const Color fIconAndLabelText = Color(0xFF7A869A);
+  static const Color fLineaAndLabelBox = Color(0xFFF0F1F2);
+  static const Color fIconAndLabelText = Color(0xFF737E90);
   static const Color fYellow = Color(0xFFEF9F27);
   static const Color fBlue = Color(0xFF7495DE);
   static const Color fRedBright = Color(0xFFFF3951);

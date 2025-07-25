@@ -759,7 +759,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
         SizedBox(width: 16.w),
         Expanded(
           child: Container(
-            height: 48.h,
+            height: 52.h,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.r),
               boxShadow: _selectedItems.isNotEmpty && !_isLoading
@@ -784,6 +784,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.r),
                 ),
+                padding: EdgeInsets.symmetric(vertical: 12.h),
               ),
               child: _isLoading
                   ? SizedBox(
@@ -803,6 +804,7 @@ class _CreateNewMenuPageState extends State<CreateNewMenuPage> {
                         fontFamily: 'DM Sans',
                         fontWeight: FontWeight.w500,
                         letterSpacing: -0.2,
+                        height: 1.2,
                       ),
                     ),
             ),

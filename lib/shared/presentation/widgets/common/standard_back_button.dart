@@ -14,7 +14,7 @@ class StandardBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonSize = size ?? 40.w;
+    final buttonSize = size ?? 42.w;
 
     return GestureDetector(
       onTap: onPressed ?? () => Navigator.of(context).pop(),
@@ -23,7 +23,15 @@ class StandardBackButton extends StatelessWidget {
         height: buttonSize,
         decoration: BoxDecoration(
           color: AppColors.fTextH1,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(15.r),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x3F000000),
+              blurRadius: 3.33,
+              offset: Offset(0, 3.33),
+              spreadRadius: 0,
+            ),
+          ],
         ),
         child: Icon(
           Icons.arrow_back_ios_new,

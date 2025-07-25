@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:teton_meal_app/app/app_theme.dart';
 
 class AppFonts {
@@ -10,11 +11,11 @@ class AppFonts {
     color: AppColors.fTextH1,
   );
 
-  static TextStyle h2 = TextStyle(
-    fontSize: 20.sp,
-    fontWeight: FontWeight.w600,
-    fontFamily: 'DMSans',
+  static TextStyle h2 = GoogleFonts.workSans(
+    fontSize: 24.sp,
+    fontWeight: FontWeight.w700,
     color: AppColors.fTextH1,
+    letterSpacing: -0.12,
   );
 
   static TextStyle bodyRegular = TextStyle(
@@ -39,7 +40,7 @@ class AppFonts {
   );
 
   static TextStyle labelSmall = TextStyle(
-    fontSize: 9.sp,
+    fontSize: 14.sp,
     fontWeight: FontWeight.w400,
     fontFamily: 'Mulish',
     color: AppColors.fIconAndLabelText,
@@ -53,7 +54,7 @@ class AppFonts {
   );
 
   static TextStyle buttonMedium = TextStyle(
-    fontSize: 16.sp,
+    fontSize: 18.sp,
     fontWeight: FontWeight.w600,
     fontFamily: 'DMSans',
     color: AppColors.fWhite,
@@ -67,9 +68,16 @@ class AppFonts {
   );
 
   static TextStyle linkSmall = TextStyle(
-    fontSize: 9.sp,
+    fontSize: 12.sp,
     fontWeight: FontWeight.w400,
-    fontFamily: 'Mulish',
+    fontFamily: 'DMSans',
+    color: AppColors.fRed2,
+  );
+
+  static TextStyle linkSmallSemiBold = TextStyle(
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w500,
+    fontFamily: 'DMSans',
     color: AppColors.fRed2,
   );
 }

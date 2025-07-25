@@ -68,12 +68,12 @@ class _LoginPageState extends State<LoginPage>
                     ),
                     SizedBox(height: 8.h),
                     Text(
-                      'Welcome back',
+                      'Welcome back!',
                       style: AppFonts.h1,
                     ),
                     SizedBox(height: 8.h),
                     Text(
-                      'sign in to access your account',
+                      'Sign in to access your account',
                       textAlign: TextAlign.center,
                       style: AppFonts.bodyLight,
                     ),

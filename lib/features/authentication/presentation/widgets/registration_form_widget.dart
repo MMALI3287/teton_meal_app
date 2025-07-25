@@ -43,7 +43,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   final TextEditingController emailController = TextEditingController();
   bool _isObscure = true;
   bool _isObscure2 = true;
-  bool _agreedToTerms = false;
   String? role;
   var rool = ["Diner", "Planner", "Admin"];
   String? department;
@@ -78,7 +77,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 8.h),
             _buildTextField(
               controller: emailController,
               hint: 'Email :',
@@ -94,12 +93,20 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 8.h),
             _buildTextField(
               controller: TextEditingController(
                   text: department ?? 'Select Department'),
               hint: 'Department :',
               icon: Icons.business_outlined,
+              suffixIcon: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppColors.fIconAndLabelText,
+                  size: 20.sp,
+                ),
+              ),
               readOnly: true,
               onTap: () => _showDepartmentPicker(context),
               validator: (value) {
@@ -109,7 +116,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 8.h),
             _buildTextField(
               controller: passwordController,
               hint: 'Password :',
@@ -139,7 +146,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 8.h),
             _buildTextField(
               controller: confirmpassController,
               hint: 'Confirm Password :',
@@ -169,11 +176,19 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 8.h),
             _buildTextField(
               controller: TextEditingController(text: role ?? 'Select Role'),
               hint: 'Account Type :',
               icon: Icons.person_outline,
+              suffixIcon: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                child: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppColors.fIconAndLabelText,
+                  size: 20.sp,
+                ),
+              ),
               readOnly: true,
               onTap: () => _showRolePicker(context),
               validator: (value) {
@@ -183,81 +198,38 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                 return null;
               },
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 8.h),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8.h),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Column(
                 children: [
-                  Container(
-                    width: 18.w,
-                    height: 18.h,
-                    alignment: Alignment.center,
-                    margin: EdgeInsets.only(top: 2.h),
-                    child: Transform.scale(
-                      scale: 0.8,
-                      child: Checkbox(
-                        value: _agreedToTerms,
-                        onChanged: (value) {
-                          setState(() {
-                            _agreedToTerms = value!;
-                          });
-                        },
-                        activeColor: AppColors.fRedBright,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: VisualDensity.compact,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3.r),
-                        ),
-                      ),
+                  Text(
+                    'By registering, you agree to our',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'DMSans',
+                      color: AppColors.fTextH1,
                     ),
+                    textAlign: TextAlign.center,
                   ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      child: Text.rich(
-                        TextSpan(
-                          style: TextStyle(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w400,
-                            fontFamily: 'Mulish',
-                            color: AppColors.fTextH1,
-                            height: 1.4,
-                          ),
-                          children: [
-                            const TextSpan(
-                                text: 'By checking the box you agree to our '),
-                            TextSpan(
-                              text: 'Terms',
-                              style: TextStyle(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.fRed2,
-                              ),
-                            ),
-                            const TextSpan(text: ' and '),
-                            TextSpan(
-                              text: 'Conditions',
-                              style: TextStyle(
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.fRed2,
-                              ),
-                            ),
-                            const TextSpan(text: '.'),
-                          ],
-                        ),
-                      ),
+                  Text(
+                    'Terms and Conditions',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'DMSans',
+                      color: AppColors.fRedBright,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 24.h),
+            SizedBox(height: 8.h),
             Container(
               width: 300.w,
-              height: 50.h,
+              height: 60.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16.r),
                 boxShadow: [
@@ -303,7 +275,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
                       ),
               ),
             ),
-            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -311,15 +282,6 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
   }
 
   void signUp(String email, String password, String? roleParam) async {
-    if (!_agreedToTerms) {
-      CustomExceptionDialog.showWarning(
-        context: context,
-        title: "Agreement Required",
-        message: "Please agree to terms and conditions",
-      );
-      return;
-    }
-
     if (roleParam == null || department == null) {
       CustomExceptionDialog.showWarning(
         context: context,
@@ -397,7 +359,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 50.h,
+          height: 56.h,
           width: 345.w,
           decoration: BoxDecoration(
             color: AppColors.fWhite,
@@ -420,7 +382,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
             autovalidateMode: AutovalidateMode.disabled,
             style: TextStyle(
               fontSize: 14.sp,
-              fontFamily: 'Mulish',
+              fontFamily: 'DMSans',
               color: AppColors.fTextH1,
             ),
             decoration: InputDecoration(
@@ -428,7 +390,7 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
               hintStyle: TextStyle(
                 color: AppColors.fIconAndLabelText,
                 fontSize: 14.sp,
-                fontFamily: 'Mulish',
+                fontFamily: 'DMSans',
                 fontWeight: FontWeight.w400,
               ),
               suffixIcon: suffixIcon ??
@@ -513,14 +475,25 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Text(
-                  'Select Role',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Mulish',
-                    color: AppColors.fTextH1,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Select Role',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Mulish',
+                        color: AppColors.fTextH1,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: AppColors.fTextH1,
+                      size: 24.sp,
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 20.h),
@@ -565,14 +538,25 @@ class _RegistrationFormWidgetState extends State<RegistrationFormWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Text(
-                  'Select Department',
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Mulish',
-                    color: AppColors.fTextH1,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Select Department',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Mulish',
+                        color: AppColors.fTextH1,
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: AppColors.fTextH1,
+                      size: 24.sp,
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 20.h),
