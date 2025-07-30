@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter"/>
   <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase"/>
   <img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" alt="Dart"/>
-  <img src="https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge" alt="Version 1.0.0"/>
+  <img src="https://img.shields.io/badge/Version-1.2.1-blue?style=for-the-badge" alt="Version 1.2.1"/>
 </div>
 
 ## 📱 Overview
@@ -46,6 +46,9 @@ Teton Meal App is a comprehensive meal management application designed for organ
 - **Beautiful UI Dialogs**: Custom-designed error, warning, and success dialogs
 - **Theme Support**: Automatic dark/light mode switching based on system preferences
 - **Standardized Navigation**: Consistent back button design across all screens
+- **Enhanced Forms**: Dropdown fields with clear arrow indicators for better usability
+- **Improved Accessibility**: Better touch targets and visual hierarchy throughout the app
+- **Cross-Platform Polish**: Optimized experience for both iOS and Android devices
 - **Lunch Receipts**: Generate and share lunch receipts
 
 ### For Planners
@@ -63,6 +66,27 @@ Teton Meal App is a comprehensive meal management application designed for organ
 - **Analytics Dashboard**: Comprehensive system analytics and reporting
 
 ## 🎨 Recent Major Updates (July 2025)
+
+### ✅ Enhanced User Interface & Experience
+
+- **Form Field Improvements**: Added dropdown arrow indicators to all form fields for better usability
+- **Font System Upgrade**: Implemented Google Fonts integration for Work Sans font family
+- **Splash Screen Enhancement**: Repositioned welcome text to upper third for better visual balance
+- **Settings UI Polish**: Increased individual settings item heights for improved touch targets
+- **Button Design Refresh**: Updated back buttons with modern square design and subtle shadows
+
+### ✅ iOS Platform Optimizations
+
+- **Checkbox Fix**: Resolved iOS-specific checkbox focus overlay issues
+- **Touch Responsiveness**: Improved touch targets and interaction feedback on iOS devices
+- **Visual Consistency**: Fixed platform-specific UI artifacts and styling inconsistencies
+
+### ✅ Code Quality & Maintainability
+
+- **Standardized Dialogs**: Implemented consistent deletion dialog system using `CustomDeleteDialog`
+- **Improved Spacing**: Enhanced UI element spacing throughout the app for better visual hierarchy
+- **Registration Simplification**: Streamlined registration form by removing unnecessary validation steps
+- **Cross-Platform Compatibility**: Addressed platform-specific rendering and behavior issues
 
 ### ✅ Dark/Light Theme System
 
@@ -314,6 +338,30 @@ flutter format --set-exit-if-changed .
 ## 🐛 Bug Fixes & Improvements
 
 ### Recent Fixes (July 2025)
+
+#### UI/UX Enhancements
+
+- **Issue**: Missing dropdown indicators on form fields causing confusion
+- **Solution**: Added `suffixIcon` with dropdown arrows to all relevant form fields
+- **Impact**: Improved form field recognition and user experience
+
+#### Font System Improvements
+
+- **Issue**: Custom font loading reliability problems
+- **Solution**: Migrated to Google Fonts integration using `GoogleFonts.workSans()`
+- **Impact**: Better font consistency and loading reliability across platforms
+
+#### iOS Platform Optimizations
+
+- **Issue**: Checkbox focus overlays causing visual artifacts on iOS
+- **Solution**: Implemented transparent overlay removal with Theme wrapper
+- **Impact**: Clean checkbox appearance and improved touch responsiveness on iOS
+
+#### Visual Hierarchy Improvements
+
+- **Issue**: Splash screen text positioning and settings items too cramped
+- **Solution**: Repositioned splash text to upper third, increased settings item padding
+- **Impact**: Better visual balance and improved touch targets
 
 #### Theme System Implementation
 

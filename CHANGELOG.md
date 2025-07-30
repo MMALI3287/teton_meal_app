@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Enhanced UI Components**
+  - Dropdown arrow indicators on all dropdown form fields
+  - Improved visual hierarchy with better spacing and padding
+  - Standardized deletion dialog implementation using `CustomDeleteDialog`
+
 - **Dark/Light Theme System**
   - Complete dark and light mode implementation with `ThemeMode.system`
   - Theme-aware color system in `AppColors` class with context-dependent getters
@@ -30,6 +35,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Font System Improvements**
+  - Implemented Google Fonts integration for Work Sans font family
+  - Updated `app_fonts.dart` to use `GoogleFonts.workSans()` for better font loading
+  - Replaced custom font loading with Google Fonts for improved reliability
+
+- **User Interface Enhancements**
+  - Splash screen text repositioned to upper third for better visual balance
+  - Registration form simplified by removing terms agreement checkbox validation
+  - Back button redesigned as square with rounded corners and subtle shadow
+  - Settings screen individual items height increased for better touch targets
+  - Edit poll dialog spacing improved between dropdown and delete button elements
+
+- **iOS Platform Optimizations**
+  - Fixed checkbox focus overlay issues on iOS devices
+  - Removed transparent overlays that caused visual artifacts
+  - Improved touch responsiveness on iOS checkbox components
+
 - **Theme Architecture Overhaul**
   - Updated `app_theme.dart` with dark mode color constants
   - Modified all theme-aware widgets to use context-dependent colors
@@ -43,6 +65,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated `add_reminder_screen.dart` with standardized back button
 
 ### Fixed
+
+- **Form Field Usability**
+  - Added missing dropdown arrow indicators to registration and form fields
+  - Fixed iOS checkbox styling issues with transparent overlay removal
+  - Resolved font loading failures by switching to Google Fonts implementation
+
+- **UI/UX Improvements**
+  - Fixed splash screen text positioning from center to upper third layout
+  - Improved button touch targets and visual consistency
+  - Resolved spacing conflicts in edit poll dialog between UI elements
+  - Enhanced settings screen item heights for better accessibility
+
+- **Cross-Platform Compatibility**
+  - Addressed iOS-specific checkbox focus overlay problems
+  - Improved font rendering consistency across platforms
+  - Fixed platform-specific UI behavior inconsistencies
 
 - **Theme System Implementation**
   - Resolved issue where only text boxes responded to theme changes

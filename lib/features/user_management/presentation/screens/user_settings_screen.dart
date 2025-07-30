@@ -363,12 +363,13 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: onTap,
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15.r),
               ),
               child: Row(
                 children: [
+                  SizedBox(width: 2.w),
                   Container(
                     width: 20.w,
                     height: 20.h,
@@ -376,7 +377,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Icon(
                       icon,
                       color: AppColors.fTextH1,
-                      size: 14.sp,
+                      size: 20.sp,
                     ),
                   ),
                   SizedBox(width: 8.w),
@@ -384,19 +385,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Text(
                       title,
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w500,
                         color: AppColors.fTextH1,
-                        letterSpacing: -0.2,
                         fontFamily: 'DM Sans',
                       ),
                     ),
                   ),
                   if (showArrow)
                     Icon(
-                      Icons.chevron_right,
+                      Icons.chevron_right_rounded,
                       color: AppColors.fIconAndLabelText,
-                      size: 10.sp,
+                      size: 24.sp,
                     ),
                 ],
               ),
